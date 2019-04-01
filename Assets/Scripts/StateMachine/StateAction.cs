@@ -29,14 +29,8 @@ namespace StateMachine
         /// </summary>
         public virtual void OnStateExit() { }
 
-        public virtual void Start()
-        {
+        public virtual void Start() { }
 
-        }
-
-        public virtual void Stop()
-        {
-
-        }
+        public virtual void Stop() { }
     }
 }

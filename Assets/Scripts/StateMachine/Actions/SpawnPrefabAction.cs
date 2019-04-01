@@ -12,6 +12,7 @@ public class SpawnPrefabAction : StateAction
 
     public override void Start()
     {
+        Debug.Log("start() SpawnPrefab");
         instance = Instantiate(prefab);
     }
 

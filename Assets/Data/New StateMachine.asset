@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: New StateMachine
   m_EditorClassIdentifier: 
   startState:
+    actions:
+    - {fileID: 114169178189402354}
     Title: New State
-    Position: {x: 160, y: 215}
-    Actions:
-    - {fileID: 114601130896847978}
+    Position: {x: 187, y: 97}
   States:
-  - Title: New State
-    Position: {x: 160, y: 216}
-    Actions:
-    - {fileID: 114601130896847978}
---- !u!114 &114601130896847978
+  - actions:
+    - {fileID: 114169178189402354}
+    Title: New State
+    Position: {x: 187, y: 97}
+--- !u!114 &114169178189402354
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}

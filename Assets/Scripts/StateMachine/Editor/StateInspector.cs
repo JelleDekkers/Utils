@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +10,7 @@ namespace StateMachine
     /// Renders the inspector for the <see cref="StateMachine"/>'s selected <see cref="global::StateMachine.State"/>. 
     /// Shows all <see cref="StateAction"/>s and variables
     /// </summary>
-    public class StateInspector
+    public class StateInspector : IDisposable
     {
         private enum ContextMenuCommand
         {
@@ -40,6 +40,8 @@ namespace StateMachine
         public StateInspector(StateMachine stateMachine)
         {
             this.stateMachine = stateMachine;
+
+            Undo.undoRedoPerformed += Refresh;
         }
 
         public void Show(State state)
@@ -67,7 +69,7 @@ namespace StateMachine
 
             if (newName != State.Title)
             {
-                //Undo.RecordObject(State, "Change Name");
+                Undo.RecordObject(stateMachine, "Change Name");
                 State.Title = newName;
             }
 
@@ -88,7 +90,7 @@ namespace StateMachine
             for (int i = 0; i < actionsList.arraySize; i++)
             {
                 DrawDividerLine();
-                DrawPropertyField(i);
+                DrawActionPropertyField(i);
             }
         }
 
@@ -113,19 +115,27 @@ namespace StateMachine
         {
             if (State != null)
             {
-                if (State.Actions == null)
-                {
-                    actionsList = null;
-                }
-                else
-                {
-                    // todo: get correct state instead of [0]
-                    actionsList = new SerializedObject(stateMachine).FindProperty("States").GetArrayElementAtIndex(0).FindPropertyRelative("Actions");
-                }
+                actionsList = GetActionsProperty();
             }
         }
 
-        private void DrawPropertyField(int index)
+        private SerializedProperty GetActionsProperty()
+        {
+            SerializedProperty states = new SerializedObject(stateMachine).FindProperty("States");
+
+            for (int i = 0; i < stateMachine.States.Count; i++)
+            {
+                if(State == stateMachine.States[i])
+                {
+                    return states.GetArrayElementAtIndex(i).FindPropertyRelative("actions");
+                }
+            }
+
+            Debug.LogError("No state found");
+            return null;
+        }
+        
+        private void DrawActionPropertyField(int index)
         {
             SerializedProperty property = actionsList.GetArrayElementAtIndex(index);
             if (property.objectReferenceValue == null) { return; }
@@ -193,6 +203,8 @@ namespace StateMachine
 
         private void CreateNewStateAction(Type type)
         {
+            Undo.RecordObject(stateMachine, "Add Action");
+
             StateAction stateAction = ScriptableObject.CreateInstance(type) as StateAction;
             stateAction.hideFlags = HideFlags.HideInHierarchy;
             
@@ -243,10 +255,10 @@ namespace StateMachine
             switch(result.Command)
             {
                 case ContextMenuCommand.EditScript:
-                    OpenScript(stateAction.GetType());
+                    OpenScript(stateAction);
                     break;
                 case ContextMenuCommand.Reset:
-                    throw new System.NotImplementedException();
+                    throw new NotImplementedException();
                     //UpdateActionsList();
                     //break;
                 case ContextMenuCommand.Delete:
@@ -256,11 +268,16 @@ namespace StateMachine
             }
         }
 
-        private void OpenScript(Type obj)
+        private void OpenScript(ScriptableObject obj)
         {
-            //MonoScript script = MonoScript.FromScriptableObject(obj);
-            //string filePath = AssetDatabase.GetAssetPath(script);
-            //UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
+            MonoScript script = MonoScript.FromScriptableObject(obj);
+            string filePath = AssetDatabase.GetAssetPath(script);
+            UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
+        }
+
+        public void Dispose()
+        {
+            Undo.undoRedoPerformed -= Refresh;
         }
     }
 }

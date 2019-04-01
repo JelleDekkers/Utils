@@ -10,26 +10,31 @@ namespace StateMachine
     [Serializable]
     public class State
     {
+        public List<StateAction> Actions => actions;
+        [SerializeField] private List<StateAction> actions = new List<StateAction>();
+
+        public List<Rule> Rules => rules;
+        [SerializeField] private List<Rule> rules = new List<Rule>();
+
 #if UNITY_EDITOR
         public string Title /*{ get; set; }*/ = "New State";
         public Vector2 Position; /*{ get; set; }*/
 #endif
 
-        public List<StateAction> Actions /*{ get; private set; }*/ = new List<StateAction>();
-
         public void AddAction(StateAction action)
         {
-            Actions.Add(action);
+            actions.Add(action);
         }
 
         public void RemoveAction(StateAction action)
         {
-            Actions.Remove(action);
+            actions.Remove(action);
+            UnityEngine.Object.DestroyImmediate(action);
         }
 
         public void Run()
         {
-            foreach(StateAction action in Actions)
+            foreach(StateAction action in actions)
             {
                 action.Start();
             }
