@@ -12,12 +12,12 @@ public class TestAction : StateAction
     [SerializeField] private GameObject testGameObject;
     [SerializeField] private List<TestChild> testList;
 
-    public override void OnStateStart()
+    public override void Start()
     {
         Debug.Log("OnStateStart() TestAction, value: " + testValue);
     }
 
-    public override void OnStateExit()
+    public override void Stop()
     {
         Debug.Log("OnStateExit() TestAction");
     }

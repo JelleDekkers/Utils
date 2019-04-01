@@ -19,12 +19,14 @@ public class SOTestEditor : Editor
 
         if(GUILayout.Button("Set SO"))
         {
-            obj.AddSoInstance(new SOInstance());
+            SOInstance instance = CreateInstance<SOInstance>();
+            AssetDatabase.AddObjectToAsset(instance, obj);
+            obj.SetSOInstance(instance);
         }
 
         if (GUILayout.Button("Remove instance"))
         {
-            obj.RemoveSoInstance();
+            obj.SetSOInstance(null);
         }
     }
 }

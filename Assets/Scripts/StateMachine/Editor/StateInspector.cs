@@ -35,7 +35,6 @@ namespace StateMachine
 
         private StateMachine stateMachine;
         private SerializedProperty actionsList;
-
         private Rect rect;
 
         public StateInspector(StateMachine stateMachine)
@@ -46,7 +45,7 @@ namespace StateMachine
         public void Show(State state)
         {
             State = state;
-            UpdateActionsList();
+            Refresh();
         }
 
         public void OnInspectorGUI(Event e)
@@ -84,11 +83,13 @@ namespace StateMachine
         private void DrawActions()
         {
             EditorGUILayout.LabelField("State Actions", EditorStyles.boldLabel);
-            //for (int i = 0; i < actionsList.arraySize; i++)
-            //{
-            //    DrawDividerLine();
-            //    DrawPropertyField(i);
-            //}
+            if(actionsList == null) { return; }
+
+            for (int i = 0; i < actionsList.arraySize; i++)
+            {
+                DrawDividerLine();
+                DrawPropertyField(i);
+            }
         }
 
         private void DrawAddNewActionButton()
@@ -106,6 +107,22 @@ namespace StateMachine
         private void DrawDividerLine()
         {
             GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(1)); 
+        }
+
+        public void Refresh()
+        {
+            if (State != null)
+            {
+                if (State.Actions == null)
+                {
+                    actionsList = null;
+                }
+                else
+                {
+                    // todo: get correct state instead of [0]
+                    actionsList = new SerializedObject(stateMachine).FindProperty("States").GetArrayElementAtIndex(0).FindPropertyRelative("Actions");
+                }
+            }
         }
 
         private void DrawPropertyField(int index)
@@ -158,14 +175,6 @@ namespace StateMachine
             EditorGUILayout.EndVertical();
         }
 
-        private void UpdateActionsList()
-        {
-            if (State != null)
-            {
-                //actionsList = new SerializedObject(State).FindProperty("Actions");
-            }
-        }
-
         private void OpenActionsWindow(State state)
         {
             TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, "Choose Action to add");
@@ -179,9 +188,20 @@ namespace StateMachine
 
         private void OnActionSelected(Type type)
         {
+            CreateNewStateAction(type);
+        }
+
+        private void CreateNewStateAction(Type type)
+        {
             StateAction stateAction = ScriptableObject.CreateInstance(type) as StateAction;
+            stateAction.hideFlags = HideFlags.HideInHierarchy;
+            
+            string path = AssetDatabase.GetAssetPath(stateMachine);
+            AssetDatabase.AddObjectToAsset(stateAction, path);
+            AssetDatabase.ImportAsset(path);
+
             State.AddAction(stateAction);
-            UpdateActionsList();
+            Refresh();
         }
 
         private string GetPropertyName(SerializedProperty property)
@@ -223,7 +243,7 @@ namespace StateMachine
             switch(result.Command)
             {
                 case ContextMenuCommand.EditScript:
-                    OpenScript(stateAction);
+                    OpenScript(stateAction.GetType());
                     break;
                 case ContextMenuCommand.Reset:
                     throw new System.NotImplementedException();
@@ -231,16 +251,16 @@ namespace StateMachine
                     //break;
                 case ContextMenuCommand.Delete:
                     State.RemoveAction(stateAction);
-                    UpdateActionsList();
+                    Refresh();
                     break;
             }
         }
 
-        private void OpenScript(ScriptableObject obj)
+        private void OpenScript(Type obj)
         {
-            MonoScript script = MonoScript.FromScriptableObject(obj);
-            string filePath = AssetDatabase.GetAssetPath(script);
-            UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
+            //MonoScript script = MonoScript.FromScriptableObject(obj);
+            //string filePath = AssetDatabase.GetAssetPath(script);
+            //UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
         }
     }
 }

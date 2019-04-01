@@ -8,8 +8,18 @@ public class SpawnPrefabAction : StateAction
     [SerializeField]
     private GameObject prefab = null;
 
-    public override void OnStateStart()
+    private GameObject instance;
+
+    public override void Start()
     {
-        Instantiate(prefab);
+        instance = Instantiate(prefab);
+    }
+
+    public override void Stop()
+    {
+        if (instance != null)
+        {
+            Destroy(instance);
+        }
     }
 }

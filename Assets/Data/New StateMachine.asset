@@ -12,6 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceb6e8638c0c86a448bbd8e29210c3c5, type: 3}
   m_Name: New StateMachine
   m_EditorClassIdentifier: 
-  startState: {fileID: 0}
+  startState:
+    Title: New State
+    Position: {x: 160, y: 215}
+    Actions:
+    - {fileID: 114601130896847978}
   States:
-  - {fileID: 0}
+  - Title: New State
+    Position: {x: 160, y: 216}
+    Actions:
+    - {fileID: 114601130896847978}
+--- !u!114 &114601130896847978
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}

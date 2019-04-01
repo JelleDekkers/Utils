@@ -5,16 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "TestSO")]
 public class SOTest : ScriptableObject
 {
-    [SerializeField] List<SOInstance> sOInstances;
+    [SerializeField] SOInstance sOInstance;
 
-    public void AddSoInstance(SOInstance so)
+    public void SetSOInstance(SOInstance so)
     {
-        sOInstances.Add(so);
-    }
-
-    public void RemoveSoInstance()
-    {
-        sOInstances.RemoveAt(sOInstances.Count - 1);
+        sOInstance = so;
     }
 }
 

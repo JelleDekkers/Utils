@@ -4,7 +4,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Abstract class for actions on a <see cref="State"/>, inherits from <see cref=" ScriptableObject"/> to allow for inspector editing and serialization
+    /// Abstract class for actions on a <see cref="State"/>, inherits from <see cref=" ScriptableObject"/> to allow for abstract inspector editing
     /// </summary>
     [Serializable]
     public abstract class StateAction : ScriptableObject
@@ -29,12 +29,12 @@ namespace StateMachine
         /// </summary>
         public virtual void OnStateExit() { }
 
-        public void Start()
+        public virtual void Start()
         {
 
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
 
         }

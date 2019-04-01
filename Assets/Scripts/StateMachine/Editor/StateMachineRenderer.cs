@@ -366,7 +366,12 @@ namespace StateMachine
 
         private void ClearState(State state)
         {
-            throw new NotImplementedException();
+            for (int i = state.Actions.Count - 1; i >= 0; i--)
+            {
+                state.RemoveAction(state.Actions[i]);
+            }
+
+            stateInspector.Refresh();
         }
 
         private void ClearStateMachine()

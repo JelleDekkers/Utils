@@ -18,19 +18,12 @@ namespace StateMachine
 
         public void Run(StateMachineActivator activator)
         {
-            Debug.Log("running");
-            Debug.Log(startState);
-            Debug.Log(States.Count);
-
-            foreach (State s in States)
-                Debug.Log(s.Title);
-
             startState.Run();
         }
 
         public State CreateNewState()
         {
-            State state = new State();// CreateInstance<State>();
+            State state = new State();
 
             if (States.Count == 0)
             {
@@ -45,7 +38,6 @@ namespace StateMachine
         public void RemoveState(State state)
         {
             States.Remove(state);
-            //DestroyImmediate(state);
         }
 
         public void Clear()
