@@ -87,9 +87,9 @@ namespace StateMachine
                 case EventType.MouseDown:
                     if (e.button == 0)
                     {
-                        if(stateMachineRenderer.CanvasWindow.Contains(e.mousePosition))
+                        if (stateMachineRenderer.CanvasWindow.Contains(e.mousePosition))
                         {
-                            if (rect.Contains(e.mousePosition - stateMachineRenderer.CanvasWindow.position - stateMachineRenderer.CanvasDrag))
+                            if (rect.Contains(e.mousePosition))
                             {
                                 OnDragStart();
                                 if (!IsSelected)
@@ -107,11 +107,11 @@ namespace StateMachine
                         }
                     }
 
-                    if (e.button == 1 && rect.Contains(e.mousePosition - stateMachineRenderer.CanvasWindow.position - stateMachineRenderer.CanvasDrag))
-                    {
-                        ShowDeleteStateContextMenu(e);
-                        e.Use();
-                    }
+                    //if (e.button == 1 && rect.Contains(e.mousePosition))
+                    //{
+                    //    ShowDeleteStateContextMenu(e);
+                    //    e.Use();
+                    //}
                     break;
 
                 case EventType.MouseUp:

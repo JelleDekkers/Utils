@@ -6,7 +6,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering <see cref="global::StateMachine.StateMachine"/> in the inspector
+    /// Class for rendering <see cref="global::StateMachine.StateMachine"/> window.
     /// </summary>
     public class StateMachineRenderer
     {
@@ -30,13 +30,14 @@ namespace StateMachine
         private Action repaintFunc;
         private StateRenderer selectedStateRenderer;
         private List<StateRenderer> stateRenderers = new List<StateRenderer>();
-        private float zoomScale = 100;
+        private List<LinkRenderer> linkRenderers = new List<LinkRenderer>();
 
+        private float zoomScale = 100;
         private bool showDebugUI;
 
         public StateMachineRenderer(StateMachine stateMachine, Action repaintFunc)
         {
-            this.StateMachine = stateMachine;
+            StateMachine = stateMachine;
             this.repaintFunc = repaintFunc;
 
             foreach(State state in stateMachine.States)
@@ -52,12 +53,9 @@ namespace StateMachine
             Event e = Event.current;
 
             DrawTopTabs();
-            DrawCanvasWindow();
+            DrawCanvasWindow(e);
             DrawBottomTabs();
             stateInspector.OnInspectorGUI(e);
-
-            ProcessNodeEvents(e);
-            ProcessEvents(e);
 
             showDebugUI = GUILayout.Toggle(showDebugUI, "Show Debug Info");
             if (showDebugUI)
@@ -88,7 +86,7 @@ namespace StateMachine
             }
         }
         
-        private void DrawCanvasWindow()
+        private void DrawCanvasWindow(Event e)
         {
             CanvasWindow = EditorGUILayout.BeginVertical(GUILayout.Height(WINDOW_HEIGHT));
             
@@ -101,10 +99,29 @@ namespace StateMachine
 
             DrawGrid(gridPrimarySpacing, gridPrimaryColor); 
             DrawGrid(gridSecondarySpacing, gridSecondaryColor); 
-            RenderStates();
+            DrawStates();
+            DrawConnections();
+            ProcessNodeEvents(e);
+            ProcessEvents(e);
+
+            // temp:
+            if(StateMachine.States.Count > 0)
+                DrawLinkTest(new Vector2(0, 0), StateMachine.States[0].Position);
+
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+        }
+
+        LinkRenderer LinkRenderer = null;
+        private void DrawLinkTest(Vector2 source, Vector2 destinationPosition)
+        {
+            if(LinkRenderer == null)
+            {
+                LinkRenderer = new LinkRenderer();
+            }
+
+            LinkRenderer.Draw(source, destinationPosition);
         }
 
         private void ProcessEvents(Event e)
@@ -129,6 +146,13 @@ namespace StateMachine
                         if (CanvasWindow.Contains(e.mousePosition))
                         {
                             Drag(e.delta);
+                            e.Use();
+                        }
+                    }
+                    else if(e.button == 1)
+                    {
+                        if (CanvasWindow.Contains(e.mousePosition))
+                        {
                             e.Use();
                         }
                     }
@@ -198,11 +222,19 @@ namespace StateMachine
             Handles.EndGUI();
         }
 
-        private void RenderStates()
+        private void DrawStates()
         {
             for (int i = 0; i < stateRenderers.Count; i++)
             {
                 stateRenderers[i].Draw();
+            }
+        }
+
+        private void DrawConnections()
+        {
+            for (int i = 0; i < linkRenderers.Count; i++)
+            {
+                //linkRenderers[i].Draw();
             }
         }
 
@@ -376,9 +408,11 @@ namespace StateMachine
 
         private void ClearStateMachine()
         {
-            // TODO: undo functionality?
+            Undo.RecordObject(StateMachine, "Clear Machine");
+
             stateRenderers.Clear();
             StateMachine.States.Clear();
+            linkRenderers.Clear();
             stateInspector.Show(null);
         }
     }

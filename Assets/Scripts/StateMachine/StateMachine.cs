@@ -14,7 +14,8 @@ namespace StateMachine
         public State StartState { get { return startState; } }
         [SerializeField] private State startState;
 
-        public List<State> States /*{ get; private set; } */= new List<State>();
+        public List<State> States => states;
+        [SerializeField] private List<State> states = new List<State>();
 
         public void Run(StateMachineActivator activator)
         {

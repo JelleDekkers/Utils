@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -121,7 +119,7 @@ namespace StateMachine
 
         private SerializedProperty GetActionsProperty()
         {
-            SerializedProperty states = new SerializedObject(stateMachine).FindProperty("States");
+            SerializedProperty states = new SerializedObject(stateMachine).FindProperty("states");
 
             for (int i = 0; i < stateMachine.States.Count; i++)
             {
@@ -206,7 +204,7 @@ namespace StateMachine
             Undo.RecordObject(stateMachine, "Add Action");
 
             StateAction stateAction = ScriptableObject.CreateInstance(type) as StateAction;
-            stateAction.hideFlags = HideFlags.HideInHierarchy;
+            stateAction.hideFlags = HideFlags.HideAndDontSave;
             
             string path = AssetDatabase.GetAssetPath(stateMachine);
             AssetDatabase.AddObjectToAsset(stateAction, path);
