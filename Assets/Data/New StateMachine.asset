@@ -12,8 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceb6e8638c0c86a448bbd8e29210c3c5, type: 3}
   m_Name: New StateMachine
   m_EditorClassIdentifier: 
-  startState:
-    actions: []
-    Title: New State
-    Position: {x: 0, y: 0}
+  entryState: {fileID: 0}
   states: []

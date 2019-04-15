@@ -3,11 +3,16 @@ using UnityEngine;
 
 namespace StateMachine
 {
+    /// <summary>
+    /// Class for deciding when a <see cref="State"/> inside the <see cref="StateMachine>"/> needs to transition to another
+    /// </summary>
     [Serializable]
-    public abstract class Rule
+    public abstract class Rule : ScriptableObject, ILinkConnectionPoint
     {
         public Link Link => link;
         [SerializeField] private Link link;
+
+        public Vector2 ConnectionPointPosition { get; set; }
 
         /// <summary>
         /// Wether this rule is valid and should transition to the next state
@@ -28,5 +33,10 @@ namespace StateMachine
         /// Called when the state ends
         /// </summary>
         public virtual void OnDeactivate() { }
+
+        public void SetLink(Link link)
+        {
+            this.link = link;
+        }
     }
 }

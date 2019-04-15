@@ -60,7 +60,7 @@ namespace StateMachine
             showDebugUI = GUILayout.Toggle(showDebugUI, "Show Debug Info");
             if (showDebugUI)
             {
-                DebugInfo();
+                DebugInfo(e);
             }
 
             if (GUI.changed)
@@ -69,28 +69,49 @@ namespace StateMachine
             }
         }
 
-        private void DebugInfo()
+        public bool IsStateAtPosition(Vector2 position, out StateRenderer result)
+        {
+            foreach(StateRenderer renderer in stateRenderers)
+            {
+                if(renderer.Rect.Contains(position))
+                {
+                    result = renderer;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
+        }
+
+        private void DebugInfo(Event e)
         {
             GUILayout.Label("window " + CanvasWindow);
             GUILayout.Label("Canvas position " + CanvasWindow.position);
             GUILayout.Label("pan " + CanvasDrag);
 
-            GUILayout.Label("mouse pos " + Event.current.mousePosition + " adjusted " + (Event.current.mousePosition - CanvasWindow.position).ToString());
+            GUILayout.Label("mouse pos " + e.mousePosition);
             GUILayout.Label("state count " + StateMachine.States.Count);
-            GUILayout.Label("start state " + StateMachine.StartState);
+            GUILayout.Label("entry state " + StateMachine.EntryState.Title); 
 
             if (selectedStateRenderer != null)
             {
                 GUILayout.Label("selection " + selectedStateRenderer);
+                GUILayout.Label("selection action count " + selectedStateRenderer.State.Actions.Count);
                 GUILayout.Label("selection rect " + selectedStateRenderer.Position);
+                GUILayout.Label("selection rules " + selectedStateRenderer.State.Rules.Count);
+                GUILayout.Label("entry state == selection " + (StateMachine.EntryState == selectedStateRenderer.State));
+                //GUILayout.Label("entry state ID " + StateMachine.EntryState.GetInstanceID());
+                //GUILayout.Label("state[0] ID " + StateMachine.States[0].GetInstanceID());
             }
         }
         
         private void DrawCanvasWindow(Event e)
         {
             CanvasWindow = EditorGUILayout.BeginVertical(GUILayout.Height(WINDOW_HEIGHT));
-            
-            EditorGUILayout.BeginScrollView(CanvasDrag, false, false, GUIStyle.none, GUIStyle.none, GUIStyle.none, GUILayout.Height(WINDOW_HEIGHT));
+
+            Vector2 windowPos = EditorGUILayout.BeginScrollView(CanvasDrag, false, false, GUIStyle.none, GUIStyle.none, GUIStyle.none, GUILayout.Height(WINDOW_HEIGHT));
+            CanvasWindow = new Rect(windowPos, CanvasWindow.size); // reset canvas window position to ensure it's 0,0 is set at the scrollView origin
 
             Color oldColor = GUI.backgroundColor;
             GUI.backgroundColor = backgroundColor;
@@ -99,29 +120,13 @@ namespace StateMachine
 
             DrawGrid(gridPrimarySpacing, gridPrimaryColor); 
             DrawGrid(gridSecondarySpacing, gridSecondaryColor); 
-            DrawStates();
             DrawConnections();
+            DrawStates();
             ProcessNodeEvents(e);
             ProcessEvents(e);
 
-            // temp:
-            if(StateMachine.States.Count > 0)
-                DrawLinkTest(new Vector2(0, 0), StateMachine.States[0].Position);
-
-
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
-        }
-
-        LinkRenderer LinkRenderer = null;
-        private void DrawLinkTest(Vector2 source, Vector2 destinationPosition)
-        {
-            if(LinkRenderer == null)
-            {
-                LinkRenderer = new LinkRenderer();
-            }
-
-            LinkRenderer.Draw(source, destinationPosition);
         }
 
         private void ProcessEvents(Event e)
@@ -257,7 +262,7 @@ namespace StateMachine
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                ClearState(selectedStateRenderer.State);
+                ResetState(selectedStateRenderer.State);
             }
             GUI.enabled = true;
 
@@ -322,21 +327,13 @@ namespace StateMachine
 
         private State CreateNewState(Vector2 mousePosition)
         {
-            State state = StateMachine.CreateNewState();
-
-            //mousePosition.x -= CanvasWindow.x + StateRenderer.WIDTH / 2;
-            //mousePosition.y -= CanvasWindow.y + 100 / 3;
-
+            string assetFilePath = AssetDatabase.GetAssetPath(StateMachine);
+            State state = StateMachineEditorUtility.CreateObjectInstance<State>(assetFilePath);
             state.Position = mousePosition;
 
+            StateMachine.AddNewState(state);
             CreateNewStateRenderer(state);
-
-            //EditorUtility.SetDirty(state);
-            //EditorUtility.SetDirty(StateMachine);
-            //SerializedObject serializedObject = new SerializedObject(StateMachine);
-            //serializedObject.ApplyModifiedProperties();
-            //AssetDatabase.SaveAssets();
-
+            
             return state;
         }
 
@@ -355,7 +352,7 @@ namespace StateMachine
 
         private void DeleteState(StateRenderer stateRenderer)
         {
-            bool wasStartingState = StateMachine.StartState == stateRenderer.State;
+            bool isEntryState = StateMachine.EntryState == stateRenderer.State;
             StateMachine.RemoveState(stateRenderer.State);
             stateRenderers.Remove(stateRenderer);
             //UnityEditor.Undo.DestroyObjectImmediate(state);
@@ -369,9 +366,9 @@ namespace StateMachine
                 stateInspector.Show(null);
             }
 
-            if(wasStartingState && StateMachine.States.Count > 0)
+            if(isEntryState && StateMachine.States.Count > 0)
             {
-                StateMachine.SetStartingState(StateMachine.States[0]);
+                StateMachine.SetEntryState(StateMachine.States[0]);
             }
 
             stateRenderer.DeleteEvent -= DeleteState;
@@ -396,13 +393,20 @@ namespace StateMachine
             }
         }
 
-        private void ClearState(State state)
+        private void ResetState(State state)
         {
             for (int i = state.Actions.Count - 1; i >= 0; i--)
             {
                 state.RemoveAction(state.Actions[i]);
+                ScriptableObject.DestroyImmediate(state.Actions[i], true);
             }
 
+            for (int i = state.Rules.Count - 1; i >= 0; i--)
+            {
+                state.RemoveRule(state.Rules[i]);
+            }
+
+            selectedStateRenderer.Reset();
             stateInspector.Refresh();
         }
 

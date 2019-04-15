@@ -35,6 +35,9 @@ namespace StateMachine
         private SerializedProperty actionsList;
         private Rect rect;
 
+        private const string STATES_FIELD_NAME = "states";
+        private const string ACTIONS_FIELD_NAME = "actions";
+
         public StateInspector(StateMachine stateMachine)
         {
             this.stateMachine = stateMachine;
@@ -50,7 +53,7 @@ namespace StateMachine
 
         public void OnInspectorGUI(Event e)
         {
-            if(State == null) { return; }
+            if (State == null) { return; }
 
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
             DrawHeader();
@@ -69,12 +72,15 @@ namespace StateMachine
             {
                 Undo.RecordObject(stateMachine, "Change Name");
                 State.Title = newName;
+                EditorUtility.SetDirty(State);
             }
 
-            GUI.enabled = stateMachine.StartState != State;
-            if (GUILayout.Button("Starter State", GUILayout.Width(90)))
+            GUI.enabled = stateMachine.EntryState != State;
+            if (GUILayout.Button("Entry State", GUILayout.Width(90)))
             {
-                stateMachine.SetStartingState(State);
+                Undo.RecordObject(stateMachine, "Set Entry State");
+                stateMachine.SetEntryState(State);
+                EditorUtility.SetDirty(stateMachine);
             }
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
@@ -83,7 +89,7 @@ namespace StateMachine
         private void DrawActions()
         {
             EditorGUILayout.LabelField("State Actions", EditorStyles.boldLabel);
-            if(actionsList == null) { return; }
+            if (actionsList == null) { return; }
 
             for (int i = 0; i < actionsList.arraySize; i++)
             {
@@ -106,33 +112,18 @@ namespace StateMachine
 
         private void DrawDividerLine()
         {
-            GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(1)); 
+            GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(1));
         }
 
         public void Refresh()
         {
             if (State != null)
-            {
-                actionsList = GetActionsProperty();
+            { 
+                SerializedObject state = new SerializedObject(State);
+                actionsList = state.FindProperty(ACTIONS_FIELD_NAME);
             }
         }
 
-        private SerializedProperty GetActionsProperty()
-        {
-            SerializedProperty states = new SerializedObject(stateMachine).FindProperty("states");
-
-            for (int i = 0; i < stateMachine.States.Count; i++)
-            {
-                if(State == stateMachine.States[i])
-                {
-                    return states.GetArrayElementAtIndex(i).FindPropertyRelative("actions");
-                }
-            }
-
-            Debug.LogError("No state found");
-            return null;
-        }
-        
         private void DrawActionPropertyField(int index)
         {
             SerializedProperty property = actionsList.GetArrayElementAtIndex(index);
@@ -178,8 +169,7 @@ namespace StateMachine
 
             targetObject.ApplyModifiedProperties();
 
-            EditorGUI.indentLevel--;
-            EditorGUI.indentLevel--;
+            EditorGUI.indentLevel -= 2;
             EditorGUILayout.EndVertical();
         }
 
@@ -202,13 +192,8 @@ namespace StateMachine
         private void CreateNewStateAction(Type type)
         {
             Undo.RecordObject(stateMachine, "Add Action");
-
-            StateAction stateAction = ScriptableObject.CreateInstance(type) as StateAction;
-            stateAction.hideFlags = HideFlags.HideAndDontSave;
-            
-            string path = AssetDatabase.GetAssetPath(stateMachine);
-            AssetDatabase.AddObjectToAsset(stateAction, path);
-            AssetDatabase.ImportAsset(path);
+            string assetFilePath = AssetDatabase.GetAssetPath(State);
+            StateAction stateAction = StateMachineEditorUtility.CreateObjectInstance(type, assetFilePath) as StateAction;
 
             State.AddAction(stateAction);
             Refresh();
@@ -261,6 +246,7 @@ namespace StateMachine
                     //break;
                 case ContextMenuCommand.Delete:
                     State.RemoveAction(stateAction);
+                    UnityEngine.Object.DestroyImmediate(stateAction, true);
                     Refresh();
                     break;
             }

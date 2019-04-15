@@ -11,44 +11,42 @@ namespace StateMachine
     [Serializable]
     public class StateMachine : ScriptableObject
     {
-        public State StartState { get { return startState; } }
-        [SerializeField] private State startState;
+        public State EntryState { get { return entryState; } }
+        [SerializeField] private State entryState;
 
         public List<State> States => states;
         [SerializeField] private List<State> states = new List<State>();
 
         public void Run(StateMachineActivator activator)
         {
-            startState.Run();
+            entryState.Run();
         }
 
-        public State CreateNewState()
+        public void AddNewState(State state)
         {
-            State state = new State();
-
             if (States.Count == 0)
             {
-                SetStartingState(state);
+                SetEntryState(state);
             }
 
             States.Add(state);
-
-            return state;
         }
 
         public void RemoveState(State state)
         {
             States.Remove(state);
+            DestroyImmediate(state);
         }
 
         public void Clear()
         {
+            // needs to use destroyImmediate? 
             States.Clear();
         }
 
-        public void SetStartingState(State state)
+        public void SetEntryState(State state)
         {
-            startState = state;
+            entryState = state; 
         }
     }
 }

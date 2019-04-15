@@ -8,7 +8,7 @@ namespace StateMachine
     /// Abstract class for states, used in <see cref="StateMachine"/>
     /// </summary>
     [Serializable]
-    public class State
+    public class State : ScriptableObject, ILinkConnectionPoint
     {
         public List<StateAction> Actions => actions;
         [SerializeField] private List<StateAction> actions = new List<StateAction>();
@@ -16,10 +16,10 @@ namespace StateMachine
         public List<Rule> Rules => rules;
         [SerializeField] private List<Rule> rules = new List<Rule>();
 
-#if UNITY_EDITOR
-        public string Title /*{ get; set; }*/ = "New State";
-        public Vector2 Position; /*{ get; set; }*/
-#endif
+        // Editor stuff:
+        public Vector2 ConnectionPointPosition { get; set; }
+        public string Title = "New State";
+        public Vector2 Position;
 
         public void AddAction(StateAction action)
         {
@@ -29,7 +29,16 @@ namespace StateMachine
         public void RemoveAction(StateAction action)
         {
             actions.Remove(action);
-            UnityEngine.Object.DestroyImmediate(action);
+        }
+
+        public void AddRule(Rule rule)
+        {
+            rules.Add(rule);
+        }
+
+        public void RemoveRule(Rule rule)
+        {
+            rules.Remove(rule);
         }
 
         public void Run()

@@ -4,25 +4,29 @@ using UnityEngine;
 
 namespace StateMachine
 {
+    /// <summary>
+    /// Class for linking a <see cref="Source"/> and <see cref="Destination"/> of type <see cref="ILinkConnectionPoint"/> 
+    /// </summary>
     public class Link
     {
-        public State Source => source;
-        [SerializeField] private State source;
+        public ILinkConnectionPoint Source => source;
+        [SerializeField] private ILinkConnectionPoint source;
 
-        public State Destination => destination;
-        [SerializeField] private State destination;
+        public ILinkConnectionPoint Destination => destination;
+        [SerializeField] private ILinkConnectionPoint destination;
 
-        public Link(State source)
+        public Link(ILinkConnectionPoint source, ILinkConnectionPoint destination)
+        {
+            this.source = source;
+            this.destination = destination;
+        }
+
+        public void SetSource(ILinkConnectionPoint source)
         {
             this.source = source;
         }
 
-        public void SetSource(State source)
-        {
-            this.source = source;
-        }
-
-        public void SetDestination(State destination)
+        public void SetDestination(ILinkConnectionPoint destination)
         {
             this.destination = destination;
         }
