@@ -32,6 +32,7 @@ namespace StateMachine
         private List<StateRenderer> stateRenderers = new List<StateRenderer>();
         private List<LinkRenderer> linkRenderers = new List<LinkRenderer>();
 
+        private Rect scrollView = new Rect();
         private float zoomScale = 100;
         private bool showDebugUI;
 
@@ -108,10 +109,14 @@ namespace StateMachine
         
         private void DrawCanvasWindow(Event e)
         {
-            CanvasWindow = EditorGUILayout.BeginVertical(GUILayout.Height(WINDOW_HEIGHT));
+            Rect temp = EditorGUILayout.BeginVertical(GUILayout.Height(WINDOW_HEIGHT));
 
+            // hotfix to prevent strange issue where EditorGUILayout.BeginVertical returns zero every other frame
+            if (temp != Rect.zero)
+                scrollView = temp;
+            
             Vector2 windowPos = EditorGUILayout.BeginScrollView(CanvasDrag, false, false, GUIStyle.none, GUIStyle.none, GUIStyle.none, GUILayout.Height(WINDOW_HEIGHT));
-            CanvasWindow = new Rect(windowPos, CanvasWindow.size); // reset canvas window position to ensure it's 0,0 is set at the scrollView origin
+            CanvasWindow = new Rect(windowPos, scrollView.size); 
 
             Color oldColor = GUI.backgroundColor;
             GUI.backgroundColor = backgroundColor;
@@ -321,15 +326,17 @@ namespace StateMachine
         private State CreateNewState()
         {
             // TODO: fix:
-            Vector2 position = new Vector2(CanvasWindow.position.x + CanvasWindow.height / 2 + StateRenderer.WIDTH, CanvasWindow.position.y + CanvasWindow.height / 2);
+            Debug.Log(CanvasWindow);
+
+            Vector2 position = new Vector2(CanvasWindow.position.x + CanvasWindow.width / 2 - StateRenderer.WIDTH / 2, CanvasWindow.position.y + CanvasWindow.height / 2);
             return CreateNewState(position);
         }
 
-        private State CreateNewState(Vector2 mousePosition)
+        private State CreateNewState(Vector2 position)
         {
             string assetFilePath = AssetDatabase.GetAssetPath(StateMachine);
             State state = StateMachineEditorUtility.CreateObjectInstance<State>(assetFilePath);
-            state.Position = mousePosition;
+            state.Position = position;
 
             StateMachine.AddNewState(state);
             CreateNewStateRenderer(state);
@@ -354,6 +361,8 @@ namespace StateMachine
         {
             bool isEntryState = StateMachine.EntryState == stateRenderer.State;
             StateMachine.RemoveState(stateRenderer.State);
+            UnityEngine.Object.DestroyImmediate(stateRenderer.State, true);
+
             stateRenderers.Remove(stateRenderer);
             //UnityEditor.Undo.DestroyObjectImmediate(state);
 
@@ -398,7 +407,8 @@ namespace StateMachine
             for (int i = state.Actions.Count - 1; i >= 0; i--)
             {
                 state.RemoveAction(state.Actions[i]);
-                ScriptableObject.DestroyImmediate(state.Actions[i], true);
+                UnityEngine.Object.DestroyImmediate(state.Actions[i], true);
+                UnityEngine.Object.DestroyImmediate(state.Rules[i], true);
             }
 
             for (int i = state.Rules.Count - 1; i >= 0; i--)
