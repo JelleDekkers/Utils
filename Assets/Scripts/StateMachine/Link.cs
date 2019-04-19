@@ -7,28 +7,45 @@ namespace StateMachine
     /// <summary>
     /// Class for linking a <see cref="Source"/> and <see cref="Destination"/> of type <see cref="ILinkConnectionPoint"/> 
     /// </summary>
-    public class Link
+    public class Link : ScriptableObject
     {
-        public ILinkConnectionPoint Source => source;
-        [SerializeField] private ILinkConnectionPoint source;
+        public LinkConnection Source => source;
+        [SerializeField] private LinkConnection source;
 
-        public ILinkConnectionPoint Destination => destination;
-        [SerializeField] private ILinkConnectionPoint destination;
+        public LinkConnection Destination => destination;
+        [SerializeField] private LinkConnection destination;
 
-        public Link(ILinkConnectionPoint source, ILinkConnectionPoint destination)
+        public Link(LinkConnection source, LinkConnection destination)
         {
             this.source = source;
             this.destination = destination;
         }
 
-        public void SetSource(ILinkConnectionPoint source)
+        public void SetSource(LinkConnection source)
         {
             this.source = source;
         }
 
-        public void SetDestination(ILinkConnectionPoint destination)
+        public void SetDestination(LinkConnection destination)
         {
             this.destination = destination;
+        }
+    }
+
+    [System.Serializable]
+    public class LinkConnection
+    {
+        public enum ConnectionType
+        {
+            In,
+            Out
+        }
+
+        public ConnectionType connectionType;
+
+        public LinkConnection(ConnectionType connectionType)
+        {
+            this.connectionType = connectionType;
         }
     }
 }

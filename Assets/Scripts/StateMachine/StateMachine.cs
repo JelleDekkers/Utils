@@ -35,12 +35,10 @@ namespace StateMachine
         public void RemoveState(State state)
         {
             States.Remove(state);
-            DestroyImmediate(state);
         }
 
         public void Clear()
         {
-            // needs to use destroyImmediate? 
             States.Clear();
         }
 

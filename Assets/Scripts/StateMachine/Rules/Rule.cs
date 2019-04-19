@@ -7,12 +7,13 @@ namespace StateMachine
     /// Class for deciding when a <see cref="State"/> inside the <see cref="StateMachine>"/> needs to transition to another
     /// </summary>
     [Serializable]
-    public abstract class Rule : ScriptableObject, ILinkConnectionPoint
+    public abstract class Rule : ScriptableObject
     {
-        public Link Link => link;
-        [SerializeField] private Link link;
+        //public Link Link => link;
+        //[SerializeField] private Link link;
 
-        public Vector2 ConnectionPointPosition { get; set; }
+        public State Destination => destination;
+        [SerializeField] private State destination;
 
         /// <summary>
         /// Wether this rule is valid and should transition to the next state
@@ -34,9 +35,9 @@ namespace StateMachine
         /// </summary>
         public virtual void OnDeactivate() { }
 
-        public void SetLink(Link link)
+        public void SetDestination(State state)
         {
-            this.link = link;
+            destination = state;
         }
     }
 }

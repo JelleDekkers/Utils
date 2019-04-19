@@ -30,7 +30,7 @@ namespace StateMachine
         private Action repaintFunc;
         private StateRenderer selectedStateRenderer;
         private List<StateRenderer> stateRenderers = new List<StateRenderer>();
-        private List<LinkRenderer> linkRenderers = new List<LinkRenderer>();
+        private List<RuleRenderer> linkRenderers = new List<RuleRenderer>();
 
         private Rect scrollView = new Rect();
         private float zoomScale = 100;
@@ -325,9 +325,6 @@ namespace StateMachine
 
         private State CreateNewState()
         {
-            // TODO: fix:
-            Debug.Log(CanvasWindow);
-
             Vector2 position = new Vector2(CanvasWindow.position.x + CanvasWindow.width / 2 - StateRenderer.WIDTH / 2, CanvasWindow.position.y + CanvasWindow.height / 2);
             return CreateNewState(position);
         }

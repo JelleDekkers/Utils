@@ -8,7 +8,7 @@ namespace StateMachine
     /// Abstract class for states, used in <see cref="StateMachine"/>
     /// </summary>
     [Serializable]
-    public class State : ScriptableObject, ILinkConnectionPoint
+    public class State : ScriptableObject
     {
         public List<StateAction> Actions => actions;
         [SerializeField] private List<StateAction> actions = new List<StateAction>();
@@ -17,7 +17,6 @@ namespace StateMachine
         [SerializeField] private List<Rule> rules = new List<Rule>();
 
         // Editor stuff:
-        public Vector2 ConnectionPointPosition { get; set; }
         public string Title = "New State";
         public Vector2 Position;
 

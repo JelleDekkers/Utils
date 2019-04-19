@@ -13,17 +13,12 @@ namespace StateMachine
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
-        public const float RULE_HEIGHT = HEADER_HEIGHT;
         public const float ENTRY_VISUAL_HEIGHT = HEADER_HEIGHT;
 
-        private const string ENTRY_STRING = "ENTRY";
+        private const string ENTRY_STRING = "ENTRY"; 
 
         public State State { get; private set; }
-        public Vector2 Position
-        {
-            get { return State.Position; }
-            set { State.Position = value; }
-        }
+        public Vector2 Position => State.Position;
         public Rect Rect { get; private set; }
 
         public bool IsEntryState { get { return stateMachineRenderer.StateMachine.EntryState == State; } }
@@ -33,39 +28,37 @@ namespace StateMachine
         public Action<StateRenderer> DeselectedEvent;
         public Action<StateRenderer> DeleteEvent;
 
-        private readonly float HighlightMargin = 3;
+        private readonly float HighlightMargin = 4;
         private readonly Color HighlightColor = Color.yellow;
         private readonly Color HeaderBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
 
         private StateMachineRenderer stateMachineRenderer;
         private GUIStyle style;
-        private List<Rect> ruleRects = new List<Rect>();
-        private List<LinkRenderer> linkRenderers = new List<LinkRenderer>();
+        private List<RuleRenderer> ruleRenderers = new List<RuleRenderer>();
         private bool isDragged;
 
         private bool drawingNewRuleLink;
-        private LinkRenderer newRuleLinkRenderer;
+        private Rule newRule;
+        private RuleRenderer newRuleLinkRenderer;
 
         public StateRenderer(State state, StateMachineRenderer renderer)
         {
             State = state;
             stateMachineRenderer = renderer;
 
-            InitializeRuleDrawers();
+            InitializeRuleRenderers();
 
-            // TODO: tidy up in its own function?
+            // TODO: tidy up in its own function? and vars
             GUIStyle nodeStyle = new GUIStyle();
             nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
             nodeStyle.border = new RectOffset(12, 12, 12, 12);
         }
 
-        private void InitializeRuleDrawers()
+        private void InitializeRuleRenderers()
         {
-            // foreach state, check rules en draw them
-            for (int i = 0; i < State.Rules.Count; i++)
+            for (int i = 0; i < State.Rules.Count; i++) 
             {
-                ruleRects.Add(new Rect());
-                linkRenderers.Add(new LinkRenderer(State.Rules[i].Link));
+                ruleRenderers.Add(new RuleRenderer(State.Rules[i]));
             }
         }
 
@@ -73,6 +66,12 @@ namespace StateMachine
         {
             bool guiChanged = false;
             bool isInsideCanvasWindow = stateMachineRenderer.CanvasWindow.Contains(e.mousePosition);
+
+
+            if (IsSelected)
+            {
+                guiChanged = ProcessRuleEvents(e);
+            }
 
             switch (e.type)
             {
@@ -87,13 +86,6 @@ namespace StateMachine
                                 if (!IsSelected)
                                 {
                                     OnSelect(e);
-                                }
-                                else
-                                {
-                                    if (SelectedRule(e.mousePosition, out Rule rule))
-                                    {
-                                        ShowRuleInInspector(rule);
-                                    }
                                 }
                             }
                             else
@@ -145,23 +137,20 @@ namespace StateMachine
 
         public void Reset()
         {
-            ruleRects = new List<Rect>();
-            linkRenderers = new List<LinkRenderer>();
+            ruleRenderers.Clear();
         }
 
         public void Draw()
         {
             if (IsSelected)
             {
-                DrawHighlight();
+                DrawHighlight(HighlightColor);
             }
 
             Color previousBackgroundColor = GUI.color;
 
             DrawHeader();
             DrawRules();
-            State.ConnectionPointPosition = new Vector2(Rect.x, Rect.y + HEADER_HEIGHT / 2);
-            DrawLinks();
 
             if(IsSelected && !drawingNewRuleLink)
             {
@@ -169,7 +158,18 @@ namespace StateMachine
             }
 
             GUI.color = previousBackgroundColor;
-            GUI.color = previousBackgroundColor;
+        }
+
+        private bool ProcessRuleEvents(Event e)
+        {
+            bool guiChanged = false;
+
+            foreach (RuleRenderer renderer in ruleRenderers)
+            {
+                guiChanged = renderer.ProcessEvents(e);
+            }
+
+            return guiChanged;
         }
 
         private void DrawHeader()
@@ -190,32 +190,22 @@ namespace StateMachine
         {
             for(int i = 0; i < State.Rules.Count; i++)
             {
-                ruleRects[i] = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, RULE_HEIGHT);
-                GUI.Box(ruleRects[i], State.Rules[i].DisplayName);
-                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRects[i].height);
-
-                State.Rules[i].ConnectionPointPosition = new Vector2(ruleRects[i].position.x + ruleRects[i].width, ruleRects[i].position.y + ruleRects[i].height / 2);
-            }
-        }
-
-        private void DrawLinks()
-        {
-            for (int i = 0; i < linkRenderers.Count; i++)
-            {
-                linkRenderers[i].Draw();
+                Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
+                Rect ruleRect = ruleRenderers[i].Draw(position, Rect.width);
+                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
         }
 
         private void DrawAddNewRuleButton()
         {
-            Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, RULE_HEIGHT);
+            Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, RuleRenderer.RULE_HEIGHT);
             if (GUI.Button(r, "Add New Rule"))
             {
                 StartDrawNewRuleLink();
             }
         }
 
-        private void DrawHighlight()
+        private void DrawHighlight(Color color)
         {
             Color previousColor = GUI.color;
 
@@ -225,7 +215,7 @@ namespace StateMachine
                 Rect.width + HighlightMargin,
                 Rect.height + HighlightMargin);
 
-            GUI.color = HighlightColor;
+            GUI.color = color;
             GUI.Box(r, "");
 
             GUI.color = previousColor;
@@ -246,10 +236,7 @@ namespace StateMachine
             newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineRenderer.CANVAS_WIDTH);
             newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineRenderer.CANVAS_HEIGHT);
 
-            // TODO: cleanup, zijn niet beide nodig?:
-            Position = newPosition;
-            State.Position = Position;
-            State.ConnectionPointPosition = new Vector2(Rect.x, Rect.y + Rect.height / 2);
+            State.Position = newPosition;
         }
 
         private void OnDragStart()
@@ -292,64 +279,59 @@ namespace StateMachine
             drawingNewRuleLink = true;
 
             string assetFilePath = AssetDatabase.GetAssetPath(State);
-            Rule newRule = StateMachineEditorUtility.CreateObjectInstance<EmptyRule>(assetFilePath);
-            Link link = new Link(State, null);
-            newRuleLinkRenderer = new LinkRenderer(link);
+            newRule = StateMachineEditorUtility.CreateObjectInstance<EmptyRule>(assetFilePath);
+            newRuleLinkRenderer = new RuleRenderer(newRule);
+        }
+
+        private void DrawNewRuleLink(Vector2 destination)
+        {
+            Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
+            newRuleLinkRenderer.Draw(position, Rect.width);
+            newRuleLinkRenderer.DrawLine(destination);
         }
 
         private void StopDrawNewRuleLink(Vector2 mousePosition)
         {
-            if (stateMachineRenderer.IsStateAtPosition(mousePosition, out StateRenderer stateRenderer))
+            if (stateMachineRenderer.IsStateAtPosition(mousePosition, out StateRenderer stateRenderer) && stateRenderer != null)
             {
-                if(stateRenderer != this)
-                {
-                    CreateNewRule(new EmptyRule(), stateRenderer.State);
-                }
+                AddNewRule(newRule, stateRenderer.State);
+            }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(newRule, true);
             }
 
             drawingNewRuleLink = false;
             newRuleLinkRenderer = null;
         }
 
-        private void DrawNewRuleLink(Vector2 destination)
-        {
-            newRuleLinkRenderer.Draw(State.Position, destination);
-        }
-
-        private void CreateNewRule(Rule rule, State connectedState)
+        private void AddNewRule(Rule rule, State connectedState)
         {
             State.AddRule(rule);
-            Link link = new Link(rule, connectedState);
-            rule.SetLink(link);
-
-            linkRenderers.Add(new LinkRenderer(link));
-            ruleRects.Add(new Rect(Rect.x, Rect.y, Rect.width, RULE_HEIGHT));
+            rule.SetDestination(connectedState);
+            ruleRenderers.Add(new RuleRenderer(rule));
         }
 
-        private void RemoveRule()
+        private void RemoveRule(RuleRenderer ruleRenderer)
         {
-            throw new NotImplementedException();
+            State.RemoveRule(ruleRenderer.Rule);
+            ruleRenderer.OnDelete();
         }
 
-        private bool SelectedRule(Vector2 mousePosition, out Rule rule)
-        {
-            for (int i = 0; i < State.Rules.Count; i++)
-            {
-                if(ruleRects[i].Contains(mousePosition))
-                {
-                    rule = State.Rules[i];
-                    return true;
-                }
-            }
+        //private bool SelectedRule(Vector2 mousePosition, out RuleRenderer rule)
+        //{
+        //    for (int i = 0; i < State.Rules.Count; i++)
+        //    {
+        //        if (ruleRenderers[i].Rect.Contains(mousePosition))
+        //        {
+        //            rule = ruleRenderers[i];
+        //            return true;
+        //        }
+        //    }
 
-            rule = null;
-            return false;
-        }
-
-        private void ShowRuleInInspector(Rule rule)
-        {
-            // TODO: inspector show rule
-        }
+        //    rule = null;
+        //    return false;
+        //}
 
         private void Delete()
         {
