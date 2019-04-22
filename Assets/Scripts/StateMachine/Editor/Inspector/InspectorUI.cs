@@ -1,23 +1,21 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace StateMachine
 {
-    /// <summary>
-    /// Renders the inspector for the <see cref="StateMachine"/>'s selected <see cref="global::StateMachine.State"/>. 
-    /// Shows all <see cref="StateAction"/>s and variables
-    /// </summary>
-    public class StateInspector : IDisposable
+    public class InspectorUI
     {
-        private enum ContextMenuCommand
+        protected enum ContextMenuCommand
         {
             Reset,
             Delete,
             EditScript
         }
 
-        private class ContextMenuResult
+        protected class ContextMenuResult
         {
             public ContextMenuCommand Command { get; private set; }
             public int Index { get; private set; }
@@ -29,104 +27,54 @@ namespace StateMachine
             }
         }
 
-        public State State { get; private set; }
+        protected ScriptableObject InspectedObject { get; private set; }
+        protected string PropertyFieldName { get; private set; }
+        protected SerializedProperty InspectedProperty { get; private set; }
+        protected StateMachine StateMachine { get; private set; }
 
-        private StateMachine stateMachine;
-        private SerializedProperty actionsList;
-        private Rect rect;
-
-        private const string STATES_FIELD_NAME = "states";
-        private const string ACTIONS_FIELD_NAME = "actions";
-
-        public StateInspector(StateMachine stateMachine)
+        public void Show(StateMachine stateMachine, IInspectable inspectedObject)
         {
-            this.stateMachine = stateMachine;
+            StateMachine = stateMachine;
+            InspectedObject = inspectedObject.InspectableObject;
+            PropertyFieldName = inspectedObject.PropertyFieldName;
 
-            Undo.undoRedoPerformed += Refresh;
-        }
-
-        public void Show(State state)
-        {
-            State = state;
             Refresh();
-        }
-
-        public void OnInspectorGUI(Event e)
-        {
-            if (State == null) { return; }
-
-            EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
-            DrawHeader();
-            DrawActions();
-            EditorGUILayout.EndVertical();
-
-            DrawAddNewActionButton();
-        }
-
-        private void DrawHeader()
-        {
-            EditorGUILayout.BeginHorizontal();
-            string newName = EditorGUILayout.DelayedTextField(State.Title);
-
-            if (newName != State.Title)
-            {
-                Undo.RecordObject(stateMachine, "Change Name");
-                State.Title = newName;
-                EditorUtility.SetDirty(State);
-            }
-
-            GUI.enabled = stateMachine.EntryState != State;
-            if (GUILayout.Button("Entry State", GUILayout.Width(90)))
-            {
-                Undo.RecordObject(stateMachine, "Set Entry State");
-                stateMachine.SetEntryState(State);
-                EditorUtility.SetDirty(stateMachine);
-            }
-            GUI.enabled = true;
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private void DrawActions()
-        {
-            EditorGUILayout.LabelField("State Actions", EditorStyles.boldLabel);
-            if (actionsList == null) { return; }
-
-            for (int i = 0; i < actionsList.arraySize; i++)
-            {
-                DrawDividerLine();
-                DrawActionPropertyField(i);
-            }
-        }
-
-        private void DrawAddNewActionButton()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Add New Action", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
-            {
-                OpenActionsWindow(State);
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-        }
-
-        private void DrawDividerLine()
-        {
-            GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(1));
         }
 
         public void Refresh()
         {
-            if (State != null)
-            { 
-                SerializedObject state = new SerializedObject(State);
-                actionsList = state.FindProperty(ACTIONS_FIELD_NAME);
+            InspectedProperty = new SerializedObject(InspectedObject).FindProperty(PropertyFieldName);
+        }
+
+        public void OnInspectorGUI(Event e)
+        {
+            if (InspectedObject == null) { return; }
+
+            EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
+            DrawHeader();
+            DrawProperties();
+            EditorGUILayout.EndVertical();
+
+            DrawAddNewButton();
+        }
+
+        protected virtual void DrawHeader() { }
+
+        protected void DrawProperties()
+        {
+            EditorGUILayout.LabelField(ObjectNames.NicifyVariableName(PropertyFieldName), EditorStyles.boldLabel);
+            if (InspectedProperty == null) { return; }
+
+            for (int i = 0; i < InspectedProperty.arraySize; i++)
+            {
+                DrawDividerLine();
+                DrawPropertyField(i);
             }
         }
 
-        private void DrawActionPropertyField(int index)
+        protected void DrawPropertyField(int index)
         {
-            SerializedProperty property = actionsList.GetArrayElementAtIndex(index);
+            SerializedProperty property = InspectedProperty.GetArrayElementAtIndex(index);
             if (property.objectReferenceValue == null) { return; }
 
             GUIStyle myStyle = new GUIStyle();
@@ -173,33 +121,33 @@ namespace StateMachine
             EditorGUILayout.EndVertical();
         }
 
-        private void OpenActionsWindow(State state)
+        private void DrawAddNewButton()
         {
-            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, "Choose Action to add");
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Add New Action", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
+            {
+                OpenTypeFilterWindow();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        private void OpenTypeFilterWindow()
+        {
+            string typeName = ObjectNames.NicifyVariableName(PropertyFieldName);
+            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, string.Format("Choose {0} to add", typeName));
             TypeFilterWindow.SelectHandler func = (Type t) =>
             {
-                OnActionSelected(t);
+                CreateNewType(t);
                 window.Close();
             };
             window.RetrieveTypes<StateAction>(func);
         }
 
-        private void OnActionSelected(Type type)
-        {
-            CreateNewStateAction(type);
-        }
+        protected virtual void CreateNewType(Type type) { }
 
-        private void CreateNewStateAction(Type type)
-        {
-            Undo.RecordObject(stateMachine, "Add Action");
-            string assetFilePath = AssetDatabase.GetAssetPath(State);
-            StateAction stateAction = StateMachineEditorUtility.CreateObjectInstance(type, assetFilePath) as StateAction;
-
-            State.AddAction(stateAction);
-            Refresh();
-        }
-
-        private string GetPropertyName(SerializedProperty property)
+        protected string GetPropertyName(SerializedProperty property)
         {
             string s = property.objectReferenceValue.ToString();
 
@@ -230,26 +178,37 @@ namespace StateMachine
             }
         }
 
-        private void OnContextMenuButtonPressed(object o)
+        protected virtual void OnContextMenuButtonPressed(object o)
         {
             ContextMenuResult result = (ContextMenuResult)o;
-            StateAction stateAction = State.Actions[result.Index];
-            
-            switch(result.Command)
+
+            switch (result.Command)
             {
                 case ContextMenuCommand.EditScript:
-                    OpenScript(stateAction);
+                    OnEditScriptButtonPressed(result.Index);
                     break;
                 case ContextMenuCommand.Reset:
-                    throw new NotImplementedException();
-                    //UpdateActionsList();
-                    //break;
+                    OnResetButtonPressed(result.Index);
+                    break;
                 case ContextMenuCommand.Delete:
-                    State.RemoveAction(stateAction);
-                    UnityEngine.Object.DestroyImmediate(stateAction, true);
-                    Refresh();
+                    OnDeleteButtonPressed(result.Index);
                     break;
             }
+        }
+
+        protected virtual void OnEditScriptButtonPressed(int index)
+        {
+            OpenScript(InspectedObject);
+        }
+
+        protected virtual void OnResetButtonPressed(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual void OnDeleteButtonPressed(int index)
+        {
+            Refresh();
         }
 
         private void OpenScript(ScriptableObject obj)
@@ -259,10 +218,9 @@ namespace StateMachine
             UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
         }
 
-        public void Dispose()
+        private void DrawDividerLine()
         {
-            Undo.undoRedoPerformed -= Refresh;
+            GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(1));
         }
     }
 }
- 

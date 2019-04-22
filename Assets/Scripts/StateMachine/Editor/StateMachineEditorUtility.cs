@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace StateMachine
 {
+    /// <summary>
+    /// Utility class for state machine related assets
+    /// </summary>
     public static class StateMachineEditorUtility
     {
         public static T CreateObjectInstance<T>(string assetFilePath) where T : ScriptableObject

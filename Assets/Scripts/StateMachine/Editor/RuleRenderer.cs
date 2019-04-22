@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace StateMachine
@@ -6,7 +7,7 @@ namespace StateMachine
     /// <summary>
     /// Class for rendering individual <see cref="global::StateMachine.Rule"/>s on <see cref="StateMachineRenderer"/>
     /// </summary>
-    public class RuleRenderer
+    public class RuleRenderer : ISelectable, IDraggable, IInspectable
     {
         public const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
         public const float LINE_THICKNESS = 3f;
@@ -14,16 +15,29 @@ namespace StateMachine
         public Rule Rule { get; private set; }
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
-        
+
+        public string PropertyFieldName => "Rules";
+        public ScriptableObject InspectableObject => Rule;
+        public Type InspectorBehaviour => typeof(RuleInspectorUI);
+
         private readonly Color HighlightSelectionColor = Color.blue;
         private readonly Color HighlightNoDestinationColor = Color.red;
         private readonly float HighlightMargin = 5;
 
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
 
-        public RuleRenderer(Rule rule)
+
+        private State stateParent;
+        private StateMachineRenderer stateMachineRenderer;
+        private bool isDraggingLine;
+        private bool isNew;
+
+        public RuleRenderer(Rule rule, State state, StateMachineRenderer stateMachine)
         {
             Rule = rule;
+            stateParent = state;
+            stateMachineRenderer = stateMachine;
+
             Rect = new Rect();
         }
 
@@ -38,64 +52,104 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
-                            OnSelect();
+                            OnSelect(e);
                         }
                         else
                         {
                             if (IsSelected)
                             {
-                                OnDeselect();
+                                OnDeselect(e);
                                 guiChanged = true;
                             }
                         }
                     }
                     break;
 
-                    // TODO: voor dragging new link destination
-                //case EventType.MouseUp:
-                //    if (isDragged)
-                //    {
-                //        OnDragEnd();
-                //    }
-                //    else if (drawingNewRuleLink)
-                //    {
-                //        StopDrawNewRuleLink(e.mousePosition);
-                //    }
-                //    break;
+                case EventType.MouseDrag:
+                    if (e.button == 1 && Rect.Contains(e.mousePosition))
+                    {
+                        OnDrag(e);
+                        e.Use();
+                        guiChanged = true;
+                    }
+                    break;
 
-                //case EventType.MouseDrag:
-                //    if (e.button == 0 && isDragged)
-                //    {
-                //        Drag(e.delta);
-                //        e.Use();
-                //        guiChanged = true;
-                //    }
-                //    break;
+                case EventType.MouseUp:
+                    if (isDraggingLine && e.button == 0 || e.button == 1)
+                    {
+                        OnDragEnd(e);
+                        e.Use();
+                        guiChanged = true;
+                    }
+                    break;
+            }
+
+            if(isDraggingLine)
+            {
+                OnDrag(e);
+                guiChanged = true;
+
+                if(e.keyCode == KeyCode.Escape)
+                {
+                    OnDragEnd(e);
+                }
             }
 
             return guiChanged;
         }
 
-        public void OnSelect()
+        public void IsNew()
         {
-            // TODO: color change
+            isDraggingLine = true;
+        }
+
+        public void OnSelect(Event e)
+        {
             IsSelected = true;
             ShowInspector();
         }
 
-        public void OnDeselect()
+        public void OnDeselect(Event e)
         {
             IsSelected = false;
         }
 
         public void OnDelete()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ShowInspector()
         {
-            // TODO: inspector show rule
+            stateMachineRenderer.Inspector.Inspect(this);
+        }
+
+        public void OnDragStart(Event e) { }
+
+        public void OnDrag(Event e)
+        {
+            DrawLine(e.mousePosition);
+            isDraggingLine = true;
+        }
+
+        public void OnDragEnd(Event e)
+        {
+            // if hovering state, set rule destination
+            // else set to null
+
+            isDraggingLine = false;
+
+            if (stateMachineRenderer.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
+            {
+                if (stateRenderer.State == stateParent)
+                {
+                    Rule.SetDestination(null);
+                }
+                else
+                {
+                    Rule.SetDestination(stateRenderer.State);
+                }
+            }
         }
 
         public Rect Draw(Vector2 position, float width)
@@ -112,9 +166,9 @@ namespace StateMachine
             Rect = new Rect(position.x, position.y, width, RULE_HEIGHT);
             GUI.Box(Rect, Rule.DisplayName);
 
-            if (Rule.Destination != null)
+            if (Rule.Destination != null && !isDraggingLine)
             { 
-                Vector2 destinationPoint = Rule.Destination.Position;
+                Vector2 destinationPoint = new Vector2(Rule.Destination.Rect.x, Rule.Destination.Rect.y + Rule.Destination.Rect.height / 2);
                 DrawLine(SourcePoint, destinationPoint);
             }
 
@@ -137,7 +191,7 @@ namespace StateMachine
             GUI.color = previousColor;
         }
 
-        public void DrawLine(Vector2 destination)
+        private void DrawLine(Vector2 destination)
         {
             DrawLine(SourcePoint, destination);
         }

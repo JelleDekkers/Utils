@@ -18,7 +18,7 @@ namespace StateMachine
 
         // Editor stuff:
         public string Title = "New State";
-        public Vector2 Position;
+        public Rect Rect;
 
         public void AddAction(StateAction action)
         {

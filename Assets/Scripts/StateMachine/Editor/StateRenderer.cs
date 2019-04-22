@@ -9,7 +9,7 @@ namespace StateMachine
     /// <summary>
     /// Renders the <see cref="global::StateMachine.State"/> node on the <see cref="StateMachine"/> window
     /// </summary>
-    public class StateRenderer
+    public class StateRenderer : ISelectable, IDraggable, IInspectable
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
@@ -18,14 +18,21 @@ namespace StateMachine
         private const string ENTRY_STRING = "ENTRY"; 
 
         public State State { get; private set; }
-        public Vector2 Position => State.Position;
-        public Rect Rect { get; private set; }
+        public Rect Rect
+        {
+            get { return State.Rect; }
+            set { State.Rect = value; }
+        }
 
         public bool IsEntryState { get { return stateMachineRenderer.StateMachine.EntryState == State; } }
         public bool IsSelected { get; private set; }
 
-        public Action<StateRenderer> SelectedEvent;
-        public Action<StateRenderer> DeselectedEvent;
+        public string PropertyFieldName => "actions"; 
+        public ScriptableObject InspectableObject => State;
+        public Type InspectorBehaviour => typeof(StateInspectorUI);
+
+        public Action<ISelectable> SelectedEvent;
+        public Action<ISelectable> DeselectedEvent;
         public Action<StateRenderer> DeleteEvent;
 
         private readonly float HighlightMargin = 4;
@@ -33,13 +40,9 @@ namespace StateMachine
         private readonly Color HeaderBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
 
         private StateMachineRenderer stateMachineRenderer;
-        private GUIStyle style;
         private List<RuleRenderer> ruleRenderers = new List<RuleRenderer>();
+        private GUIStyle style;
         private bool isDragged;
-
-        private bool drawingNewRuleLink;
-        private Rule newRule;
-        private RuleRenderer newRuleLinkRenderer;
 
         public StateRenderer(State state, StateMachineRenderer renderer)
         {
@@ -58,7 +61,7 @@ namespace StateMachine
         {
             for (int i = 0; i < State.Rules.Count; i++) 
             {
-                ruleRenderers.Add(new RuleRenderer(State.Rules[i]));
+                ruleRenderers.Add(new RuleRenderer(State.Rules[i], State, stateMachineRenderer));
             }
         }
 
@@ -66,12 +69,6 @@ namespace StateMachine
         {
             bool guiChanged = false;
             bool isInsideCanvasWindow = stateMachineRenderer.CanvasWindow.Contains(e.mousePosition);
-
-
-            if (IsSelected)
-            {
-                guiChanged = ProcessRuleEvents(e);
-            }
 
             switch (e.type)
             {
@@ -82,53 +79,44 @@ namespace StateMachine
                         {
                             if (Rect.Contains(e.mousePosition))
                             {
-                                OnDragStart();
+                                OnDragStart(e);
                                 if (!IsSelected)
                                 {
                                     OnSelect(e);
+                                    e.Use();
                                 }
                             }
                             else
                             {
                                 if (IsSelected)
                                 {
-                                    OnDeselect();
+                                    OnDeselect(e);
                                 }
                             }
                         }
                     }
 
-                    //if (e.button == 1 && rect.Contains(e.mousePosition))
-                    //{
-                    //    ShowDeleteStateContextMenu(e);
-                    //    e.Use();
-                    //}
                     break;
 
                 case EventType.MouseUp:
                     if (isDragged)
                     {
-                        OnDragEnd();
-                    }
-                    else if (drawingNewRuleLink)
-                    {
-                        StopDrawNewRuleLink(e.mousePosition);
+                        OnDragEnd(e);
                     }
                     break;
 
                 case EventType.MouseDrag:
                     if (e.button == 0 && isDragged)
                     {
-                        Drag(e.delta);
+                        OnDrag(e);
                         e.Use();
                         guiChanged = true;
                     }
                     break;
             }
 
-            if (drawingNewRuleLink)
+            if(IsSelected && ProcessRuleEvents(e))
             {
-                DrawNewRuleLink(e.mousePosition);
                 guiChanged = true;
             }
 
@@ -152,7 +140,7 @@ namespace StateMachine
             DrawHeader();
             DrawRules();
 
-            if(IsSelected && !drawingNewRuleLink)
+            if(IsSelected)// && !drawingNewRuleLink)
             {
                 DrawAddNewRuleButton();
             }
@@ -166,7 +154,10 @@ namespace StateMachine
 
             foreach (RuleRenderer renderer in ruleRenderers)
             {
-                guiChanged = renderer.ProcessEvents(e);
+                if(renderer.ProcessEvents(e))
+                {
+                    guiChanged = true;
+                }
             }
 
             return guiChanged;
@@ -175,7 +166,7 @@ namespace StateMachine
         private void DrawHeader()
         {
             GUI.color = HeaderBackgroundColor;
-            Rect = new Rect(Position.x, Position.y, WIDTH, HEADER_HEIGHT);
+            Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
 
             if (IsEntryState)
             {
@@ -201,7 +192,7 @@ namespace StateMachine
             Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, RuleRenderer.RULE_HEIGHT);
             if (GUI.Button(r, "Add New Rule"))
             {
-                StartDrawNewRuleLink();
+                CreateNewRule(State);
             }
         }
 
@@ -227,24 +218,24 @@ namespace StateMachine
             GUI.Box(r, ENTRY_STRING);
         }
 
-        private void Drag(Vector2 delta)
+        public void OnDrag(Event e)
         {
-            Vector2 newPosition = Position;
-            newPosition += delta;
+            Vector2 newPosition = Rect.position;
+            newPosition += e.delta;
 
             // TODO: needs to take it's own size into account?
             newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineRenderer.CANVAS_WIDTH);
             newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineRenderer.CANVAS_HEIGHT);
 
-            State.Position = newPosition;
+            State.Rect.position = newPosition;
         }
 
-        private void OnDragStart()
+        public void OnDragStart(Event e)
         {
             isDragged = true;
         }
 
-        private void OnDragEnd()
+        public void OnDragEnd(Event e)
         {
             isDragged = false;
         }
@@ -258,7 +249,7 @@ namespace StateMachine
             e.Use();
         }
 
-        private void OnSelect(Event e)
+        public void OnSelect(Event e)
         {
             GUI.changed = true;
             IsSelected = true;
@@ -266,50 +257,31 @@ namespace StateMachine
             //style = selectedNodeStyle;
         }
 
-        private void OnDeselect()
+        public void OnDeselect(Event e)
         {
             GUI.changed = true;
             IsSelected = false;
+
+            foreach(RuleRenderer renderer in ruleRenderers)
+            {
+                renderer.OnDeselect(e);
+            }
+
             DeselectedEvent?.Invoke(this);
+
             //style = defaultNodeStyle;
         }
 
-        private void StartDrawNewRuleLink()
+        private void CreateNewRule(State connectedState)
         {
-            drawingNewRuleLink = true;
-
             string assetFilePath = AssetDatabase.GetAssetPath(State);
-            newRule = StateMachineEditorUtility.CreateObjectInstance<EmptyRule>(assetFilePath);
-            newRuleLinkRenderer = new RuleRenderer(newRule);
-        }
+            Rule rule = StateMachineEditorUtility.CreateObjectInstance<EmptyRule>(assetFilePath);
 
-        private void DrawNewRuleLink(Vector2 destination)
-        {
-            Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
-            newRuleLinkRenderer.Draw(position, Rect.width);
-            newRuleLinkRenderer.DrawLine(destination);
-        }
-
-        private void StopDrawNewRuleLink(Vector2 mousePosition)
-        {
-            if (stateMachineRenderer.IsStateAtPosition(mousePosition, out StateRenderer stateRenderer) && stateRenderer != null)
-            {
-                AddNewRule(newRule, stateRenderer.State);
-            }
-            else
-            {
-                UnityEngine.Object.DestroyImmediate(newRule, true);
-            }
-
-            drawingNewRuleLink = false;
-            newRuleLinkRenderer = null;
-        }
-
-        private void AddNewRule(Rule rule, State connectedState)
-        {
             State.AddRule(rule);
-            rule.SetDestination(connectedState);
-            ruleRenderers.Add(new RuleRenderer(rule));
+            RuleRenderer renderer = new RuleRenderer(rule, State, stateMachineRenderer);
+            ruleRenderers.Add(renderer);
+            renderer.OnSelect(Event.current);
+            renderer.IsNew();
         }
 
         private void RemoveRule(RuleRenderer ruleRenderer)
@@ -317,22 +289,6 @@ namespace StateMachine
             State.RemoveRule(ruleRenderer.Rule);
             ruleRenderer.OnDelete();
         }
-
-        //private bool SelectedRule(Vector2 mousePosition, out RuleRenderer rule)
-        //{
-        //    for (int i = 0; i < State.Rules.Count; i++)
-        //    {
-        //        if (ruleRenderers[i].Rect.Contains(mousePosition))
-        //        {
-        //            rule = ruleRenderers[i];
-        //            return true;
-        //        }
-        //    }
-
-        //    rule = null;
-        //    return false;
-        //}
-
         private void Delete()
         {
             DeleteEvent?.Invoke(this);
