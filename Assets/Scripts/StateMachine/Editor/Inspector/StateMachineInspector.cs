@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,43 +14,64 @@ namespace StateMachine
     /// </summary>
     public class StateMachineInspector : IDisposable
     {
-        public IInspectable InspectedObject { get; protected set; }
+        public ScriptableObject InspectedObject { get; private set; }
 
-        protected StateMachine stateMachine;
-        protected InspectorUI objectInspector;
+        protected StateMachineRenderer stateMachineRenderer;
+        protected InspectorUI inspector;
 
-        public StateMachineInspector(StateMachine stateMachine)
+        public StateMachineInspector(StateMachineRenderer stateMachineRenderer)
         {
-            this.stateMachine = stateMachine;
+            this.stateMachineRenderer = stateMachineRenderer;
 
             Undo.undoRedoPerformed += Refresh;
         }
 
         public void OnInspectorGUI(Event e)
         {
-            if(objectInspector == null) { return; }
+            if(inspector == null) { return; }
 
-            objectInspector.OnInspectorGUI(e);
+            inspector.OnInspectorGUI(e);
         }
 
-        public void Inspect(IInspectable inspectableObject)
+        public void Inspect(ScriptableObject inspectableObject)
         {
             InspectedObject = inspectableObject;
 
-            Type behaviour = InspectedObject.InspectorBehaviour;
-            objectInspector = (StateInspectorUI)Activator.CreateInstance(behaviour);
-            objectInspector.Show(stateMachine, InspectedObject);
+            inspector = GetCorrectUIBehaviour(inspectableObject);
+            inspector.Show(stateMachineRenderer, inspectableObject);
+        }
+
+        private InspectorUI GetCorrectUIBehaviour(ScriptableObject inspectableObject)
+        {
+            IEnumerable<Type> validTypes = ReflectionUtility.GetDerivedTypes(typeof(InspectorUI).Assembly, typeof(InspectorUI));
+
+            foreach (var type in validTypes)
+            {
+                object[] attributesFound = type.GetCustomAttributes(typeof(CustomInspectorUIAttribute), true);
+                if (attributesFound != null || attributesFound.Length == 0)
+                {
+                    CustomInspectorUIAttribute attribute = attributesFound.FirstOrDefault() as CustomInspectorUIAttribute;
+
+                    if (attribute == null) { continue; }
+
+                    if (attribute.InspectorTargetType == inspectableObject.GetType() || attribute.InspectorTargetType.IsAssignableFrom(inspectableObject.GetType()))
+                    {
+                        return (InspectorUI)Activator.CreateInstance(type);
+                    }
+                }
+            }
+
+            return new InspectorUI();
         }
 
         public void Refresh()
         {
-            objectInspector.Refresh();
+            inspector.Refresh();
         }
 
         public void Clear()
         {
-            InspectedObject = null;
-            objectInspector = null;
+            inspector = null;
         }
 
         public void Dispose()

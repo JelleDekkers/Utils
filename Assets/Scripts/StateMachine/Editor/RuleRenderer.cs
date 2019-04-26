@@ -27,15 +27,15 @@ namespace StateMachine
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
 
 
-        private State stateParent;
+        private StateRenderer stateRenderer;
         private StateMachineRenderer stateMachineRenderer;
         private bool isDraggingLine;
         private bool isNew;
 
-        public RuleRenderer(Rule rule, State state, StateMachineRenderer stateMachine)
+        public RuleRenderer(Rule rule, StateRenderer state, StateMachineRenderer stateMachine)
         {
             Rule = rule;
-            stateParent = state;
+            stateRenderer = state;
             stateMachineRenderer = stateMachine;
 
             Rect = new Rect();
@@ -47,6 +47,16 @@ namespace StateMachine
 
             switch (e.type)
             {
+                case EventType.KeyDown:
+                    if (e.keyCode == (KeyCode.Delete))
+                    {
+                        if (Rect.Contains(e.mousePosition))
+                        {
+                            stateRenderer.RemoveRule(Rule);
+                        }
+                    }
+                    break;
+
                 case EventType.MouseDown:
                     if (e.button == 0) 
                     {
@@ -106,22 +116,12 @@ namespace StateMachine
         public void OnSelect(Event e)
         {
             IsSelected = true;
-            ShowInspector();
+            stateMachineRenderer.Inspector.Inspect(Rule);
         }
 
         public void OnDeselect(Event e)
         {
             IsSelected = false;
-        }
-
-        public void OnDelete()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ShowInspector()
-        {
-            stateMachineRenderer.Inspector.Inspect(this);
         }
 
         public void OnDragStart(Event e) { }
@@ -141,7 +141,7 @@ namespace StateMachine
 
             if (stateMachineRenderer.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
-                if (stateRenderer.State == stateParent)
+                if (stateRenderer.State == this.stateRenderer.State)
                 {
                     Rule.SetDestination(null);
                 }
@@ -150,6 +150,15 @@ namespace StateMachine
                     Rule.SetDestination(stateRenderer.State);
                 }
             }
+        }
+
+        private void ShowContextMenu(Event e)
+        {
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.RemoveRule(this));
+            menu.ShowAsContext();
+
+            e.Use();
         }
 
         public Rect Draw(Vector2 position, float width)

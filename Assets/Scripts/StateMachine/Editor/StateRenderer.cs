@@ -9,7 +9,7 @@ namespace StateMachine
     /// <summary>
     /// Renders the <see cref="global::StateMachine.State"/> node on the <see cref="StateMachine"/> window
     /// </summary>
-    public class StateRenderer : ISelectable, IDraggable, IInspectable
+    public class StateRenderer : ISelectable, IDraggable
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
@@ -27,13 +27,9 @@ namespace StateMachine
         public bool IsEntryState { get { return stateMachineRenderer.StateMachine.EntryState == State; } }
         public bool IsSelected { get; private set; }
 
-        public string PropertyFieldName => "actions"; 
-        public ScriptableObject InspectableObject => State;
-        public Type InspectorBehaviour => typeof(StateInspectorUI);
-
-        public Action<ISelectable> SelectedEvent;
-        public Action<ISelectable> DeselectedEvent;
-        public Action<StateRenderer> DeleteEvent;
+        //public Action<ISelectable> SelectedEvent;
+        //public Action<ISelectable> DeselectedEvent;
+        //public Action<StateRenderer> DeleteEvent;
 
         private readonly float HighlightMargin = 4;
         private readonly Color HighlightColor = Color.yellow;
@@ -61,7 +57,7 @@ namespace StateMachine
         {
             for (int i = 0; i < State.Rules.Count; i++) 
             {
-                ruleRenderers.Add(new RuleRenderer(State.Rules[i], State, stateMachineRenderer));
+                ruleRenderers.Add(new RuleRenderer(State.Rules[i], this, stateMachineRenderer));
             }
         }
 
@@ -72,6 +68,15 @@ namespace StateMachine
 
             switch (e.type)
             {
+                case EventType.KeyDown:
+                    if (e.keyCode == (KeyCode.Delete))
+                    {
+                        if (Rect.Contains(e.mousePosition))
+                        {
+                            stateMachineRenderer.RemoveState(State);
+                        }
+                    }
+                    break;
                 case EventType.MouseDown:
                     if (isInsideCanvasWindow)
                     {
@@ -94,8 +99,14 @@ namespace StateMachine
                                 }
                             }
                         }
+                        //else if (e.button == 1)
+                        //{
+                        //    if (Rect.Contains(e.mousePosition))
+                        //    {
+                        //        ShowContextMenu(e);
+                        //    }
+                        //}
                     }
-
                     break;
 
                 case EventType.MouseUp:
@@ -123,9 +134,33 @@ namespace StateMachine
             return guiChanged;
         }
 
-        public void Reset()
+        public void ResetState()
+        {
+            ResetActions();
+            ResetRules();
+
+            stateMachineRenderer.Refresh();
+            stateMachineRenderer.Inspector.Refresh();
+        }
+
+        public void ResetActions()
+        {
+            for (int i = State.Actions.Count - 1; i >= 0; i--)
+            {
+                State.RemoveAction(State.Actions[i]);
+                UnityEngine.Object.DestroyImmediate(State.Actions[i], true);
+                UnityEngine.Object.DestroyImmediate(State.Rules[i], true);
+            }
+        }
+
+        public void ResetRules()
         {
             ruleRenderers.Clear();
+
+            for (int i = State.Rules.Count - 1; i >= 0; i--)
+            {
+                State.RemoveRule(State.Rules[i]);
+            }
         }
 
         public void Draw()
@@ -192,7 +227,7 @@ namespace StateMachine
             Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, RuleRenderer.RULE_HEIGHT);
             if (GUI.Button(r, "Add New Rule"))
             {
-                CreateNewRule(State);
+                stateMachineRenderer.Inspector.Inspect(CreateNewRule(State));
             }
         }
 
@@ -240,10 +275,12 @@ namespace StateMachine
             isDragged = false;
         }
 
-        private void ShowDeleteStateContextMenu(Event e)
+        private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete State"), false, () => Delete());
+            menu.AddItem(new GUIContent("Delete"), false, () => stateMachineRenderer.RemoveState(State));
+            menu.AddItem(new GUIContent("Reset"), false, ResetState);
+            menu.AddItem(new GUIContent("Add Rule"), false, () => stateMachineRenderer.Inspector.Inspect(CreateNewRule(State)));
             menu.ShowAsContext();
 
             e.Use();
@@ -253,8 +290,10 @@ namespace StateMachine
         {
             GUI.changed = true;
             IsSelected = true;
-            SelectedEvent?.Invoke(this);
+            //SelectedEvent?.Invoke(this);
             //style = selectedNodeStyle;
+
+            stateMachineRenderer.Inspector.Inspect(State);
         }
 
         public void OnDeselect(Event e)
@@ -267,31 +306,46 @@ namespace StateMachine
                 renderer.OnDeselect(e);
             }
 
-            DeselectedEvent?.Invoke(this);
+            //DeselectedEvent?.Invoke(this);
 
             //style = defaultNodeStyle;
         }
 
-        private void CreateNewRule(State connectedState)
+        private Rule CreateNewRule(State connectedState)
         {
             string assetFilePath = AssetDatabase.GetAssetPath(State);
             Rule rule = StateMachineEditorUtility.CreateObjectInstance<EmptyRule>(assetFilePath);
 
             State.AddRule(rule);
-            RuleRenderer renderer = new RuleRenderer(rule, State, stateMachineRenderer);
+            RuleRenderer renderer = new RuleRenderer(rule, this, stateMachineRenderer);
             ruleRenderers.Add(renderer);
             renderer.OnSelect(Event.current);
             renderer.IsNew();
+
+            return rule;
         }
 
-        private void RemoveRule(RuleRenderer ruleRenderer)
+        public void RemoveRule(Rule rule)
+        {
+            foreach(RuleRenderer renderer in ruleRenderers)
+            {
+                if(renderer.Rule == rule)
+                {
+                    RemoveRule(renderer);
+                    return;
+                }
+            }
+        }
+
+        public void RemoveRule(RuleRenderer ruleRenderer)
         {
             State.RemoveRule(ruleRenderer.Rule);
-            ruleRenderer.OnDelete();
-        }
-        private void Delete()
-        {
-            DeleteEvent?.Invoke(this);
+            ruleRenderers.Remove(ruleRenderer);
+
+            if(stateMachineRenderer.Inspector.InspectedObject == ruleRenderer.Rule)
+            {
+                stateMachineRenderer.Inspector.Clear();
+            }
         }
     }
 }

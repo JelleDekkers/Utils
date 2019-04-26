@@ -8,11 +8,44 @@ namespace StateMachine
     /// Renders the inspector for the <see cref="global::StateMachine.State"/>s
     /// Shows all <see cref="StateAction"/>s and variables
     /// </summary>
+    [CustomInspectorUI(typeof(State))]
     public class StateInspectorUI : InspectorUI
     {
-        private State State { get { return InspectedProperty.serializedObject.targetObject as State; } }
+        private const string PROPERTY_FIELD_NAME = "actions";
 
-        protected override void DrawHeader()
+        private State State { get { return InspectedObject as State; } }
+
+        public override void InspectorContent(Event e)
+        {
+            if (!StateMachineRenderer.ShowDebug)
+            {
+                DrawHeader();
+                DrawStateFields();
+            }
+            else
+            {
+                DrawProperties();
+            }
+        }
+
+        public override void OnInspectorGUI(Event e)
+        {
+            base.OnInspectorGUI(e);
+            DrawAddNewButton();
+        }
+
+        private void DrawStateFields()
+        {
+            SerializedProperty property = new SerializedObject(InspectedObject).FindProperty(PROPERTY_FIELD_NAME);
+
+            for (int i = 0; i < property.arraySize; i++)
+            {
+                DrawDividerLine();
+                DrawExpandedPropertyFieldArray(property, i);
+            }
+        }
+
+        private void DrawHeader()
         {
             EditorGUILayout.BeginHorizontal();
             string newName = EditorGUILayout.DelayedTextField(State.Title);
@@ -33,10 +66,37 @@ namespace StateMachine
             }
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("State Actions", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
         }
 
-        // TODO: naar base class?
-        protected override void CreateNewType(Type type)
+        private void DrawAddNewButton()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Add New Action", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
+            {
+                OpenTypeFilterWindow();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        private void OpenTypeFilterWindow()
+        {
+            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, string.Format("Choose {0} to add", State.ToString()));
+            TypeFilterWindow.SelectHandler func = (Type t) =>
+            {
+                CreateNewType(t);
+                window.Close();
+            };
+            window.RetrieveTypes<StateAction>(func);
+        }
+
+
+        protected void CreateNewType(Type type)
         {
             Undo.RecordObject(StateMachine, "Add Action");
             string assetFilePath = AssetDatabase.GetAssetPath(InspectedObject);
@@ -48,12 +108,13 @@ namespace StateMachine
 
         protected override void OnDeleteButtonPressed(int index)
         {
-            StateAction action = State.Actions[index];
+            Undo.RecordObject(StateMachine, "Remove Action");
 
+            StateAction action = State.Actions[index];
             State.RemoveAction(action);
             UnityEngine.Object.DestroyImmediate(action, true);
 
-            base.OnDeleteButtonPressed(index);
+            Refresh();
         }
     }
 }

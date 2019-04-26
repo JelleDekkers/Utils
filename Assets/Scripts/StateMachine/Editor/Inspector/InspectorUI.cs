@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace StateMachine
 {
+    /// <summary>
+    /// Base class for <see cref="StateMachineInspector"/> UI behaviour
+    /// To create a custom behaviour, inherit from this class and use <see cref="CustomInspectorUIAttribute"/>
+    /// </summary>
     public class InspectorUI
     {
         protected enum ContextMenuCommand
@@ -27,54 +31,47 @@ namespace StateMachine
             }
         }
 
+        protected StateMachineRenderer StateMachineRenderer { get; private set; }
+        protected StateMachine StateMachine { get { return StateMachineRenderer.StateMachine; } }
         protected ScriptableObject InspectedObject { get; private set; }
-        protected string PropertyFieldName { get; private set; }
-        protected SerializedProperty InspectedProperty { get; private set; }
-        protected StateMachine StateMachine { get; private set; }
-
-        public void Show(StateMachine stateMachine, IInspectable inspectedObject)
+        
+        public void Show(StateMachineRenderer stateMachineRenderer, ScriptableObject inspectedObject)
         {
-            StateMachine = stateMachine;
-            InspectedObject = inspectedObject.InspectableObject;
-            PropertyFieldName = inspectedObject.PropertyFieldName;
+            StateMachineRenderer = stateMachineRenderer;
+            InspectedObject = inspectedObject;
 
             Refresh();
         }
 
+        // TODO: fix
         public void Refresh()
         {
-            InspectedProperty = new SerializedObject(InspectedObject).FindProperty(PropertyFieldName);
+            //InspectedProperty = new SerializedObject(InspectedObject).FindProperty(PropertyFieldName);
         }
 
-        public void OnInspectorGUI(Event e)
+        public virtual void OnInspectorGUI(Event e)
         {
             if (InspectedObject == null) { return; }
 
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
-            DrawHeader();
-            DrawProperties();
+            InspectorContent(e);
             EditorGUILayout.EndVertical();
-
-            DrawAddNewButton();
         }
 
-        protected virtual void DrawHeader() { }
-
-        protected void DrawProperties()
+        public virtual void InspectorContent(Event e)
         {
-            EditorGUILayout.LabelField(ObjectNames.NicifyVariableName(PropertyFieldName), EditorStyles.boldLabel);
-            if (InspectedProperty == null) { return; }
-
-            for (int i = 0; i < InspectedProperty.arraySize; i++)
-            {
-                DrawDividerLine();
-                DrawPropertyField(i);
-            }
+            DrawProperties();
         }
 
-        protected void DrawPropertyField(int index)
+        protected virtual void DrawProperties()
         {
-            SerializedProperty property = InspectedProperty.GetArrayElementAtIndex(index);
+            SerializedObject serializedObject = new SerializedObject(InspectedObject);
+            DrawAllFields(serializedObject);
+        }
+
+        protected void DrawExpandedPropertyFieldArray(SerializedProperty property, int index)
+        {
+            property = property.GetArrayElementAtIndex(index);
             if (property.objectReferenceValue == null) { return; }
 
             GUIStyle myStyle = new GUIStyle();
@@ -121,31 +118,22 @@ namespace StateMachine
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawAddNewButton()
+        private void DrawAllFields(SerializedObject serializedObject)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Add New Action", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
+            SerializedProperty property = serializedObject.GetIterator();
+
+            if (property.NextVisible(true))
             {
-                OpenTypeFilterWindow();
+                do
+                {
+                    if (property.isArray) { EditorGUI.indentLevel++; }
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty(property.name), true);
+                    if (property.isArray) { EditorGUI.indentLevel--; }
+                }
+                while (property.NextVisible(false));
             }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
+            serializedObject.ApplyModifiedProperties();
         }
-
-        private void OpenTypeFilterWindow()
-        {
-            string typeName = ObjectNames.NicifyVariableName(PropertyFieldName);
-            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, string.Format("Choose {0} to add", typeName));
-            TypeFilterWindow.SelectHandler func = (Type t) =>
-            {
-                CreateNewType(t);
-                window.Close();
-            };
-            window.RetrieveTypes<StateAction>(func);
-        }
-
-        protected virtual void CreateNewType(Type type) { }
 
         protected string GetPropertyName(SerializedProperty property)
         {
@@ -198,6 +186,7 @@ namespace StateMachine
 
         protected virtual void OnEditScriptButtonPressed(int index)
         {
+            Debug.Log(index);
             OpenScript(InspectedObject);
         }
 
@@ -208,7 +197,7 @@ namespace StateMachine
 
         protected virtual void OnDeleteButtonPressed(int index)
         {
-            Refresh();
+            throw new NotImplementedException();
         }
 
         private void OpenScript(ScriptableObject obj)
@@ -218,9 +207,9 @@ namespace StateMachine
             UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
         }
 
-        private void DrawDividerLine()
+        protected void DrawDividerLine(float height = 1)
         {
-            GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(1));
+            GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(height));
         }
     }
 }

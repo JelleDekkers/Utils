@@ -9,5 +9,7 @@ namespace StateMachine
         public override string DisplayName => "TRUE";
 
         public override bool IsValid => true;
+
+        [SerializeField] private float testValue;
     }
 }
