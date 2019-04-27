@@ -101,7 +101,7 @@ namespace StateMachine
                 {   
                     GUILayout.Label("selection action count " + (selectedObject as StateRenderer).State.Actions.Count);
                     GUILayout.Label("selection rect " + (selectedObject as StateRenderer).Rect);
-                    GUILayout.Label("selection rules " + (selectedObject as StateRenderer).State.Rules.Count);
+                    GUILayout.Label("selection rules " + (selectedObject as StateRenderer).State.RuleGroups.Count);
                     GUILayout.Label("entry state == selection " + (StateMachine.EntryState == (selectedObject as StateRenderer).State));
                     //GUILayout.Label("entry state ID " + StateMachine.EntryState.GetInstanceID());
                     //GUILayout.Label("state[0] ID " + StateMachine.States[0].GetInstanceID());

@@ -5,15 +5,15 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Renders the inspector for the <see cref="global::StateMachine.State"/>s
-    /// Shows all <see cref="StateAction"/>s and variables
+    /// Renders the inspector for <see cref="global::StateMachine.RuleGroup"/>s
+    /// Shows all <see cref="Rule"/>s and allows for modification
     /// </summary>
-    [CustomInspectorUI(typeof(State))]
-    public class StateInspectorUI : InspectorUI
+    [CustomInspectorUI(typeof(RuleGroup))]
+    public class RuleGroupInspectorUI : InspectorUI
     {
-        private State State { get { return InspectedObject as State; } }
+        private RuleGroup RuleGroup { get { return InspectedObject as RuleGroup; } }
 
-        private const string PROPERTY_FIELD_NAME = "actions";
+        private const string PROPERTY_FIELD_NAME = "rules";
 
         public override void InspectorContent(Event e)
         {
@@ -46,6 +46,7 @@ namespace StateMachine
 
             if (property.arraySize == 0)
             {
+                DrawDividerLine();
                 GUILayout.Label("Empty");
             }
         }
@@ -53,27 +54,7 @@ namespace StateMachine
         private void DrawHeader()
         {
             EditorGUILayout.BeginHorizontal();
-            string newName = EditorGUILayout.DelayedTextField(State.Title);
-
-            if (newName != State.Title)
-            {
-                Undo.RecordObject(StateMachine, "Change State Name");
-                State.Title = newName;
-                EditorUtility.SetDirty(InspectedObject);
-            }
-
-            GUI.enabled = StateMachine.EntryState != State;
-            if (GUILayout.Button("Entry State", GUILayout.Width(90)))
-            {
-                Undo.RecordObject(StateMachine, "Set Entry State");
-                StateMachine.SetEntryState(State);
-                EditorUtility.SetDirty(StateMachine);
-            }
-            GUI.enabled = true;
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("State Actions", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Rules", EditorStyles.boldLabel);
             EditorGUILayout.EndHorizontal();
         }
 
@@ -81,7 +62,7 @@ namespace StateMachine
         {
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Add New Action", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
+            if (GUILayout.Button("Add New Rule", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
             {
                 OpenTypeFilterWindow();
             }
@@ -91,35 +72,34 @@ namespace StateMachine
 
         private void OpenTypeFilterWindow()
         {
-            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, string.Format("Choose {0} to add", State.ToString()));
+            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, string.Format("Choose {0} to add", typeof(Rule).ToString()));
             TypeFilterWindow.SelectHandler func = (Type t) =>
             {
                 CreateNewType(t);
                 window.Close();
             };
-            window.RetrieveTypes<StateAction>(func);
+            window.RetrieveTypes<Rule>(func);
         }
 
         protected void CreateNewType(Type type)
         {
-            Undo.RecordObject(StateMachine, "Add Action");
+            Undo.RecordObject(StateMachine, "Add Rule");
             string assetFilePath = AssetDatabase.GetAssetPath(InspectedObject);
-            StateAction stateAction = StateMachineEditorUtility.CreateObjectInstance(type, assetFilePath) as StateAction;
+            Rule rule = StateMachineEditorUtility.CreateObjectInstance(type, assetFilePath) as Rule;
 
-            State.AddAction(stateAction);
+            RuleGroup.AddRule(rule);
             Refresh();
         }
 
         protected override void OnDeleteButtonPressed(int index)
         {
-            Undo.RecordObject(StateMachine, "Remove Action");
+            Undo.RecordObject(StateMachine, "Remove Rule");
 
-            StateAction action = State.Actions[index];
-            State.RemoveAction(action);
-            UnityEngine.Object.DestroyImmediate(action, true);
+            Rule rule = RuleGroup.Rules[index];
+            RuleGroup.RemoveRule(rule);
+            UnityEngine.Object.DestroyImmediate(rule, true);
 
             Refresh();
         }
     }
 }
- 

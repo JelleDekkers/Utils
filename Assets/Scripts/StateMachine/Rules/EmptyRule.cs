@@ -6,7 +6,7 @@ namespace StateMachine
 {
     public class EmptyRule : Rule
     {
-        public override string DisplayName => "TRUE";
+        public override string DisplayName => "Empty Rule";
 
         public override bool IsValid => true;
 

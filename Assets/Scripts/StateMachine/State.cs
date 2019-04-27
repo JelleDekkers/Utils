@@ -13,8 +13,8 @@ namespace StateMachine
         public List<StateAction> Actions => actions;
         [SerializeField] private List<StateAction> actions = new List<StateAction>();
 
-        public List<Rule> Rules => rules;
-        [SerializeField] private List<Rule> rules = new List<Rule>();
+        public List<RuleGroup> RuleGroups => ruleGroups;
+        [SerializeField] private List<RuleGroup> ruleGroups = new List<RuleGroup>();
 
         // Editor stuff:
         public string Title = "New State";
@@ -30,14 +30,14 @@ namespace StateMachine
             actions.Remove(action);
         }
 
-        public void AddRule(Rule rule)
+        public void AddRuleGroup(RuleGroup ruleGroup)
         {
-            rules.Add(rule);
+            ruleGroups.Add(ruleGroup);
         }
 
-        public void RemoveRule(Rule rule)
+        public void RemoveRuleGroup(RuleGroup ruleGroup)
         {
-            rules.Remove(rule);
+            ruleGroups.Remove(ruleGroup);
         }
 
         public void Run()

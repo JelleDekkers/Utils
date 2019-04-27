@@ -36,7 +36,7 @@ namespace StateMachine
         private readonly Color HeaderBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
 
         private StateMachineRenderer stateMachineRenderer;
-        private List<RuleRenderer> ruleRenderers = new List<RuleRenderer>();
+        private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private GUIStyle style;
         private bool isDragged;
 
@@ -55,9 +55,9 @@ namespace StateMachine
 
         private void InitializeRuleRenderers()
         {
-            for (int i = 0; i < State.Rules.Count; i++) 
+            for (int i = 0; i < State.RuleGroups.Count; i++) 
             {
-                ruleRenderers.Add(new RuleRenderer(State.Rules[i], this, stateMachineRenderer));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, stateMachineRenderer));
             }
         }
 
@@ -137,7 +137,7 @@ namespace StateMachine
         public void ResetState()
         {
             ResetActions();
-            ResetRules();
+            ResetRuleGRoups();
 
             stateMachineRenderer.Refresh();
             stateMachineRenderer.Inspector.Refresh();
@@ -149,17 +149,17 @@ namespace StateMachine
             {
                 State.RemoveAction(State.Actions[i]);
                 UnityEngine.Object.DestroyImmediate(State.Actions[i], true);
-                UnityEngine.Object.DestroyImmediate(State.Rules[i], true);
+                UnityEngine.Object.DestroyImmediate(State.RuleGroups[i], true);
             }
         }
 
-        public void ResetRules()
+        public void ResetRuleGRoups()
         {
-            ruleRenderers.Clear();
+            ruleGroupRenderers.Clear();
 
-            for (int i = State.Rules.Count - 1; i >= 0; i--)
+            for (int i = State.RuleGroups.Count - 1; i >= 0; i--)
             {
-                State.RemoveRule(State.Rules[i]);
+                State.RemoveRuleGroup(State.RuleGroups[i]);
             }
         }
 
@@ -187,7 +187,7 @@ namespace StateMachine
         {
             bool guiChanged = false;
 
-            foreach (RuleRenderer renderer in ruleRenderers)
+            foreach (RuleGroupRenderer renderer in ruleGroupRenderers)
             {
                 if(renderer.ProcessEvents(e))
                 {
@@ -214,17 +214,17 @@ namespace StateMachine
 
         private void DrawRules()
         {
-            for(int i = 0; i < State.Rules.Count; i++)
+            for(int i = 0; i < State.RuleGroups.Count; i++)
             {
                 Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
-                Rect ruleRect = ruleRenderers[i].Draw(position, Rect.width);
+                Rect ruleRect = ruleGroupRenderers[i].Draw(position, Rect.width);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
         }
 
         private void DrawAddNewRuleButton()
         {
-            Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, RuleRenderer.RULE_HEIGHT);
+            Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, HEADER_HEIGHT);
             if (GUI.Button(r, "Add New Rule"))
             {
                 stateMachineRenderer.Inspector.Inspect(CreateNewRule(State));
@@ -301,7 +301,7 @@ namespace StateMachine
             GUI.changed = true;
             IsSelected = false;
 
-            foreach(RuleRenderer renderer in ruleRenderers)
+            foreach(RuleGroupRenderer renderer in ruleGroupRenderers)
             {
                 renderer.OnDeselect(e);
             }
@@ -311,38 +311,39 @@ namespace StateMachine
             //style = defaultNodeStyle;
         }
 
-        private Rule CreateNewRule(State connectedState)
+        private RuleGroup CreateNewRule(State connectedState)
         {
             string assetFilePath = AssetDatabase.GetAssetPath(State);
-            Rule rule = StateMachineEditorUtility.CreateObjectInstance<EmptyRule>(assetFilePath);
+            RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
 
-            State.AddRule(rule);
-            RuleRenderer renderer = new RuleRenderer(rule, this, stateMachineRenderer);
-            ruleRenderers.Add(renderer);
+            State.AddRuleGroup(group);
+            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, stateMachineRenderer);
+            ruleGroupRenderers.Add(renderer);
+
             renderer.OnSelect(Event.current);
-            renderer.IsNew();
+            renderer.SetAsNew();
 
-            return rule;
+            return group;
         }
 
-        public void RemoveRule(Rule rule)
+        public void RemoveRuleGroup(RuleGroup group)
         {
-            foreach(RuleRenderer renderer in ruleRenderers)
+            foreach(RuleGroupRenderer renderer in ruleGroupRenderers)
             {
-                if(renderer.Rule == rule)
+                if(renderer.RuleGroup == group)
                 {
-                    RemoveRule(renderer);
+                    RemoveRuleGroup(renderer);
                     return;
                 }
             }
         }
 
-        public void RemoveRule(RuleRenderer ruleRenderer)
+        public void RemoveRuleGroup(RuleGroupRenderer ruleRenderer)
         {
-            State.RemoveRule(ruleRenderer.Rule);
-            ruleRenderers.Remove(ruleRenderer);
+            State.RemoveRuleGroup(ruleRenderer.RuleGroup);
+            ruleGroupRenderers.Remove(ruleRenderer);
 
-            if(stateMachineRenderer.Inspector.InspectedObject == ruleRenderer.Rule)
+            if(stateMachineRenderer.Inspector.InspectedObject == ruleRenderer.RuleGroup)
             {
                 stateMachineRenderer.Inspector.Clear();
             }

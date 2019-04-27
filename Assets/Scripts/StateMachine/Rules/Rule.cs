@@ -9,12 +9,6 @@ namespace StateMachine
     [Serializable]
     public abstract class Rule : ScriptableObject
     {
-        //public Link Link => link;
-        //[SerializeField] private Link link;
-
-        public State Destination => destination;
-        [SerializeField] private State destination;
-
         /// <summary>
         /// Wether this rule is valid and should transition to the next state
         /// </summary>
@@ -34,10 +28,5 @@ namespace StateMachine
         /// Called when the state ends
         /// </summary>
         public virtual void OnDeactivate() { }
-
-        public void SetDestination(State state)
-        {
-            destination = state;
-        }
     }
 }

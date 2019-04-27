@@ -5,36 +5,54 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering individual <see cref="global::StateMachine.Rule"/>s on <see cref="StateMachineRenderer"/>
+    /// Class for rendering <see cref="global::StateMachine.RuleGroup"/>s on <see cref="StateMachineRenderer"/>
     /// </summary>
-    public class RuleRenderer : ISelectable, IDraggable, IInspectable
+    public class RuleGroupRenderer : ISelectable, IDraggable, IInspectable
     {
-        public const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
-        public const float LINE_THICKNESS = 3f;
+        private const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
+        private const float LINE_THICKNESS = 3f;
+        private const float HIGHLIGHT_MARGIN_SIZE = 5;
 
-        public Rule Rule { get; private set; }
+        public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
 
         public string PropertyFieldName => "Rules";
-        public ScriptableObject InspectableObject => Rule;
-        public Type InspectorBehaviour => typeof(RuleInspectorUI);
+        public ScriptableObject InspectableObject => RuleGroup;
+        public Type InspectorBehaviour => typeof(RuleGroupInspectorUI);
 
         private readonly Color HighlightSelectionColor = Color.blue;
         private readonly Color HighlightNoDestinationColor = Color.red;
-        private readonly float HighlightMargin = 5;
 
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
-
-
+        
         private StateRenderer stateRenderer;
         private StateMachineRenderer stateMachineRenderer;
         private bool isDraggingLine;
         private bool isNew;
 
-        public RuleRenderer(Rule rule, StateRenderer state, StateMachineRenderer stateMachine)
+        // TODO: move into seperate Style script
+        private GUIStyle RuleStyle
         {
-            Rule = rule;
+            get
+            {
+                if(ruleStyle == null)
+                {
+                    ruleStyle = new GUIStyle();
+                    ruleStyle.alignment = TextAnchor.MiddleRight;
+                    ruleStyle.padding.right = 3;
+                    ruleStyle.padding.left = 3;
+                    ruleStyle.padding.top = 3;
+                    ruleStyle.padding.bottom = 3;
+                }
+                return ruleStyle;
+            }
+        }
+        private GUIStyle ruleStyle;
+       
+        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineRenderer stateMachine)
+        {
+            RuleGroup = ruleGroup;
             stateRenderer = state;
             stateMachineRenderer = stateMachine;
 
@@ -52,7 +70,7 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
-                            stateRenderer.RemoveRule(Rule);
+                            stateRenderer.RemoveRuleGroup(RuleGroup);
                         }
                     }
                     break;
@@ -108,7 +126,7 @@ namespace StateMachine
             return guiChanged;
         }
 
-        public void IsNew()
+        public void SetAsNew()
         {
             isDraggingLine = true;
         }
@@ -116,7 +134,7 @@ namespace StateMachine
         public void OnSelect(Event e)
         {
             IsSelected = true;
-            stateMachineRenderer.Inspector.Inspect(Rule);
+            stateMachineRenderer.Inspector.Inspect(RuleGroup);
         }
 
         public void OnDeselect(Event e)
@@ -143,11 +161,11 @@ namespace StateMachine
             {
                 if (stateRenderer.State == this.stateRenderer.State)
                 {
-                    Rule.SetDestination(null);
+                    RuleGroup.SetDestination(null);
                 }
                 else
                 {
-                    Rule.SetDestination(stateRenderer.State);
+                    RuleGroup.SetDestination(stateRenderer.State);
                 }
             }
         }
@@ -155,7 +173,7 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.RemoveRule(this));
+            menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.RemoveRuleGroup(this));
             menu.ShowAsContext();
 
             e.Use();
@@ -167,21 +185,51 @@ namespace StateMachine
             {
                 DrawHighlight(HighlightSelectionColor);
             }
-            else if (Rule.Destination == null)
+            else if (RuleGroup.Destination == null)
             {
                 DrawHighlight(HighlightNoDestinationColor);
             }
 
-            Rect = new Rect(position.x, position.y, width, RULE_HEIGHT);
-            GUI.Box(Rect, Rule.DisplayName);
+            DrawRules(position, width);
 
-            if (Rule.Destination != null && !isDraggingLine)
+            if (RuleGroup.Destination != null && !isDraggingLine)
             { 
-                Vector2 destinationPoint = new Vector2(Rule.Destination.Rect.x, Rule.Destination.Rect.y + Rule.Destination.Rect.height / 2);
+                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Rect.x, RuleGroup.Destination.Rect.y + RuleGroup.Destination.Rect.height / 2);
                 DrawLine(SourcePoint, destinationPoint);
             }
 
             return Rect;
+        }
+
+        private void DrawRules(Vector2 position, float width)
+        {
+            if (RuleGroup.Rules.Count == 0)
+            {
+                Rect = new Rect(position.x, position.y, width, RULE_HEIGHT);
+                GUI.Box(Rect, "TRUE");
+            }
+            else
+            {
+                float yPos = position.y;
+                float totalHeight = 0;
+                for (int i = 0; i < RuleGroup.Rules.Count; i++)
+                {
+                    yPos += RULE_HEIGHT;
+                    totalHeight += RULE_HEIGHT;
+                }
+                Rect = new Rect(position.x, position.y, width, totalHeight);
+                GUI.Box(Rect, "");
+
+                yPos = position.y;
+                for (int i = 0; i < RuleGroup.Rules.Count; i++)
+                {
+                    Rect pos = new Rect(position.x, yPos, width, RULE_HEIGHT);
+                    GUI.Label(pos, RuleGroup.Rules[i].DisplayName, RuleStyle);
+
+                    yPos += RULE_HEIGHT;
+                    totalHeight += RULE_HEIGHT;
+                }
+            }
         }
 
         private void DrawHighlight(Color color)
@@ -189,10 +237,10 @@ namespace StateMachine
             Color previousColor = GUI.color;
 
             Rect r = new Rect(
-                Rect.x - HighlightMargin / 2,
-                Rect.y - HighlightMargin / 2,
-                Rect.width + HighlightMargin,
-                Rect.height + HighlightMargin);
+                Rect.x - HIGHLIGHT_MARGIN_SIZE / 2,
+                Rect.y - HIGHLIGHT_MARGIN_SIZE / 2,
+                Rect.width + HIGHLIGHT_MARGIN_SIZE,
+                Rect.height + HIGHLIGHT_MARGIN_SIZE);
 
             GUI.color = color;
             GUI.Box(r, "");
