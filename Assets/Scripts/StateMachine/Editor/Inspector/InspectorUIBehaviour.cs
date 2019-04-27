@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,7 +8,7 @@ namespace StateMachine
     /// Base class for <see cref="StateMachineInspector"/> UI behaviour
     /// To create a custom behaviour, inherit from this class and use <see cref="CustomInspectorUIAttribute"/>
     /// </summary>
-    public class InspectorUI
+    public class InspectorUIBehaviour
     {
         protected enum ContextMenuCommand
         {
@@ -34,7 +32,8 @@ namespace StateMachine
         protected StateMachineRenderer StateMachineRenderer { get; private set; }
         protected StateMachine StateMachine { get { return StateMachineRenderer.StateMachine; } }
         protected ScriptableObject InspectedObject { get; private set; }
-        
+        protected SerializedObject SerializedObject { get; set; }
+
         public void Show(StateMachineRenderer stateMachineRenderer, ScriptableObject inspectedObject)
         {
             StateMachineRenderer = stateMachineRenderer;
@@ -43,10 +42,9 @@ namespace StateMachine
             Refresh();
         }
 
-        // TODO: fix
         public void Refresh()
         {
-            //InspectedProperty = new SerializedObject(InspectedObject).FindProperty(PropertyFieldName);
+            SerializedObject = new SerializedObject(InspectedObject);
         }
 
         public virtual void OnInspectorGUI(Event e)
@@ -65,8 +63,7 @@ namespace StateMachine
 
         protected virtual void DrawProperties()
         {
-            SerializedObject serializedObject = new SerializedObject(InspectedObject);
-            DrawAllFields(serializedObject);
+            DrawAllFields(SerializedObject);
         }
 
         protected void DrawExpandedPropertyFieldArray(SerializedProperty property, int index)

@@ -9,7 +9,7 @@ namespace StateMachine
     /// Shows all <see cref="Rule"/>s and allows for modification
     /// </summary>
     [CustomInspectorUI(typeof(RuleGroup))]
-    public class RuleGroupInspectorUI : InspectorUI
+    public class RuleGroupInspectorUI : InspectorUIBehaviour
     {
         private RuleGroup RuleGroup { get { return InspectedObject as RuleGroup; } }
 
@@ -36,7 +36,7 @@ namespace StateMachine
 
         private void DrawStateFields()
         {
-            SerializedProperty property = new SerializedObject(InspectedObject).FindProperty(PROPERTY_FIELD_NAME);
+            SerializedProperty property = SerializedObject.FindProperty(PROPERTY_FIELD_NAME);
 
             for (int i = 0; i < property.arraySize; i++)
             {

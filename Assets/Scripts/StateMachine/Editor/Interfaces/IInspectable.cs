@@ -9,7 +9,7 @@ namespace StateMachine
     public interface IInspectable
     {
         /// <summary>
-        /// The type of UI behaviour, should inherit from <see cref="InspectorUI"/>
+        /// The type of UI behaviour, should inherit from <see cref="InspectorUIBehaviour"/>
         /// </summary>
         Type InspectorBehaviour { get; }
 

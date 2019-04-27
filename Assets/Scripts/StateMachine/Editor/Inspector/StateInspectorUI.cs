@@ -9,7 +9,7 @@ namespace StateMachine
     /// Shows all <see cref="StateAction"/>s and variables
     /// </summary>
     [CustomInspectorUI(typeof(State))]
-    public class StateInspectorUI : InspectorUI
+    public class StateInspectorUI : InspectorUIBehaviour
     {
         private State State { get { return InspectedObject as State; } }
 
@@ -36,7 +36,7 @@ namespace StateMachine
 
         private void DrawStateFields()
         {
-            SerializedProperty property = new SerializedObject(InspectedObject).FindProperty(PROPERTY_FIELD_NAME);
+            SerializedProperty property = SerializedObject.FindProperty(PROPERTY_FIELD_NAME);
 
             for (int i = 0; i < property.arraySize; i++)
             {

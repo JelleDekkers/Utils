@@ -17,7 +17,7 @@ namespace StateMachine
         public ScriptableObject InspectedObject { get; private set; }
 
         protected StateMachineRenderer stateMachineRenderer;
-        protected InspectorUI inspector;
+        protected InspectorUIBehaviour uiBehaviour;
 
         public StateMachineInspector(StateMachineRenderer stateMachineRenderer)
         {
@@ -28,22 +28,22 @@ namespace StateMachine
 
         public void OnInspectorGUI(Event e)
         {
-            if(inspector == null) { return; }
+            if(uiBehaviour == null) { return; }
 
-            inspector.OnInspectorGUI(e);
+            uiBehaviour.OnInspectorGUI(e);
         }
 
         public void Inspect(ScriptableObject inspectableObject)
         {
             InspectedObject = inspectableObject;
 
-            inspector = GetCorrectUIBehaviour(inspectableObject);
-            inspector.Show(stateMachineRenderer, inspectableObject);
+            uiBehaviour = GetCorrectUIBehaviour(inspectableObject);
+            uiBehaviour.Show(stateMachineRenderer, inspectableObject);
         }
 
-        private InspectorUI GetCorrectUIBehaviour(ScriptableObject inspectableObject)
+        private InspectorUIBehaviour GetCorrectUIBehaviour(ScriptableObject inspectableObject)
         {
-            IEnumerable<Type> validTypes = ReflectionUtility.GetDerivedTypes(typeof(InspectorUI).Assembly, typeof(InspectorUI));
+            IEnumerable<Type> validTypes = ReflectionUtility.GetDerivedTypes(typeof(InspectorUIBehaviour).Assembly, typeof(InspectorUIBehaviour));
 
             foreach (var type in validTypes)
             {
@@ -56,22 +56,26 @@ namespace StateMachine
 
                     if (attribute.InspectorTargetType == inspectableObject.GetType() || attribute.InspectorTargetType.IsAssignableFrom(inspectableObject.GetType()))
                     {
-                        return (InspectorUI)Activator.CreateInstance(type);
+                        return (InspectorUIBehaviour)Activator.CreateInstance(type);
                     }
                 }
             }
 
-            return new InspectorUI();
+            return new InspectorUIBehaviour();
         }
 
         public void Refresh()
         {
-            inspector.Refresh();
+            if(InspectedObject != null)
+            {
+                uiBehaviour.Refresh();
+            }
         }
 
         public void Clear()
         {
-            inspector = null;
+            uiBehaviour = null;
+            InspectedObject = null;
         }
 
         public void Dispose()
