@@ -10,7 +10,7 @@ namespace StateMachine
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
         private StateMachineRenderer renderer;
-        private StateMachine stateMachine;
+        private StateMachineData stateMachine;
 
         [MenuItem("Window/State Machine")]
         public static StateMachineWindow Init()
@@ -24,22 +24,22 @@ namespace StateMachine
         {
             window.minSize = windowMinSize;
 
-            if (Selection.activeObject is StateMachine)
+            if (Selection.activeObject is StateMachineData)
             {
-                window.SetTarget(Selection.activeObject as StateMachine);
+                window.SetTarget(Selection.activeObject as StateMachineData);
             }
             if (Selection.activeObject is GameObject)
             {
                 var go = Selection.activeObject as GameObject;
-                StateMachineActivator component = go.GetComponent<StateMachineActivator>();
+                StateMachineExecutor component = go.GetComponent<StateMachineExecutor>();
                 if (component != null)
                 {
-                    window.SetTarget(component.StateMachine);
+                    window.SetTarget(component.StateMachineData);
                 }
             }
         }
 
-        public void SetTarget(StateMachine stateMachine)
+        public void SetTarget(StateMachineData stateMachine)
         {
             if(stateMachine != null)
             {

@@ -5,22 +5,17 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// ScriptableObject StateMachine, contains <see cref="State"/>s
+    /// ScriptableObject for StateMachine data, contains <see cref="State"/>s
     /// </summary>
-    [CreateAssetMenu(fileName = "New StateMachine", menuName = "New StateMachine", order = 1)]
+    [CreateAssetMenu(fileName = "New StateMachine Data", menuName = "New StateMachine", order = 1)]
     [Serializable]
-    public class StateMachine : ScriptableObject
+    public class StateMachineData : ScriptableObject
     {
         public State EntryState { get { return entryState; } }
         [SerializeField] private State entryState;
 
         public List<State> States => states;
         [SerializeField] private List<State> states = new List<State>();
-
-        public void Run(StateMachineActivator activator)
-        {
-            entryState.Run();
-        }
 
         public void AddNewState(State state)
         {

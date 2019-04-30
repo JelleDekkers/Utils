@@ -3,16 +3,16 @@
 namespace StateMachine
 {
     /// <summary>
-    /// Editor class for <see cref="StateMachine"/>
+    /// Editor class for <see cref="StateMachineData"/>
     /// </summary>
-    [CustomEditor(typeof(StateMachine))]
+    [CustomEditor(typeof(StateMachineData))]
     public class StateMachineEditor : Editor
     {
         private StateMachineRenderer renderer;
 
         protected void OnEnable()
         {
-            renderer = new StateMachineRenderer((StateMachine)target, Repaint);
+            renderer = new StateMachineRenderer((StateMachineData)target, Repaint);
         }
 
         public override void OnInspectorGUI()

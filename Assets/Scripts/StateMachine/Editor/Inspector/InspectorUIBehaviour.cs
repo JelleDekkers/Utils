@@ -30,7 +30,7 @@ namespace StateMachine
         }
 
         protected StateMachineRenderer StateMachineRenderer { get; private set; }
-        protected StateMachine StateMachine { get { return StateMachineRenderer.StateMachine; } }
+        protected StateMachineData StateMachine { get { return StateMachineRenderer.StateMachine; } }
         protected ScriptableObject InspectedObject { get; private set; }
         protected SerializedObject SerializedObject { get; set; }
 
@@ -183,7 +183,6 @@ namespace StateMachine
 
         protected virtual void OnEditScriptButtonPressed(int index)
         {
-            Debug.Log(index);
             OpenScript(InspectedObject);
         }
 

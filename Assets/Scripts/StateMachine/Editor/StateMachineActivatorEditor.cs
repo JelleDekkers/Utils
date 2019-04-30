@@ -4,24 +4,24 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Editor class for <see cref="StateMachineActivator"/>
+    /// Editor class for <see cref="StateMachineExecutor"/>
     /// </summary>
-    [CustomEditor(typeof(StateMachineActivator))]
+    [CustomEditor(typeof(StateMachineExecutor))]
     public class StateMachineActivatorEditor : Editor
     {
-        private StateMachineActivator activator;
+        private StateMachineExecutor activator;
         private StateMachineRenderer renderer;
 
-        private StateMachine stateMachine;
+        private StateMachineData stateMachine;
 
         protected void OnEnable()
         {
-            activator = (StateMachineActivator)target;
-            stateMachine = activator.StateMachine;
+            activator = (StateMachineExecutor)target;
+            stateMachine = activator.StateMachineData;
 
             if (stateMachine != null)
             {
-                renderer = new StateMachineRenderer(activator.StateMachine, Repaint);
+                renderer = new StateMachineRenderer(activator.StateMachineData, Repaint);
             }
         }
 
@@ -35,13 +35,13 @@ namespace StateMachine
                 renderer.OnInspectorGUI();
             }
 
-            if(activator.StateMachine != stateMachine)
+            if(activator.StateMachineData != stateMachine)
             {
-                stateMachine = activator.StateMachine;
+                stateMachine = activator.StateMachineData;
 
                 if(stateMachine != null)
                 {
-                    renderer = new StateMachineRenderer(activator.StateMachine, Repaint);
+                    renderer = new StateMachineRenderer(activator.StateMachineData, Repaint);
                 }
                 else
                 {

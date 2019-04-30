@@ -223,13 +223,15 @@ namespace StateMachine
                 yPos = position.y;
                 for (int i = 0; i < RuleGroup.Rules.Count; i++)
                 {
-                    Rect pos = new Rect(position.x, yPos, width, RULE_HEIGHT);
-                    GUI.Label(pos, RuleGroup.Rules[i].DisplayName, RuleStyle);
+                    Rect ruleRect = new Rect(position.x, yPos, width, RULE_HEIGHT);
+                    GUI.Label(ruleRect, RuleGroup.Rules[i].DisplayName, RuleStyle);
 
                     yPos += RULE_HEIGHT;
                     totalHeight += RULE_HEIGHT;
                 }
             }
+
+            DrawHelper.DrawLinkNode(new Vector2(Rect.x + Rect.width, Rect.y + Rect.height / 2));
         }
 
         private void DrawHighlight(Color color)

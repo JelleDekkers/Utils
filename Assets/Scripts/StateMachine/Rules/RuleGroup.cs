@@ -11,7 +11,7 @@ namespace StateMachine
         public List<Rule> Rules => rules;
         [SerializeField] private List<Rule> rules = new List<Rule>();
 
-        public bool IsValid()
+        public bool AllRulesAreValid()
         {
             for (int i = 0; i < rules.Count; i++)
             {

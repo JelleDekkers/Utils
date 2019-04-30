@@ -7,7 +7,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Renders the <see cref="global::StateMachine.State"/> node on the <see cref="StateMachine"/> window
+    /// Renders the <see cref="global::StateMachine.State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
     public class StateRenderer : ISelectable, IDraggable
     {
@@ -179,6 +179,8 @@ namespace StateMachine
             {
                 DrawAddNewRuleButton();
             }
+
+            DrawHelper.DrawLinkNode(new Vector2(Rect.x, Rect.y + Rect.height / 2));
 
             GUI.color = previousBackgroundColor;
         }

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering <see cref="global::StateMachine.StateMachine"/> window.
+    /// Class for rendering <see cref="global::StateMachine.StateMachineData"/> window.
     /// </summary>
     public class StateMachineRenderer
     {
@@ -16,7 +16,7 @@ namespace StateMachine
         private const float GRID_LINE_INTERVAL = 50f;
         private const float WINDOW_HEIGHT = 400;
 
-        public StateMachine StateMachine { get; private set; }
+        public StateMachineData StateMachine { get; private set; }
         public Rect CanvasWindow { get; private set; }
         public Vector2 CanvasDrag { get; private set; }
         public StateMachineInspector Inspector { get; private set; }
@@ -35,7 +35,7 @@ namespace StateMachine
         private Rect scrollView = new Rect();
         private float zoomScale = 100;
 
-        public StateMachineRenderer(StateMachine stateMachine, Action repaintFunc)
+        public StateMachineRenderer(StateMachineData stateMachine, Action repaintFunc)
         {
             StateMachine = stateMachine;
             this.repaintFunc = repaintFunc;

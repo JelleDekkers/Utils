@@ -5,7 +5,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Abstract class for states, used in <see cref="StateMachine"/>
+    /// Abstract class for states, used in <see cref="StateMachineData"/>
     /// </summary>
     [Serializable]
     public class State : ScriptableObject
@@ -38,14 +38,6 @@ namespace StateMachine
         public void RemoveRuleGroup(RuleGroup ruleGroup)
         {
             ruleGroups.Remove(ruleGroup);
-        }
-
-        public void Run()
-        {
-            foreach(StateAction action in actions)
-            {
-                action.Start();
-            }
         }
     }
 }

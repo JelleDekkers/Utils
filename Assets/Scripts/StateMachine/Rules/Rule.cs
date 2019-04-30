@@ -4,7 +4,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for deciding when a <see cref="State"/> inside the <see cref="StateMachine>"/> needs to transition to another
+    /// Class for deciding when a <see cref="State"/> inside the <see cref="StateMachineData>"/> needs to transition to another
     /// </summary>
     [Serializable]
     public abstract class Rule : ScriptableObject
