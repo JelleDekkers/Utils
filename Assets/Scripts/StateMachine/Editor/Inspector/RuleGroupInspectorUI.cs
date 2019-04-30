@@ -91,6 +91,11 @@ namespace StateMachine
             Refresh();
         }
 
+        protected override void OnEditScriptButtonPressed(int index)
+        {
+            OpenScript(RuleGroup.Rules[index]);
+        }
+
         protected override void OnDeleteButtonPressed(int index)
         {
             Undo.RecordObject(StateMachine, "Remove Rule");

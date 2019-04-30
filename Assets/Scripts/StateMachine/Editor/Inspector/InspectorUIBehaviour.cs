@@ -183,7 +183,7 @@ namespace StateMachine
 
         protected virtual void OnEditScriptButtonPressed(int index)
         {
-            OpenScript(InspectedObject);
+            throw new NotImplementedException();
         }
 
         protected virtual void OnResetButtonPressed(int index)
@@ -196,7 +196,7 @@ namespace StateMachine
             throw new NotImplementedException();
         }
 
-        private void OpenScript(ScriptableObject obj)
+        protected void OpenScript(ScriptableObject obj)
         {
             MonoScript script = MonoScript.FromScriptableObject(obj);
             string filePath = AssetDatabase.GetAssetPath(script);

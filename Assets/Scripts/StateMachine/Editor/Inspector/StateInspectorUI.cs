@@ -110,6 +110,11 @@ namespace StateMachine
             Refresh();
         }
 
+        protected override void OnEditScriptButtonPressed(int index)
+        {
+            OpenScript(State.Actions[index]);
+        }
+
         protected override void OnDeleteButtonPressed(int index)
         {
             Undo.RecordObject(StateMachine, "Remove Action");
