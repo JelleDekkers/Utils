@@ -29,7 +29,6 @@ namespace StateMachine
         private StateRenderer stateRenderer;
         private StateMachineRenderer stateMachineRenderer;
         private bool isDraggingLine;
-        private bool isNew;
 
         // TODO: move into seperate Style script
         private GUIStyle RuleStyle
@@ -66,12 +65,11 @@ namespace StateMachine
             switch (e.type)
             {
                 case EventType.KeyDown:
-                    if (e.keyCode == (KeyCode.Delete))
+                    if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
-                        if (Rect.Contains(e.mousePosition))
-                        {
-                            stateRenderer.RemoveRuleGroup(RuleGroup);
-                        }
+                        DeleteRuleGroup();
+                        e.Use();
+                        guiChanged = true;
                     }
                     break;
 
@@ -173,7 +171,7 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.RemoveRuleGroup(this));
+            menu.AddItem(new GUIContent("Delete"), false, DeleteRuleGroup);
             menu.ShowAsContext();
 
             e.Use();
@@ -248,6 +246,17 @@ namespace StateMachine
             GUI.Box(r, "");
 
             GUI.color = previousColor;
+        }
+
+        private void DeleteRuleGroup()
+        {
+            stateRenderer.State.RemoveRuleGroup(RuleGroup);
+            stateRenderer.InitializeRuleRenderers();
+
+            if (stateMachineRenderer.Inspector.InspectedObject == RuleGroup)
+            {
+                stateMachineRenderer.Inspector.Clear();
+            }
         }
 
         private void DrawLine(Vector2 destination)

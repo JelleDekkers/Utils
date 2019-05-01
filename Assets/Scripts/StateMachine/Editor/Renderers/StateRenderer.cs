@@ -53,8 +53,10 @@ namespace StateMachine
             nodeStyle.border = new RectOffset(12, 12, 12, 12);
         }
 
-        private void InitializeRuleRenderers()
+        public void InitializeRuleRenderers()
         {
+            ruleGroupRenderers = new List<RuleGroupRenderer>();
+
             for (int i = 0; i < State.RuleGroups.Count; i++) 
             {
                 ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, stateMachineRenderer));
@@ -326,29 +328,6 @@ namespace StateMachine
             renderer.SetAsNew();
 
             return group;
-        }
-
-        public void RemoveRuleGroup(RuleGroup group)
-        {
-            foreach(RuleGroupRenderer renderer in ruleGroupRenderers)
-            {
-                if(renderer.RuleGroup == group)
-                {
-                    RemoveRuleGroup(renderer);
-                    return;
-                }
-            }
-        }
-
-        public void RemoveRuleGroup(RuleGroupRenderer ruleRenderer)
-        {
-            State.RemoveRuleGroup(ruleRenderer.RuleGroup);
-            ruleGroupRenderers.Remove(ruleRenderer);
-
-            if(stateMachineRenderer.Inspector.InspectedObject == ruleRenderer.RuleGroup)
-            {
-                stateMachineRenderer.Inspector.Clear();
-            }
         }
     }
 }
