@@ -15,6 +15,7 @@ MonoBehaviour:
   entryState: {fileID: 114679453718155704}
   states:
   - {fileID: 114679453718155704}
+  - {fileID: 114560413795238430}
 --- !u!114 &114042257172702446
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -84,6 +85,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
+  position: {x: 0, y: 0, z: 0}
 --- !u!114 &114153779741637788
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -126,6 +128,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destination: {fileID: 0}
   rules: []
+--- !u!114 &114425605076045796
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
+  position: {x: 0, y: 0, z: 0}
 --- !u!114 &114467480323861150
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -138,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destination: {fileID: 0}
+  destination: {fileID: 114560413795238430}
   rules:
   - {fileID: 114932766601874988}
 --- !u!114 &114535301620507496
@@ -155,6 +171,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destination: {fileID: 0}
   rules: []
+--- !u!114 &114560413795238430
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actions:
+  - {fileID: 114425605076045796}
+  ruleGroups: []
+  Title: Spawn Cube
+  Rect:
+    serializedVersion: 2
+    x: 362.5
+    y: 163
+    width: 175
+    height: 20
 --- !u!114 &114617469333269640
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -196,6 +234,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
+  position: {x: 0, y: 0, z: 0}
 --- !u!114 &114679453718155704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -216,8 +255,8 @@ MonoBehaviour:
   Title: Init
   Rect:
     serializedVersion: 2
-    x: 75.5
-    y: 115
+    x: 74.5
+    y: 116
     width: 175
     height: 60
 --- !u!114 &114745973724084944

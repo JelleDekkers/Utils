@@ -39,5 +39,10 @@ namespace StateMachine
         {
             ruleGroups.Remove(ruleGroup);
         }
+
+        public override string ToString()
+        {
+            return string.Format("State '{0}'", Title);
+        }
     }
 }

@@ -30,9 +30,7 @@ namespace StateMachine
         {
             if (StateCanTransitionToNextState(CurrentState, out State newState))
             {
-                // TODO: call rule onexit/onentry?
-
-                Debug.LogFormat("chaging from {0} to {1}", CurrentState.Title, newState.Title);
+                Debug.LogFormat("chaging from {0} to {1}", CurrentState, newState);
 
                 OnStateStop(CurrentState);
 
@@ -52,6 +50,14 @@ namespace StateMachine
             {
                 action.Start();
             }
+
+            foreach(RuleGroup group in state.RuleGroups)
+            {
+                foreach(Rule rule in group.Rules)
+                {
+                    rule.OnActivate();
+                }
+            }
         }
 
         private void OnStateStop(State state)
@@ -60,11 +66,19 @@ namespace StateMachine
             {
                 action.Stop();
             }
+
+            foreach (RuleGroup group in state.RuleGroups)
+            {
+                foreach (Rule rule in group.Rules)
+                {
+                    rule.OnDeactivate();
+                }
+            }
         }
 
-        private bool StateCanTransitionToNextState(State state, out State newState)
+        private bool StateCanTransitionToNextState(State currentState, out State newState)
         {
-            foreach (RuleGroup ruleGroup in state.RuleGroups)
+            foreach (RuleGroup ruleGroup in currentState.RuleGroups)
             {
                 if (ruleGroup.AllRulesAreValid())
                 {
