@@ -9,7 +9,7 @@ namespace StateMachine
     /// <summary>
     /// Renders the <see cref="global::StateMachine.State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
-    public class StateRenderer : ISelectable, IDraggable
+    public class StateRenderer : ISelectable, IDraggable, IInspectable
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
@@ -26,6 +26,7 @@ namespace StateMachine
 
         public bool IsEntryState { get { return stateMachineRenderer.StateMachine.EntryState == State; } }
         public bool IsSelected { get; private set; }
+        public ScriptableObject InspectableObject => State;
 
         //public Action<ISelectable> SelectedEvent;
         //public Action<ISelectable> DeselectedEvent;
@@ -39,6 +40,8 @@ namespace StateMachine
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private GUIStyle style;
         private bool isDragged;
+
+        private int index;
 
         public StateRenderer(State state, StateMachineRenderer renderer)
         {
@@ -86,12 +89,13 @@ namespace StateMachine
                         {
                             if (Rect.Contains(e.mousePosition))
                             {
-                                OnDragStart(e);
                                 if (!IsSelected)
                                 {
                                     OnSelect(e);
-                                    e.Use();
                                 }
+
+                                OnDragStart(e);
+                                e.Use();
                             }
                             else
                             {
@@ -142,7 +146,6 @@ namespace StateMachine
             ResetRuleGRoups();
 
             stateMachineRenderer.Refresh();
-            stateMachineRenderer.Inspector.Refresh();
         }
 
         public void ResetActions()
@@ -167,6 +170,8 @@ namespace StateMachine
 
         public void Draw()
         {
+            DrawHelper.DrawLinkNode(new Vector2(Rect.x, Rect.y + Rect.height / 2));
+
             if (IsSelected)
             {
                 DrawHighlight(HighlightColor);
@@ -181,8 +186,6 @@ namespace StateMachine
             {
                 DrawAddNewRuleButton();
             }
-
-            DrawHelper.DrawLinkNode(new Vector2(Rect.x, Rect.y + Rect.height / 2));
 
             GUI.color = previousBackgroundColor;
         }
@@ -231,7 +234,7 @@ namespace StateMachine
             Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, HEADER_HEIGHT);
             if (GUI.Button(r, "Add New Rule"))
             {
-                stateMachineRenderer.Inspector.Inspect(CreateNewRule(State));
+                stateMachineRenderer.Select(CreateNewRule(State));
             }
         }
 
@@ -284,7 +287,7 @@ namespace StateMachine
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Delete"), false, () => stateMachineRenderer.RemoveState(State));
             menu.AddItem(new GUIContent("Reset"), false, ResetState);
-            menu.AddItem(new GUIContent("Add Rule"), false, () => stateMachineRenderer.Inspector.Inspect(CreateNewRule(State)));
+            menu.AddItem(new GUIContent("Add Rule"), false, () => stateMachineRenderer.Select(CreateNewRule(State)));
             menu.ShowAsContext();
 
             e.Use();
@@ -294,10 +297,9 @@ namespace StateMachine
         {
             GUI.changed = true;
             IsSelected = true;
-            //SelectedEvent?.Invoke(this);
-            //style = selectedNodeStyle;
 
-            stateMachineRenderer.Inspector.Inspect(State);
+            stateMachineRenderer.Select(this);
+            //style = selectedNodeStyle;
         }
 
         public void OnDeselect(Event e)
@@ -310,12 +312,11 @@ namespace StateMachine
                 renderer.OnDeselect(e);
             }
 
-            //DeselectedEvent?.Invoke(this);
-
+            stateMachineRenderer.Deselect(this);
             //style = defaultNodeStyle;
         }
 
-        private RuleGroup CreateNewRule(State connectedState)
+        private RuleGroupRenderer CreateNewRule(State connectedState)
         {
             string assetFilePath = AssetDatabase.GetAssetPath(State);
             RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
@@ -327,7 +328,7 @@ namespace StateMachine
             renderer.OnSelect(Event.current);
             renderer.SetAsNew();
 
-            return group;
+            return renderer;
         }
     }
 }

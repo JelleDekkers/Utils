@@ -16,10 +16,7 @@ namespace StateMachine
         public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
-
-        public string PropertyFieldName => "Rules";
         public ScriptableObject InspectableObject => RuleGroup;
-        public Type InspectorBehaviour => typeof(RuleGroupInspectorUI);
 
         private readonly Color HighlightSelectionColor = Color.blue;
         private readonly Color HighlightNoDestinationColor = Color.red;
@@ -132,12 +129,13 @@ namespace StateMachine
         public void OnSelect(Event e)
         {
             IsSelected = true;
-            stateMachineRenderer.Inspector.Inspect(RuleGroup);
+            stateMachineRenderer.Select(this);
         }
 
         public void OnDeselect(Event e)
         {
             IsSelected = false;
+            stateMachineRenderer.Deselect(this);
         }
 
         public void OnDragStart(Event e) { }
@@ -188,19 +186,21 @@ namespace StateMachine
                 DrawHighlight(HighlightNoDestinationColor);
             }
 
-            DrawRules(position, width);
-
             if (RuleGroup.Destination != null && !isDraggingLine)
             { 
                 Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Rect.x, RuleGroup.Destination.Rect.y + RuleGroup.Destination.Rect.height / 2);
                 DrawLine(SourcePoint, destinationPoint);
             }
 
+            DrawRules(position, width);
+
             return Rect;
         }
 
         private void DrawRules(Vector2 position, float width)
         {
+            DrawHelper.DrawLinkNode(new Vector2(Rect.x + Rect.width, Rect.y + Rect.height / 2));
+
             if (RuleGroup.Rules.Count == 0)
             {
                 Rect = new Rect(position.x, position.y, width, RULE_HEIGHT);
@@ -229,7 +229,6 @@ namespace StateMachine
                 }
             }
 
-            DrawHelper.DrawLinkNode(new Vector2(Rect.x + Rect.width, Rect.y + Rect.height / 2));
         }
 
         private void DrawHighlight(Color color)
@@ -253,10 +252,7 @@ namespace StateMachine
             stateRenderer.State.RemoveRuleGroup(RuleGroup);
             stateRenderer.InitializeRuleRenderers();
 
-            if (stateMachineRenderer.Inspector.InspectedObject == RuleGroup)
-            {
-                stateMachineRenderer.Inspector.Clear();
-            }
+            stateMachineRenderer.Deselect(this);
         }
 
         private void DrawLine(Vector2 destination)

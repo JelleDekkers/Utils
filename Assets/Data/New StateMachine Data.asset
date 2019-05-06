@@ -16,6 +16,7 @@ MonoBehaviour:
   states:
   - {fileID: 114679453718155704}
   - {fileID: 114560413795238430}
+  - {fileID: 114581651733596892}
 --- !u!114 &114042257172702446
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -72,20 +73,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destination: {fileID: 0}
   rules: []
---- !u!114 &114143649688121012
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
-  position: {x: 0, y: 0, z: 0}
 --- !u!114 &114153779741637788
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -154,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destination: {fileID: 114560413795238430}
+  destination: {fileID: 114581651733596892}
   rules:
   - {fileID: 114932766601874988}
 --- !u!114 &114535301620507496
@@ -189,8 +176,29 @@ MonoBehaviour:
   Title: Spawn Cube
   Rect:
     serializedVersion: 2
-    x: 362.5
-    y: 163
+    x: 299.5
+    y: 224
+    width: 175
+    height: 20
+--- !u!114 &114581651733596892
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actions: []
+  ruleGroups: []
+  Title: New State
+  Rect:
+    serializedVersion: 2
+    x: 340.5
+    y: 76
     width: 175
     height: 20
 --- !u!114 &114617469333269640
@@ -235,6 +243,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
   position: {x: 0, y: 0, z: 0}
+--- !u!114 &114652526359882556
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a180e967ecef5b4da437a4b11e915c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testValue: 1
+  testBool: 0
+  testGameObject: {fileID: 0}
+  testList: []
 --- !u!114 &114679453718155704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -248,15 +272,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actions:
-  - {fileID: 114143649688121012}
+  - {fileID: 114652526359882556}
   ruleGroups:
   - {fileID: 114467480323861150}
   - {fileID: 114807790968060150}
   Title: Init
   Rect:
     serializedVersion: 2
-    x: 74.5
-    y: 116
+    x: 52
+    y: 103
     width: 175
     height: 60
 --- !u!114 &114745973724084944
@@ -285,7 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destination: {fileID: 0}
+  destination: {fileID: 114560413795238430}
   rules:
   - {fileID: 114112731777526090}
 --- !u!114 &114856808081788390

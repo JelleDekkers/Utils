@@ -19,8 +19,8 @@ namespace StateMachine
         public StateMachineData StateMachine { get; private set; }
         public Rect CanvasWindow { get; private set; }
         public Vector2 CanvasDrag { get; private set; }
-        public StateMachineInspector Inspector { get; private set; }
         public bool ShowDebug { get; private set; }
+        public ISelectable SelectedObject { get; private set; }
 
         private readonly Action repaintFunc;
         private readonly Color backgroundColor = new Color(0.8f, 0.8f, 0.8f);
@@ -29,9 +29,8 @@ namespace StateMachine
         private readonly float gridPrimarySpacing = 20f;
         private readonly float gridSecondarySpacing = 100f;
 
-        private ISelectable selectedObject;
+        private StateMachineInspector inspector;
         private List<StateRenderer> stateRenderers = new List<StateRenderer>();
-
         private Rect scrollView = new Rect();
         private float zoomScale = 100;
 
@@ -45,7 +44,7 @@ namespace StateMachine
                 CreateNewStateRenderer(state);
             }
 
-            Inspector = new StateMachineInspector(this);
+            inspector = new StateMachineInspector(this);
         }
 
         public void OnInspectorGUI()
@@ -55,7 +54,7 @@ namespace StateMachine
             DrawTopTabs();
             DrawCanvasWindow(e);
             DrawBottomTabs();
-            Inspector.OnInspectorGUI(e);
+            inspector.OnInspectorGUI(e);
 
             if (ShowDebug)
             {
@@ -93,16 +92,16 @@ namespace StateMachine
             GUILayout.Label("state count " + StateMachine.States.Count);
             GUILayout.Label("entry state " + StateMachine.EntryState.Title);
 
-            if (selectedObject != null)
+            if (SelectedObject != null)
             {
-                GUILayout.Label("selection " + selectedObject);
+                GUILayout.Label("selection " + SelectedObject);
 
-                if (selectedObject is StateRenderer)
+                if (SelectedObject is StateRenderer)
                 {   
-                    GUILayout.Label("selection action count " + (selectedObject as StateRenderer).State.Actions.Count);
-                    GUILayout.Label("selection rect " + (selectedObject as StateRenderer).Rect);
-                    GUILayout.Label("selection rules " + (selectedObject as StateRenderer).State.RuleGroups.Count);
-                    GUILayout.Label("entry state == selection " + (StateMachine.EntryState == (selectedObject as StateRenderer).State));
+                    GUILayout.Label("selection action count " + (SelectedObject as StateRenderer).State.Actions.Count);
+                    GUILayout.Label("selection rect " + (SelectedObject as StateRenderer).Rect);
+                    GUILayout.Label("selection rules " + (SelectedObject as StateRenderer).State.RuleGroups.Count);
+                    GUILayout.Label("entry state == selection " + (StateMachine.EntryState == (SelectedObject as StateRenderer).State));
                     //GUILayout.Label("entry state ID " + StateMachine.EntryState.GetInstanceID());
                     //GUILayout.Label("state[0] ID " + StateMachine.States[0].GetInstanceID());
                 }
@@ -247,15 +246,15 @@ namespace StateMachine
                 CreateNewState();
             }
 
-            GUI.enabled = selectedObject != null && selectedObject is StateRenderer;
+            GUI.enabled = SelectedObject != null && SelectedObject is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                RemoveState(selectedObject as StateRenderer);
+                RemoveState(SelectedObject as StateRenderer);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                ResetState((selectedObject as StateRenderer).State);
+                ResetState((SelectedObject as StateRenderer).State);
             }
             GUI.enabled = true;
 
@@ -348,31 +347,14 @@ namespace StateMachine
             return stateRenderer;
         }
 
-        //private void OnSelectableObjectSelected(ISelectable inspectableObject)
-        //{
-        //    selectedObject = inspectableObject;
-
-        //    if(selectedObject is IInspectable)
-        //    Inspector.Inspect(selectedObject as IInspectable);
-        //}
-
-        //private void OnSelectableObjectDeSelected(ISelectable stateRenderer)
-        //{
-        //    selectedObject = null;
-        //    if (Inspector.InspectedObject == stateRenderer)
-        //    {
-        //        Inspector.Clear();
-        //    }
-        //}
-
         private void ResetState(State state)
         {
-            if(!(selectedObject is StateRenderer))
+            if(!(SelectedObject is StateRenderer))
             {
-                Debug.LogError(selectedObject + " is not of type " + typeof(StateRenderer).ToString());
+                Debug.LogError(SelectedObject + " is not of type " + typeof(StateRenderer).ToString());
             }
 
-            (selectedObject as StateRenderer).ResetState();
+            (SelectedObject as StateRenderer).ResetState();
         }
 
         public void RemoveState(StateRenderer renderer)
@@ -393,9 +375,9 @@ namespace StateMachine
                 }
             }
 
-            if (Inspector.InspectedObject == state)
+            if (inspector.InspectedObject == state)
             {
-                Inspector.Clear();
+                inspector.Clear();
             }
 
             StateMachine.RemoveState(state);
@@ -412,10 +394,40 @@ namespace StateMachine
             EditorUtility.SetDirty(StateMachine);
         }
 
+        public void Select(ISelectable selectable)
+        {
+            SelectedObject = selectable;
+
+            if(selectable is IInspectable)
+            {
+                inspector.Inspect(selectable as IInspectable);
+            }
+
+            if(selectable is StateRenderer)
+            {
+                // Reorder stateRenderer so it's drawn on top:
+                StateRenderer renderer = selectable as StateRenderer;
+                stateRenderers.Remove(renderer);
+                stateRenderers.Add(renderer);
+            }
+        }
+
+        public void Deselect(ISelectable selectable)
+        {
+            if(SelectedObject == selectable)
+            {
+                SelectedObject = null;
+                inspector.Clear();
+            }
+        }
+
         public void Refresh()
         {
-            selectedObject = null;
-            Inspector.Clear();
+            SelectedObject = null;
+            if (SelectedObject != null)
+            {
+                inspector.Refresh();
+            }
 
             foreach (State state in StateMachine.States)
             {
@@ -429,7 +441,7 @@ namespace StateMachine
 
             StateMachine.States.Clear();
             stateRenderers.Clear();
-            Inspector.Clear();
+            inspector.Clear();
         }
     }
 }

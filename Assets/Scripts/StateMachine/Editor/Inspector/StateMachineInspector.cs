@@ -33,12 +33,12 @@ namespace StateMachine
             uiBehaviour.OnInspectorGUI(e);
         }
 
-        public void Inspect(ScriptableObject inspectableObject)
+        public void Inspect(IInspectable inspectable)
         {
-            InspectedObject = inspectableObject;
+            InspectedObject = inspectable.InspectableObject;
 
-            uiBehaviour = GetCorrectUIBehaviour(inspectableObject);
-            uiBehaviour.Show(stateMachineRenderer, inspectableObject);
+            uiBehaviour = GetCorrectUIBehaviour(InspectedObject);
+            uiBehaviour.Show(stateMachineRenderer, InspectedObject);
         }
 
         private InspectorUIBehaviour GetCorrectUIBehaviour(ScriptableObject inspectableObject)
