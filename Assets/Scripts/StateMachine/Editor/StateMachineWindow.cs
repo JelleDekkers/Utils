@@ -5,11 +5,14 @@ using UnityEngine;
 
 namespace StateMachine
 {
+    /// <summary>
+    /// Editor class for viewing a <see cref="StateMachineEditorManager"/> in an editor window
+    /// </summary>
     public class StateMachineWindow : EditorWindow
     {
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
-        private StateMachineRenderer renderer;
+        private StateMachineEditorManager renderer;
         private StateMachineData stateMachine;
 
         [MenuItem("Window/State Machine")]
@@ -43,7 +46,7 @@ namespace StateMachine
         {
             if(stateMachine != null)
             {
-                renderer = new StateMachineRenderer(stateMachine, Repaint);
+                renderer = new StateMachineEditorManager(stateMachine, Repaint);
             }
         }
 

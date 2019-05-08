@@ -5,7 +5,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering <see cref="global::StateMachine.RuleGroup"/>s on <see cref="StateMachineRenderer"/>
+    /// Class for rendering <see cref="global::StateMachine.RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
     /// </summary>
     public class RuleGroupRenderer : ISelectable, IDraggable, IInspectable
     {
@@ -24,7 +24,7 @@ namespace StateMachine
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         private StateRenderer stateRenderer;
-        private StateMachineRenderer stateMachineRenderer;
+        private StateMachineEditorManager stateMachineRenderer;
         private bool isDraggingLine;
 
         // TODO: move into seperate Style script
@@ -46,7 +46,7 @@ namespace StateMachine
         }
         private GUIStyle ruleStyle;
        
-        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineRenderer stateMachine)
+        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
             RuleGroup = ruleGroup;
             stateRenderer = state;
@@ -76,12 +76,14 @@ namespace StateMachine
                         if (Rect.Contains(e.mousePosition))
                         {
                             OnSelect(e);
+                            e.Use();
                         }
                         else
                         {
                             if (IsSelected)
                             {
                                 OnDeselect(e);
+                                e.Use();
                                 guiChanged = true;
                             }
                         }

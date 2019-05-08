@@ -24,7 +24,7 @@ namespace StateMachine
             set { State.Rect = value; }
         }
 
-        public bool IsEntryState { get { return stateMachineRenderer.StateMachine.EntryState == State; } }
+        public bool IsEntryState { get { return manager.StateMachineData.EntryState == State; } }
         public bool IsSelected { get; private set; }
         public ScriptableObject InspectableObject => State;
 
@@ -36,17 +36,17 @@ namespace StateMachine
         private readonly Color HighlightColor = Color.yellow;
         private readonly Color HeaderBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
 
-        private StateMachineRenderer stateMachineRenderer;
+        private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private GUIStyle style;
         private bool isDragged;
 
         private int index;
 
-        public StateRenderer(State state, StateMachineRenderer renderer)
+        public StateRenderer(State state, StateMachineEditorManager renderer)
         {
             State = state;
-            stateMachineRenderer = renderer;
+            manager = renderer;
 
             InitializeRuleRenderers();
 
@@ -62,14 +62,13 @@ namespace StateMachine
 
             for (int i = 0; i < State.RuleGroups.Count; i++) 
             {
-                ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, stateMachineRenderer));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, manager));
             }
         }
 
-        public bool ProcessEvents(Event e)
+        public void ProcessEvents(Event e)
         {
-            bool guiChanged = false;
-            bool isInsideCanvasWindow = stateMachineRenderer.CanvasWindow.Contains(e.mousePosition);
+            bool isInsideCanvasWindow = manager.CanvasRenderer.Contains(e.mousePosition);
 
             switch (e.type)
             {
@@ -78,7 +77,7 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
-                            stateMachineRenderer.RemoveState(State);
+                            manager.RemoveState(State);
                         }
                     }
                     break;
@@ -92,10 +91,10 @@ namespace StateMachine
                                 if (!IsSelected)
                                 {
                                     OnSelect(e);
+                                    e.Use();
                                 }
 
                                 OnDragStart(e);
-                                e.Use();
                             }
                             else
                             {
@@ -127,17 +126,15 @@ namespace StateMachine
                     {
                         OnDrag(e);
                         e.Use();
-                        guiChanged = true;
+                        GUI.changed = true;
                     }
                     break;
             }
 
             if(IsSelected && ProcessRuleEvents(e))
             {
-                guiChanged = true;
+                GUI.changed = true;
             }
-
-            return guiChanged;
         }
 
         public void ResetState()
@@ -145,7 +142,7 @@ namespace StateMachine
             ResetActions();
             ResetRuleGRoups();
 
-            stateMachineRenderer.Refresh();
+            manager.Refresh();
         }
 
         public void ResetActions()
@@ -234,7 +231,7 @@ namespace StateMachine
             Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, HEADER_HEIGHT);
             if (GUI.Button(r, "Add New Rule"))
             {
-                stateMachineRenderer.Select(CreateNewRule(State));
+                manager.Select(CreateNewRule(State));
             }
         }
 
@@ -266,8 +263,8 @@ namespace StateMachine
             newPosition += e.delta;
 
             // TODO: needs to take it's own size into account?
-            newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineRenderer.CANVAS_WIDTH);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineRenderer.CANVAS_HEIGHT);
+            newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.CANVAS_WIDTH);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.CANVAS_HEIGHT);
 
             State.Rect.position = newPosition;
         }
@@ -285,9 +282,9 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => stateMachineRenderer.RemoveState(State));
+            menu.AddItem(new GUIContent("Delete"), false, () => manager.RemoveState(State));
             menu.AddItem(new GUIContent("Reset"), false, ResetState);
-            menu.AddItem(new GUIContent("Add Rule"), false, () => stateMachineRenderer.Select(CreateNewRule(State)));
+            menu.AddItem(new GUIContent("Add Rule"), false, () => manager.Select(CreateNewRule(State)));
             menu.ShowAsContext();
 
             e.Use();
@@ -298,7 +295,7 @@ namespace StateMachine
             GUI.changed = true;
             IsSelected = true;
 
-            stateMachineRenderer.Select(this);
+            manager.Select(this);
             //style = selectedNodeStyle;
         }
 
@@ -312,7 +309,7 @@ namespace StateMachine
                 renderer.OnDeselect(e);
             }
 
-            stateMachineRenderer.Deselect(this);
+            manager.Deselect(this);
             //style = defaultNodeStyle;
         }
 
@@ -322,7 +319,7 @@ namespace StateMachine
             RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
 
             State.AddRuleGroup(group);
-            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, stateMachineRenderer);
+            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
             ruleGroupRenderers.Add(renderer);
 
             renderer.OnSelect(Event.current);

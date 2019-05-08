@@ -87,6 +87,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destination: {fileID: 0}
   rules: []
+--- !u!114 &114166387562720872
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destination: {fileID: 0}
+  rules: []
 --- !u!114 &114285557931812132
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -176,8 +190,8 @@ MonoBehaviour:
   Title: Spawn Cube
   Rect:
     serializedVersion: 2
-    x: 299.5
-    y: 224
+    x: 298.5
+    y: 231
     width: 175
     height: 20
 --- !u!114 &114581651733596892
@@ -193,14 +207,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actions: []
-  ruleGroups: []
+  ruleGroups:
+  - {fileID: 114166387562720872}
   Title: New State
   Rect:
     serializedVersion: 2
-    x: 340.5
-    y: 76
+    x: 299.5
+    y: 84
     width: 175
-    height: 20
+    height: 40
 --- !u!114 &114617469333269640
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -279,8 +294,8 @@ MonoBehaviour:
   Title: Init
   Rect:
     serializedVersion: 2
-    x: 52
-    y: 103
+    x: 43
+    y: 108
     width: 175
     height: 60
 --- !u!114 &114745973724084944

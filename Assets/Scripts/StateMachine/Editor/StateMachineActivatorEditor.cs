@@ -10,7 +10,7 @@ namespace StateMachine
     public class StateMachineActivatorEditor : Editor
     {
         private StateMachineExecutor activator;
-        private StateMachineRenderer renderer;
+        private StateMachineEditorManager renderer;
 
         private StateMachineData stateMachine;
 
@@ -21,7 +21,7 @@ namespace StateMachine
 
             if (stateMachine != null)
             {
-                renderer = new StateMachineRenderer(activator.StateMachineData, Repaint);
+                renderer = new StateMachineEditorManager(activator.StateMachineData, Repaint);
             }
         }
 
@@ -41,7 +41,7 @@ namespace StateMachine
 
                 if(stateMachine != null)
                 {
-                    renderer = new StateMachineRenderer(activator.StateMachineData, Repaint);
+                    renderer = new StateMachineEditorManager(activator.StateMachineData, Repaint);
                 }
                 else
                 {

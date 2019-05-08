@@ -29,12 +29,12 @@ namespace StateMachine
             }
         }
 
-        protected StateMachineRenderer StateMachineRenderer { get; private set; }
-        protected StateMachineData StateMachine { get { return StateMachineRenderer.StateMachine; } }
+        protected StateMachineEditorManager StateMachineRenderer { get; private set; }
+        protected StateMachineData StateMachine { get { return StateMachineRenderer.StateMachineData; } }
         protected ScriptableObject InspectedObject { get; private set; }
         protected SerializedObject SerializedObject { get; set; }
 
-        public void Show(StateMachineRenderer stateMachineRenderer, ScriptableObject inspectedObject)
+        public void Show(StateMachineEditorManager stateMachineRenderer, ScriptableObject inspectedObject)
         {
             StateMachineRenderer = stateMachineRenderer;
             InspectedObject = inspectedObject;

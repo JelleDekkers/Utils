@@ -8,11 +8,11 @@ namespace StateMachine
     [CustomEditor(typeof(StateMachineData))]
     public class StateMachineEditor : Editor
     {
-        private StateMachineRenderer renderer;
+        private StateMachineEditorManager renderer;
 
         protected void OnEnable()
         {
-            renderer = new StateMachineRenderer((StateMachineData)target, Repaint);
+            renderer = new StateMachineEditorManager((StateMachineData)target, Repaint);
         }
 
         public override void OnInspectorGUI()

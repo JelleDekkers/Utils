@@ -16,12 +16,12 @@ namespace StateMachine
     {
         public ScriptableObject InspectedObject { get; private set; }
 
-        protected StateMachineRenderer stateMachineRenderer;
+        protected StateMachineEditorManager manager;
         protected InspectorUIBehaviour uiBehaviour;
 
-        public StateMachineInspector(StateMachineRenderer stateMachineRenderer)
+        public StateMachineInspector(StateMachineEditorManager manager)
         {
-            this.stateMachineRenderer = stateMachineRenderer;
+            this.manager = manager;
 
             Undo.undoRedoPerformed += Refresh;
         }
@@ -38,7 +38,7 @@ namespace StateMachine
             InspectedObject = inspectable.InspectableObject;
 
             uiBehaviour = GetCorrectUIBehaviour(InspectedObject);
-            uiBehaviour.Show(stateMachineRenderer, InspectedObject);
+            uiBehaviour.Show(manager, InspectedObject);
         }
 
         private InspectorUIBehaviour GetCorrectUIBehaviour(ScriptableObject inspectableObject)

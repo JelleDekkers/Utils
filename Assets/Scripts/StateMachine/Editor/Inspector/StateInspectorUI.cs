@@ -17,7 +17,7 @@ namespace StateMachine
 
         public override void InspectorContent(Event e)
         {
-            if (!StateMachineRenderer.ShowDebug)
+            if (!StateMachineRenderer.debug)
             {
                 DrawHeader();
                 DrawStateFields();
