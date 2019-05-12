@@ -7,7 +7,7 @@ namespace StateMachine
     /// Editor class for <see cref="StateMachineExecutor"/>
     /// </summary>
     [CustomEditor(typeof(StateMachineExecutor))]
-    public class StateMachineActivatorEditor : Editor
+    public class StateMachineExecutorEditor : Editor
     {
         private StateMachineExecutor activator;
         private StateMachineEditorManager renderer;
