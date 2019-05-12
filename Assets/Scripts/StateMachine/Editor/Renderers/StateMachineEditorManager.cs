@@ -39,7 +39,6 @@ namespace StateMachine
             Event e = Event.current;
             CanvasRenderer.OnInspectorGUI(e);
             inspector.OnInspectorGUI(e);
-            CanvasRenderer.ProcessEvents(e);
 
             if (debug)
             {
