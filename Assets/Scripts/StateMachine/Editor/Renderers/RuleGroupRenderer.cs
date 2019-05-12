@@ -24,7 +24,7 @@ namespace StateMachine
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         private StateRenderer stateRenderer;
-        private StateMachineEditorManager stateMachineRenderer;
+        private StateMachineEditorManager manager;
         private bool isDraggingLine;
 
         // TODO: move into seperate Style script
@@ -50,14 +50,17 @@ namespace StateMachine
         {
             RuleGroup = ruleGroup;
             stateRenderer = state;
-            stateMachineRenderer = stateMachine;
+            manager = stateMachine;
 
             Rect = new Rect();
         }
 
-        public bool ProcessEvents(Event e)
+        public void ProcessEvents(Event e)
         {
-            bool guiChanged = false;
+            if (isDraggingLine)
+            {
+                OnDrag(e);
+            }
 
             switch (e.type)
             {
@@ -66,96 +69,81 @@ namespace StateMachine
                     {
                         DeleteRuleGroup();
                         e.Use();
-                        guiChanged = true;
+                    }
+
+                    if (isDraggingLine && e.keyCode == KeyCode.Escape)
+                    {
+                        OnDragEnd(e);
+                        e.Use();
+                    }
+                    break;
+
+                case EventType.MouseUp:
+                    if (isDraggingLine)
+                    {
+                        OnDragEnd(e);
+                        e.Use();
                     }
                     break;
 
                 case EventType.MouseDown:
                     if (e.button == 0) 
                     {
-                        if (Rect.Contains(e.mousePosition))
+                        if (IsSelected && !Rect.Contains(e.mousePosition))
+                        {
+                            OnDeselect(e);
+                        }
+                        else if (Rect.Contains(e.mousePosition))
                         {
                             OnSelect(e);
+                        }
+                    }
+                    else if(e.button == 1)
+                    {
+                        if(IsSelected && Rect.Contains(e.mousePosition))
+                        {
+                            OnDragStart(e);
                             e.Use();
                         }
-                        else
-                        {
-                            if (IsSelected)
-                            {
-                                OnDeselect(e);
-                                e.Use();
-                                guiChanged = true;
-                            }
-                        }
-                    }
-                    break;
-
-                case EventType.MouseDrag:
-                    if (e.button == 1 && Rect.Contains(e.mousePosition))
-                    {
-                        OnDrag(e);
-                        e.Use();
-                        guiChanged = true;
-                    }
-                    break;
-
-                case EventType.MouseUp:
-                    if (isDraggingLine && e.button == 0 || e.button == 1)
-                    {
-                        OnDragEnd(e);
-                        e.Use();
-                        guiChanged = true;
                     }
                     break;
             }
-
-            if(isDraggingLine)
-            {
-                OnDrag(e);
-                guiChanged = true;
-
-                if(e.keyCode == KeyCode.Escape)
-                {
-                    OnDragEnd(e);
-                }
-            }
-
-            return guiChanged;
         }
 
-        public void SetAsNew()
+        public void SetAsNew(Event e)
         {
-            isDraggingLine = true;
+            OnDragStart(e);
         }
 
         public void OnSelect(Event e)
         {
             IsSelected = true;
-            stateMachineRenderer.Select(this);
+            manager.Select(this);
+            GUI.changed = true;
         }
 
         public void OnDeselect(Event e)
         {
             IsSelected = false;
-            stateMachineRenderer.Deselect(this);
+            manager.Deselect(this);
+            isDraggingLine = false;
+            GUI.changed = true;
         }
 
-        public void OnDragStart(Event e) { }
+        public void OnDragStart(Event e)
+        {
+            isDraggingLine = true;
+        }
 
         public void OnDrag(Event e)
         {
             DrawLine(e.mousePosition);
-            isDraggingLine = true;
+            GUI.changed = true;
         }
 
         public void OnDragEnd(Event e)
         {
-            // if hovering state, set rule destination
-            // else set to null
-
-            isDraggingLine = false;
-
-            if (stateMachineRenderer.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
+            if (manager.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
                 if (stateRenderer.State == this.stateRenderer.State)
                 {
@@ -166,6 +154,13 @@ namespace StateMachine
                     RuleGroup.SetDestination(stateRenderer.State);
                 }
             }
+            else
+            {
+                RuleGroup.SetDestination(null);
+            }
+
+            isDraggingLine = false;
+            GUI.changed = true;
         }
 
         private void ShowContextMenu(Event e)
@@ -224,7 +219,7 @@ namespace StateMachine
                 for (int i = 0; i < RuleGroup.Rules.Count; i++)
                 {
                     Rect ruleRect = new Rect(position.x, yPos, width, RULE_HEIGHT);
-                    GUI.Label(ruleRect, RuleGroup.Rules[i].DisplayName, RuleStyle);
+                    GUI.Label(ruleRect, RuleGroup.Rules[i].DisplayName + " " + IsSelected.ToString() + " " + Rect.Contains(Event.current.mousePosition).ToString(), RuleStyle);
 
                     yPos += RULE_HEIGHT;
                     totalHeight += RULE_HEIGHT;
@@ -254,7 +249,8 @@ namespace StateMachine
             stateRenderer.State.RemoveRuleGroup(RuleGroup);
             stateRenderer.InitializeRuleRenderers();
 
-            stateMachineRenderer.Deselect(this);
+            manager.Deselect(this);
+            GUI.changed = true;
         }
 
         private void DrawLine(Vector2 destination)

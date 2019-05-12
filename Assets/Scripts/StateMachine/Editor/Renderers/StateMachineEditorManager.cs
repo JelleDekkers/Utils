@@ -39,8 +39,11 @@ namespace StateMachine
             Event e = Event.current;
 
             CanvasRenderer.OnInspectorGUI(e);
-            inspector.OnInspectorGUI(e);
-            ProcessEvents(e);
+            if (e.type == EventType.Layout)
+            {
+                inspector.OnInspectorGUI(e);
+                ProcessEvents(e);
+            }
 
             if (debug)
             {
@@ -90,8 +93,6 @@ namespace StateMachine
 
         private void ProcessEvents(Event e)
         {
-           
-
             CanvasRenderer.ProcessEvents(e);
         }
 

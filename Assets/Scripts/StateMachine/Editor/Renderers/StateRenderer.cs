@@ -28,10 +28,6 @@ namespace StateMachine
         public bool IsSelected { get; private set; }
         public ScriptableObject InspectableObject => State;
 
-        //public Action<ISelectable> SelectedEvent;
-        //public Action<ISelectable> DeselectedEvent;
-        //public Action<StateRenderer> DeleteEvent;
-
         private readonly float HighlightMargin = 4;
         private readonly Color HighlightColor = Color.yellow;
         private readonly Color HeaderBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
@@ -40,8 +36,6 @@ namespace StateMachine
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private GUIStyle style;
         private bool isDragged;
-
-        private int index;
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
         {
@@ -70,6 +64,11 @@ namespace StateMachine
         {
             bool isInsideCanvasWindow = manager.CanvasRenderer.Contains(e.mousePosition);
 
+            if (IsSelected)
+            {
+                ProcessRuleEvents(e);
+            }
+
             switch (e.type)
             {
                 case EventType.KeyDown:
@@ -77,7 +76,9 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
+                            Debug.Log("delete state");
                             manager.RemoveState(State);
+                            e.Use();
                         }
                     }
                     break;
@@ -130,11 +131,6 @@ namespace StateMachine
                     }
                     break;
             }
-
-            if(IsSelected && ProcessRuleEvents(e))
-            {
-                GUI.changed = true;
-            }
         }
 
         public void ResetState()
@@ -179,7 +175,7 @@ namespace StateMachine
             DrawHeader();
             DrawRules();
 
-            if(IsSelected)// && !drawingNewRuleLink)
+            if(IsSelected)
             {
                 DrawAddNewRuleButton();
             }
@@ -193,10 +189,7 @@ namespace StateMachine
 
             foreach (RuleGroupRenderer renderer in ruleGroupRenderers)
             {
-                if(renderer.ProcessEvents(e))
-                {
-                    guiChanged = true;
-                }
+                renderer.ProcessEvents(e);
             }
 
             return guiChanged;
@@ -323,7 +316,7 @@ namespace StateMachine
             ruleGroupRenderers.Add(renderer);
 
             renderer.OnSelect(Event.current);
-            renderer.SetAsNew();
+            renderer.SetAsNew(Event.current);
 
             return renderer;
         }
