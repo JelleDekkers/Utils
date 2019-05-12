@@ -76,7 +76,6 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
-                            Debug.Log("delete state");
                             manager.RemoveState(State);
                             e.Use();
                         }

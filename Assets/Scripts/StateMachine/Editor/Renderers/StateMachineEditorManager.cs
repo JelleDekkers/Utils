@@ -37,17 +37,13 @@ namespace StateMachine
         public void OnInspectorGUI()
         {
             Event e = Event.current;
-
             CanvasRenderer.OnInspectorGUI(e);
-            if (e.type == EventType.Layout)
-            {
-                inspector.OnInspectorGUI(e);
-                ProcessEvents(e);
-            }
+            inspector.OnInspectorGUI(e);
+            CanvasRenderer.ProcessEvents(e);
 
             if (debug)
             {
-                DebugInfo(e);
+                DrawDebugInfo(e);
             }
 
             if (GUI.changed)
@@ -71,11 +67,12 @@ namespace StateMachine
             return false;
         }
 
-        private void DebugInfo(Event e)
+        private void DrawDebugInfo(Event e)
         {
             GUILayout.Label("mouse pos " + e.mousePosition);
             GUILayout.Label("state count " + StateMachineData.States.Count);
             GUILayout.Label("entry state " + StateMachineData.EntryState.Title);
+            GUILayout.Label("is inside canvas " + CanvasRenderer.Contains(e.mousePosition));
 
             if (Selection != null)
             {
@@ -89,11 +86,6 @@ namespace StateMachine
                     GUILayout.Label("entry state == selection " + (StateMachineData.EntryState == (Selection as StateRenderer).State));
                 }
             }
-        }
-
-        private void ProcessEvents(Event e)
-        {
-            CanvasRenderer.ProcessEvents(e);
         }
 
         public State CreateNewState()

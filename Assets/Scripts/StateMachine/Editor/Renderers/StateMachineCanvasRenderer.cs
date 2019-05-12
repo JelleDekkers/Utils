@@ -27,7 +27,6 @@ namespace StateMachine
         private readonly float gridPrimarySpacing = 20f;
         private readonly float gridSecondarySpacing = 100f;
 
-        private Rect scrollView = new Rect();
         private float zoomScale = 100;
 
         public StateMachineCanvasRenderer(StateMachineEditorManager manager)
@@ -46,6 +45,7 @@ namespace StateMachine
         {
             // Hack to prevent strange issue where EditorGUILayout.BeginVertical returns zero every other frame causing values to be wrong
             Rect temp = EditorGUILayout.BeginVertical(GUILayout.Height(WINDOW_HEIGHT));
+            Rect scrollView = CanvasWindow;
             if (temp != Rect.zero)
             {
                 scrollView = temp;
@@ -73,11 +73,13 @@ namespace StateMachine
             switch (e.type)
             {
                 case EventType.MouseDown:
-                //if (e.button == 1 && CanvasWindow.Contains(e.mousePosition)) // && not hovered above a state 
-                //{
-                //    ShowContextMenu(e);
-                //}
-                //break;
+
+                    if (e.button == 1 && CanvasWindow.Contains(e.mousePosition)) 
+                    {
+                        ShowContextMenu(e);
+                        e.Use();
+                    }
+                    break;
 
                 case EventType.MouseDrag:
                     if (e.button == 0)
