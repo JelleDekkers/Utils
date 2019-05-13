@@ -104,13 +104,13 @@ namespace StateMachine
                                 }
                             }
                         }
-                        //else if (e.button == 1)
-                        //{
-                        //    if (Rect.Contains(e.mousePosition))
-                        //    {
-                        //        ShowContextMenu(e);
-                        //    }
-                        //}
+                        else if (e.button == 1)
+                        {
+                            if (IsSelected && Rect.Contains(e.mousePosition))
+                            {
+                                ShowContextMenu(e);
+                            }
+                        }
                     }
                     break;
 
@@ -134,28 +134,28 @@ namespace StateMachine
 
         public void ResetState()
         {
-            ResetActions();
-            ResetRuleGRoups();
+            RemoveAllActions();
+            RemoveRuleGRoups();
 
             manager.Refresh();
         }
 
-        public void ResetActions()
+        public void RemoveAllActions()
         {
             for (int i = State.Actions.Count - 1; i >= 0; i--)
             {
-                State.RemoveAction(State.Actions[i]);
                 UnityEngine.Object.DestroyImmediate(State.Actions[i], true);
-                UnityEngine.Object.DestroyImmediate(State.RuleGroups[i], true);
+                State.RemoveAction(State.Actions[i]);
             }
         }
 
-        public void ResetRuleGRoups()
+        public void RemoveRuleGRoups()
         {
             ruleGroupRenderers.Clear();
 
             for (int i = State.RuleGroups.Count - 1; i >= 0; i--)
             {
+                UnityEngine.Object.DestroyImmediate(State.RuleGroups[i], true);
                 State.RemoveRuleGroup(State.RuleGroups[i]);
             }
         }
@@ -279,6 +279,7 @@ namespace StateMachine
             menu.AddItem(new GUIContent("Add Rule"), false, () => manager.Select(CreateNewRule(State)));
             menu.ShowAsContext();
 
+            manager.ContextMenuIsOpen = true;
             e.Use();
         }
 
@@ -309,6 +310,11 @@ namespace StateMachine
         {
             string assetFilePath = AssetDatabase.GetAssetPath(State);
             RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
+
+            //foreach(RuleGroupRenderer rend in ruleGroupRenderers)
+            //{
+            //    rend.OnDeselect(Event.current);
+            //}
 
             State.AddRuleGroup(group);
             RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);

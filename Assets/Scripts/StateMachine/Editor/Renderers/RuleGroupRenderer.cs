@@ -64,14 +64,21 @@ namespace StateMachine
 
             switch (e.type)
             {
+                case EventType.MouseDrag:
+                    if (isDraggingLine)
+                    {
+                        e.Use();
+                    }
+                    break;
+
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
                         DeleteRuleGroup();
                         e.Use();
+                        return;
                     }
-
-                    if (isDraggingLine && e.keyCode == KeyCode.Escape)
+                    else if (isDraggingLine && e.keyCode == KeyCode.Escape)
                     {
                         OnDragEnd(e);
                         e.Use();
@@ -219,7 +226,7 @@ namespace StateMachine
                 for (int i = 0; i < RuleGroup.Rules.Count; i++)
                 {
                     Rect ruleRect = new Rect(position.x, yPos, width, RULE_HEIGHT);
-                    GUI.Label(ruleRect, RuleGroup.Rules[i].DisplayName + " " + IsSelected.ToString() + " " + Rect.Contains(Event.current.mousePosition).ToString(), RuleStyle);
+                    GUI.Label(ruleRect, RuleGroup.Rules[i].DisplayName, RuleStyle);
 
                     yPos += RULE_HEIGHT;
                     totalHeight += RULE_HEIGHT;

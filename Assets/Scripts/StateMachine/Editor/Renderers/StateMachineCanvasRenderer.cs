@@ -29,7 +29,6 @@ namespace StateMachine
 
         private Rect scrollView = new Rect();
         private float zoomScale = 100;
-        private bool isFocused = true;
 
         public StateMachineCanvasRenderer(StateMachineEditorManager manager)
         {
@@ -79,14 +78,14 @@ namespace StateMachine
                     {
                         ShowContextMenu(e.mousePosition);
                         e.Use();
-                        return;
+                        break;
                     }
 
-                    isFocused = true;
+                    Manager.ContextMenuIsOpen = false;
                     break;
 
                 case EventType.MouseDrag:
-                    if (e.button == 0 && isFocused)
+                    if (!Manager.ContextMenuIsOpen && e.button == 0)
                     {
                         if (CanvasWindow.Contains(e.mousePosition))
                         {
@@ -129,7 +128,7 @@ namespace StateMachine
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Add New State"), false, () => Manager.CreateNewState(mousePosition));
             menu.ShowAsContext();
-            isFocused = false;
+            Manager.ContextMenuIsOpen = true;
             GUI.changed = true;
         }
 

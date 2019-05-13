@@ -14,6 +14,7 @@ namespace StateMachine
         public StateMachineData StateMachineData { get; private set; }
         public List<StateRenderer> StateRenderers { get; private set; }
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
+        public bool ContextMenuIsOpen { get; set; }
 
         public bool debug;
 
@@ -197,6 +198,10 @@ namespace StateMachine
             }
         }
 
+        /// <summary>
+        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called first>
+        /// </summary>
+        /// <param name="renderer"></param>
         private void ReorderStateRendererToTop(StateRenderer renderer)
         {
             StateRenderers.Remove(renderer);
