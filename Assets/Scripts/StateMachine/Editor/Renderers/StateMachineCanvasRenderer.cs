@@ -29,6 +29,7 @@ namespace StateMachine
 
         private Rect scrollView = new Rect();
         private float zoomScale = 100;
+        private bool isFocused = true;
 
         public StateMachineCanvasRenderer(StateMachineEditorManager manager)
         {
@@ -74,27 +75,22 @@ namespace StateMachine
             switch (e.type)
             {
                 case EventType.MouseDown:
-
                     if (e.button == 1 && CanvasWindow.Contains(e.mousePosition)) 
                     {
-                        ShowContextMenu(e);
+                        ShowContextMenu(e.mousePosition);
                         e.Use();
+                        return;
                     }
+
+                    isFocused = true;
                     break;
 
                 case EventType.MouseDrag:
-                    if (e.button == 0)
+                    if (e.button == 0 && isFocused)
                     {
                         if (CanvasWindow.Contains(e.mousePosition))
                         {
-                            Drag(e.delta);
-                            e.Use();
-                        }
-                    }
-                    else if (e.button == 1)
-                    {
-                        if (CanvasWindow.Contains(e.mousePosition))
-                        {
+                            Drag(e.delta); 
                             e.Use();
                         }
                     }
@@ -128,13 +124,13 @@ namespace StateMachine
             }
         }
 
-        private void ShowContextMenu(Event e)
+        private void ShowContextMenu(Vector2 mousePosition)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add New State"), false, () => Manager.CreateNewState(e.mousePosition));
+            menu.AddItem(new GUIContent("Add New State"), false, () => Manager.CreateNewState(mousePosition));
             menu.ShowAsContext();
-
-            e.Use();
+            isFocused = false;
+            GUI.changed = true;
         }
 
         private void Drag(Vector2 delta)

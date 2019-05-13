@@ -48,8 +48,8 @@ MonoBehaviour:
   Title: New State
   Rect:
     serializedVersion: 2
-    x: 315.5
-    y: 108
+    x: 294.5
+    y: 125
     width: 175
     height: 20
 --- !u!114 &114080429669267734
@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destination: {fileID: 0}
+  destination: {fileID: 114560413795238430}
   rules: []
 --- !u!114 &114411810700361134
 MonoBehaviour:
@@ -323,8 +323,8 @@ MonoBehaviour:
   Title: New State
   Rect:
     serializedVersion: 2
-    x: 73.5
-    y: 141
+    x: 62.5
+    y: 134
     width: 175
     height: 60
 --- !u!114 &114432400821298742
@@ -416,8 +416,8 @@ MonoBehaviour:
   Title: Spawn Cube
   Rect:
     serializedVersion: 2
-    x: 299.5
-    y: 230
+    x: 290.5
+    y: 267
     width: 175
     height: 20
 --- !u!114 &114617469333269640
