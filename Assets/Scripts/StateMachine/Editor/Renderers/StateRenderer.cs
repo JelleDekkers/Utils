@@ -13,7 +13,11 @@ namespace StateMachine
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
+        public const float ENTRY_WIDTH = WIDTH - 20;
         public const float ENTRY_VISUAL_HEIGHT = HEADER_HEIGHT;
+        public const float TOOLBAR_BUTTON_WIDTH = 20;
+        public const float TOOLBAR_BUTTON_HEIGHT = 20;
+        public const float RULE_GROUP_DIVIDER_HEIGHT = 1;
 
         private const string ENTRY_STRING = "ENTRY"; 
 
@@ -28,13 +32,14 @@ namespace StateMachine
         public bool IsSelected { get; private set; }
         public ScriptableObject InspectableObject => State;
 
-        private readonly float HighlightMargin = 4;
-        private readonly Color HighlightColor = Color.yellow;
-        private readonly Color HeaderBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
-
+        private readonly RectOffset HighlightMargin = new RectOffset(3, 2, 2, 3);
+        private readonly Color OutlineColor = new Color(1f, 1f, 0f, 1f);
+        private readonly Color StateBackgroundColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+        private readonly Color EntryPanelBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
+        
         private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
-        private GUIStyle style;
+        public Rect fullRect;
         private bool isDragged;
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
@@ -43,11 +48,6 @@ namespace StateMachine
             manager = renderer;
 
             InitializeRuleRenderers();
-
-            // TODO: tidy up in its own function? and vars
-            GUIStyle nodeStyle = new GUIStyle();
-            nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
-            nodeStyle.border = new RectOffset(12, 12, 12, 12);
         }
 
         public void InitializeRuleRenderers()
@@ -64,10 +64,10 @@ namespace StateMachine
         {
             bool isInsideCanvasWindow = manager.CanvasRenderer.Contains(e.mousePosition);
 
-            if (IsSelected)
-            {
+            //if (IsSelected)
+            //{
                 ProcessRuleEvents(e);
-            }
+            //}
 
             switch (e.type)
             {
@@ -162,24 +162,26 @@ namespace StateMachine
 
         public void Draw()
         {
-            DrawHelper.DrawLinkNode(new Vector2(Rect.x, Rect.y + Rect.height / 2));
+            if (IsEntryState)
+            {
+                DrawIsEntryVisual();
+            }
 
             if (IsSelected)
             {
-                DrawHighlight(HighlightColor);
-            }
-
-            Color previousBackgroundColor = GUI.color;
-
-            DrawHeader();
-            DrawRules();
-
-            if(IsSelected)
-            {
+                Rect rect = new Rect(
+                    Rect.x - HighlightMargin.right,
+                    Rect.y - HighlightMargin.left,
+                    Rect.width + HighlightMargin.horizontal,
+                    Rect.height + HighlightMargin.vertical
+                );
+                DrawHelper.DrawBoxOutline(rect, OutlineColor);
                 DrawAddNewRuleButton();
             }
 
-            GUI.color = previousBackgroundColor;
+            DrawBackground();
+            DrawHeader();
+            DrawRuleGroups();
         }
 
         private bool ProcessRuleEvents(Event e)
@@ -194,59 +196,88 @@ namespace StateMachine
             return guiChanged;
         }
 
-        private void DrawHeader()
+        private void DrawBackground()
         {
-            GUI.color = HeaderBackgroundColor;
-            Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
+            Color previousBackgroundColor = GUI.color;
+            GUI.color = StateBackgroundColor;
 
-            if (IsEntryState)
-            {
-                DrawIsEntryVisual();
-            }
-
-            // TODO: distinctive visual:
-            GUI.Box(Rect, State.Title); //  GUI.Box(rect, State.Title, "window");
+            GUI.Box(fullRect, "", GUIStyles.StateHeaderStyle);
+            GUI.color = previousBackgroundColor;
         }
 
-        private void DrawRules()
+        private void DrawHeader()
         {
-            for(int i = 0; i < State.RuleGroups.Count; i++)
+            Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
+
+            GUI.Label(Rect, State.Title, GUIStyles.StateHeaderTitleStyle);
+
+            DrawDividerLine(new Rect(Rect.x, Rect.y - 4, Rect.width, Rect.height), 4);
+
+            //DrawHelper.DrawRuleHandleKnob(
+            //    new Rect(Rect.x + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height),
+            //    null,
+            //    GUIStyles.KNOB_COLOR_IN
+            //);
+        }
+
+        private void DrawRuleGroups()
+        {
+            for (int i = 0; i < State.RuleGroups.Count; i++)
             {
                 Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
                 Rect ruleRect = ruleGroupRenderers[i].Draw(position, Rect.width);
+
+                if (i < State.RuleGroups.Count - 1)
+                {
+                    DrawDividerLine(ruleRect);
+                }
+
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
+
+            fullRect = Rect;
+        }
+
+        private void DrawDividerLine(Rect rect, float height = RULE_GROUP_DIVIDER_HEIGHT)
+        {
+            Color prevColor = GUI.color;
+            GUI.color = Color.grey;
+            GUI.Box(new Rect(rect.x, rect.y + rect.height, rect.width, height), "");
+            GUI.color = prevColor;
         }
 
         private void DrawAddNewRuleButton()
         {
-            Rect r = new Rect(Rect.x, Rect.y + Rect.height, Rect.width, HEADER_HEIGHT);
-            if (GUI.Button(r, "Add New Rule"))
+            Rect rect = new Rect(Rect.x + Rect.width - TOOLBAR_BUTTON_WIDTH * 2, Rect.y + Rect.height, TOOLBAR_BUTTON_WIDTH * 2, HEADER_HEIGHT);
+            Rect outlineRect = new Rect(rect.x - HighlightMargin.right, rect.y, rect.width + HighlightMargin.horizontal, rect.height);
+            DrawHelper.DrawBoxOutline(outlineRect, OutlineColor);
+
+            GUI.BeginGroup(rect);
+            Color prevColor = GUI.color;
+            GUI.color = StateBackgroundColor;
+            if (GUI.Button(new Rect(0, 0, TOOLBAR_BUTTON_WIDTH, HEADER_HEIGHT), EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle))
             {
                 manager.Select(CreateNewRule(State));
             }
-        }
-
-        private void DrawHighlight(Color color)
-        {
-            Color previousColor = GUI.color;
-
-            Rect r = new Rect(
-                Rect.x - HighlightMargin / 2,
-                Rect.y - HighlightMargin / 2,
-                Rect.width + HighlightMargin,
-                Rect.height + HighlightMargin);
-
-            GUI.color = color;
-            GUI.Box(r, "");
-
-            GUI.color = previousColor;
+            
+            //GUI.enabled = if ruleGroup is selected
+            if (GUI.Button(new Rect(TOOLBAR_BUTTON_WIDTH, 0, TOOLBAR_BUTTON_WIDTH, HEADER_HEIGHT), EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle))
+            {
+                // remove selected ruleGroup
+            }
+            GUI.color = prevColor;
+            GUI.EndGroup();
         }
 
         private void DrawIsEntryVisual()
         { 
-            Rect r = new Rect(Rect.x, Rect.y - ENTRY_VISUAL_HEIGHT, Rect.width, ENTRY_VISUAL_HEIGHT);
+            Color previousColor = GUI.color;
+            Rect r = new Rect(Rect.x + Rect.width / 2 - ENTRY_WIDTH / 2, Rect.y - ENTRY_VISUAL_HEIGHT + 2, ENTRY_WIDTH, ENTRY_VISUAL_HEIGHT);
+
+            GUI.color = EntryPanelBackgroundColor;
             GUI.Box(r, ENTRY_STRING);
+
+            GUI.color = previousColor;
         }
 
         public void OnDrag(Event e)

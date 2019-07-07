@@ -16,9 +16,11 @@ namespace StateMachine
         public List<RuleGroup> RuleGroups => ruleGroups;
         [SerializeField] private List<RuleGroup> ruleGroups = new List<RuleGroup>();
 
-        // Editor stuff:
         public string Title = "New State";
-        public Rect Rect;
+
+#if UNITY_EDITOR
+        public Rect Rect;        
+#endif
 
         public void AddAction(StateAction action)
         {

@@ -11,7 +11,7 @@ namespace StateMachine
     {
         private const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
         private const float LINE_THICKNESS = 3f;
-        private const float HIGHLIGHT_MARGIN_SIZE = 5;
+        private const string EMPTY_RULE_DISPLAY_LABEL = "TRUE";
 
         public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
@@ -20,31 +20,14 @@ namespace StateMachine
 
         private readonly Color HighlightSelectionColor = Color.blue;
         private readonly Color HighlightNoDestinationColor = Color.red;
+        private readonly Color RuleGroupDividerColor = Color.grey;
 
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         private StateRenderer stateRenderer;
         private StateMachineEditorManager manager;
+        private Rect fullRect;
         private bool isDraggingLine;
-
-        // TODO: move into seperate Style script
-        private GUIStyle RuleStyle
-        {
-            get
-            {
-                if(ruleStyle == null)
-                {
-                    ruleStyle = new GUIStyle();
-                    ruleStyle.alignment = TextAnchor.MiddleRight;
-                    ruleStyle.padding.right = 3;
-                    ruleStyle.padding.left = 3;
-                    ruleStyle.padding.top = 3;
-                    ruleStyle.padding.bottom = 3;
-                }
-                return ruleStyle;
-            }
-        }
-        private GUIStyle ruleStyle;
        
         public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
@@ -64,13 +47,6 @@ namespace StateMachine
 
             switch (e.type)
             {
-                case EventType.MouseDrag:
-                    if (isDraggingLine)
-                    {
-                        e.Use();
-                    }
-                    break;
-
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
@@ -85,17 +61,15 @@ namespace StateMachine
                     }
                     break;
 
-                case EventType.MouseUp:
-                    if (isDraggingLine)
-                    {
-                        OnDragEnd(e);
-                        e.Use();
-                    }
-                    break;
-
                 case EventType.MouseDown:
                     if (e.button == 0) 
                     {
+                        if (isDraggingLine)
+                        {
+                            OnDragEnd(e);
+                            e.Use();
+                        }
+
                         if (IsSelected && !Rect.Contains(e.mousePosition))
                         {
                             OnDeselect(e);
@@ -103,14 +77,6 @@ namespace StateMachine
                         else if (Rect.Contains(e.mousePosition))
                         {
                             OnSelect(e);
-                        }
-                    }
-                    else if(e.button == 1)
-                    {
-                        if(IsSelected && Rect.Contains(e.mousePosition))
-                        {
-                            OnDragStart(e);
-                            e.Use();
                         }
                     }
                     break;
@@ -174,6 +140,8 @@ namespace StateMachine
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Delete"), false, DeleteRuleGroup);
+            menu.AddItem(new GUIContent("Move up"), false, () => throw new NotImplementedException());
+            menu.AddItem(new GUIContent("Move down"), false, () => throw new NotImplementedException());
             menu.ShowAsContext();
 
             e.Use();
@@ -181,74 +149,59 @@ namespace StateMachine
 
         public Rect Draw(Vector2 position, float width)
         {
-            if (IsSelected)
-            {
-                DrawHighlight(HighlightSelectionColor);
-            }
-            else if (RuleGroup.Destination == null)
-            {
-                DrawHighlight(HighlightNoDestinationColor);
-            }
-
             if (RuleGroup.Destination != null && !isDraggingLine)
             { 
-                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Rect.x, RuleGroup.Destination.Rect.y + RuleGroup.Destination.Rect.height / 2);
+                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Rect.x, RuleGroup.Destination.Rect.y + StateRenderer.HEADER_HEIGHT / 2);
                 DrawLine(SourcePoint, destinationPoint);
             }
 
             DrawRules(position, width);
+
+            if (IsSelected)
+            {
+                DrawHelper.DrawBoxOutline(Rect, HighlightSelectionColor);
+            }
+
+            DrawNodeKnob();
 
             return Rect;
         }
 
         private void DrawRules(Vector2 position, float width)
         {
-            DrawHelper.DrawLinkNode(new Vector2(Rect.x + Rect.width, Rect.y + Rect.height / 2));
+            Rect = new Rect(position.x, position.y, width, 0);
 
             if (RuleGroup.Rules.Count == 0)
             {
-                Rect = new Rect(position.x, position.y, width, RULE_HEIGHT);
-                GUI.Box(Rect, "TRUE");
+                DrawRule(Rect, out Rect ruleRect);
+                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
             else
             {
-                float yPos = position.y;
-                float totalHeight = 0;
                 for (int i = 0; i < RuleGroup.Rules.Count; i++)
                 {
-                    yPos += RULE_HEIGHT;
-                    totalHeight += RULE_HEIGHT;
-                }
-                Rect = new Rect(position.x, position.y, width, totalHeight);
-                GUI.Box(Rect, "");
-
-                yPos = position.y;
-                for (int i = 0; i < RuleGroup.Rules.Count; i++)
-                {
-                    Rect ruleRect = new Rect(position.x, yPos, width, RULE_HEIGHT);
-                    GUI.Label(ruleRect, RuleGroup.Rules[i].DisplayName, RuleStyle);
-
-                    yPos += RULE_HEIGHT;
-                    totalHeight += RULE_HEIGHT;
+                    DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
+                    Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
                 }
             }
 
+            fullRect = Rect;
         }
 
-        private void DrawHighlight(Color color)
+        private void DrawNodeKnob()
         {
-            Color previousColor = GUI.color;
+            DrawHelper.DrawRuleHandleKnob(
+                new Rect(Rect.x + Rect.width + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height), 
+                () => OnDragStart(Event.current), 
+                (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_OUT_LINKED : GUIStyles.KNOB_COLOR_OUT_EMPTY
+            );
+        }
 
-            Rect r = new Rect(
-                Rect.x - HIGHLIGHT_MARGIN_SIZE / 2,
-                Rect.y - HIGHLIGHT_MARGIN_SIZE / 2,
-                Rect.width + HIGHLIGHT_MARGIN_SIZE,
-                Rect.height + HIGHLIGHT_MARGIN_SIZE);
-
-            GUI.color = color;
-            GUI.Box(r, "");
-
-            GUI.color = previousColor;
+        private void DrawRule(Rect groupRect, out Rect ruleRect, Rule rule = null)
+        {
+            ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, RULE_HEIGHT);
+            string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
+            GUI.Label(ruleRect, label, GUIStyles.RuleGroupStyle);
         }
 
         private void DeleteRuleGroup()
@@ -267,19 +220,7 @@ namespace StateMachine
 
         private void DrawLine(Vector2 source, Vector2 destination)
         {
-            Handles.BeginGUI();
-
-            Handles.DrawBezier(
-               source,
-               destination,
-               source - Vector2.left * 50f,
-               destination + Vector2.left * 50f,
-               Color.red,
-               null,
-               LINE_THICKNESS
-           );
-
-            Handles.EndGUI();
+            RuleGroup.line.Draw(source, destination, Color.red, LINE_THICKNESS);
         }
     }
 }

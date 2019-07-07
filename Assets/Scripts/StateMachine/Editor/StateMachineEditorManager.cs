@@ -171,7 +171,7 @@ namespace StateMachine
 
             if(selectable is StateRenderer)
             {
-                ReorderStateRendererToTop(selectable as StateRenderer);
+                ReorderStateRendererToBottom(selectable as StateRenderer);
             }
         }
 
@@ -199,10 +199,10 @@ namespace StateMachine
         }
 
         /// <summary>
-        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called first>
+        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called last
         /// </summary>
         /// <param name="renderer"></param>
-        private void ReorderStateRendererToTop(StateRenderer renderer)
+        private void ReorderStateRendererToBottom(StateRenderer renderer)
         {
             StateRenderers.Remove(renderer);
             StateRenderers.Add(renderer);

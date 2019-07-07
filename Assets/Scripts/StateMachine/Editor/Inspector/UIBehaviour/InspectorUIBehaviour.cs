@@ -52,11 +52,11 @@ namespace StateMachine
             if (InspectedObject == null) { return; }
 
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
-            InspectorContent(e);
+            DrawInspectorContent(e);
             EditorGUILayout.EndVertical();
         }
 
-        public virtual void InspectorContent(Event e)
+        public virtual void DrawInspectorContent(Event e)
         {
             DrawProperties();
         }

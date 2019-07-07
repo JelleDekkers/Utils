@@ -15,7 +15,7 @@ namespace StateMachine
 
         private const string PROPERTY_FIELD_NAME = "actions";
 
-        public override void InspectorContent(Event e)
+        public override void DrawInspectorContent(Event e)
         {
             if (!StateMachineRenderer.debug)
             {
