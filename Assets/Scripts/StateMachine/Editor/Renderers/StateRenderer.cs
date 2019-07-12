@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -13,11 +14,12 @@ namespace StateMachine
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
+        public const float HEADER_DIVIDER_HEIGHT = 4;
         public const float ENTRY_WIDTH = WIDTH - 20;
         public const float ENTRY_VISUAL_HEIGHT = HEADER_HEIGHT;
         public const float TOOLBAR_BUTTON_WIDTH = 20;
         public const float TOOLBAR_BUTTON_HEIGHT = 20;
-        public const float RULE_GROUP_DIVIDER_HEIGHT = 1;
+        public const float RULE_GROUP_DIVIDER_HEIGHT = 1f;
 
         private const string ENTRY_STRING = "ENTRY"; 
 
@@ -30,10 +32,10 @@ namespace StateMachine
 
         public bool IsEntryState { get { return manager.StateMachineData.EntryState == State; } }
         public bool IsSelected { get; private set; }
+        public RuleGroupRenderer SelectedRule { get; set; }
         public ScriptableObject InspectableObject => State;
 
         private readonly RectOffset HighlightMargin = new RectOffset(3, 2, 2, 3);
-        private readonly Color OutlineColor = new Color(1f, 1f, 0f, 1f);
         private readonly Color StateBackgroundColor = new Color(0.8f, 0.8f, 0.8f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
         
@@ -64,10 +66,10 @@ namespace StateMachine
         {
             bool isInsideCanvasWindow = manager.CanvasRenderer.Contains(e.mousePosition);
 
-            //if (IsSelected)
-            //{
+            if (IsSelected)
+            {
                 ProcessRuleEvents(e);
-            //}
+            }
 
             switch (e.type)
             {
@@ -88,7 +90,7 @@ namespace StateMachine
                         {
                             if (Rect.Contains(e.mousePosition))
                             {
-                                if (!IsSelected)
+                                if (!IsSelected || SelectedRule == null)
                                 {
                                     OnSelect(e);
                                     e.Use();
@@ -106,7 +108,7 @@ namespace StateMachine
                         }
                         else if (e.button == 1)
                         {
-                            if (IsSelected && Rect.Contains(e.mousePosition))
+                            if (SelectedRule == null && Rect.Contains(e.mousePosition))
                             {
                                 ShowContextMenu(e);
                             }
@@ -132,10 +134,18 @@ namespace StateMachine
             }
         }
 
+        private void ProcessRuleEvents(Event e)
+        {
+            foreach (RuleGroupRenderer renderer in ruleGroupRenderers)
+            {
+                renderer.ProcessEvents(e);
+            }
+        }
+
         public void ResetState()
         {
             RemoveAllActions();
-            RemoveRuleGRoups();
+            RemoveAllRuleGroups();
 
             manager.Refresh();
         }
@@ -149,17 +159,49 @@ namespace StateMachine
             }
         }
 
-        public void RemoveRuleGRoups()
+        public void RemoveAllRuleGroups()
         {
             ruleGroupRenderers.Clear();
 
             for (int i = State.RuleGroups.Count - 1; i >= 0; i--)
             {
-                UnityEngine.Object.DestroyImmediate(State.RuleGroups[i], true);
-                State.RemoveRuleGroup(State.RuleGroups[i]);
+                RemoveRuleGroup(State.RuleGroups[i]);
             }
         }
 
+        public void RemoveRuleGroup(RuleGroup group)
+        {
+            UnityEngine.Object.DestroyImmediate(group, true);
+            State.RemoveRuleGroup(group);
+            SelectedRule = null;
+
+            InitializeRuleRenderers();
+            manager.Select(this);
+            GUI.changed = true;
+        }
+
+        private RuleGroupRenderer CreateNewRule(State connectedState)
+        {
+            string assetFilePath = AssetDatabase.GetAssetPath(State);
+            RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
+
+            State.AddRuleGroup(group);
+            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
+            ruleGroupRenderers.Add(renderer);
+
+            if(SelectedRule != null)
+            {
+                SelectedRule.OnDeselect(Event.current);
+            }
+
+            SelectedRule = renderer;
+            renderer.OnSelect(Event.current);
+            //renderer.SetAsNew(Event.current);
+
+            return renderer;
+        }
+
+        #region Drawing
         public void Draw()
         {
             if (IsEntryState)
@@ -169,31 +211,23 @@ namespace StateMachine
 
             if (IsSelected)
             {
-                Rect rect = new Rect(
-                    Rect.x - HighlightMargin.right,
-                    Rect.y - HighlightMargin.left,
-                    Rect.width + HighlightMargin.horizontal,
-                    Rect.height + HighlightMargin.vertical
-                );
-                DrawHelper.DrawBoxOutline(rect, OutlineColor);
-                DrawAddNewRuleButton();
+                if (SelectedRule == null)
+                {
+                    Rect rect = new Rect(
+                        Rect.x - HighlightMargin.right,
+                        Rect.y - HighlightMargin.left,
+                        Rect.width + HighlightMargin.horizontal,
+                        Rect.height + HighlightMargin.vertical
+                    );
+                    DrawHelper.DrawBoxOutline(rect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                }
+
+                DrawRuleToolbar(IsSelected && SelectedRule == null);
             }
 
             DrawBackground();
             DrawHeader();
             DrawRuleGroups();
-        }
-
-        private bool ProcessRuleEvents(Event e)
-        {
-            bool guiChanged = false;
-
-            foreach (RuleGroupRenderer renderer in ruleGroupRenderers)
-            {
-                renderer.ProcessEvents(e);
-            }
-
-            return guiChanged;
         }
 
         private void DrawBackground()
@@ -211,7 +245,7 @@ namespace StateMachine
 
             GUI.Label(Rect, State.Title, GUIStyles.StateHeaderTitleStyle);
 
-            DrawDividerLine(new Rect(Rect.x, Rect.y - 4, Rect.width, Rect.height), 4);
+            DrawDividerLine(new Rect(Rect.x, Rect.y - HEADER_DIVIDER_HEIGHT, Rect.width, Rect.height), HEADER_DIVIDER_HEIGHT);
 
             //DrawHelper.DrawRuleHandleKnob(
             //    new Rect(Rect.x + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height),
@@ -246,27 +280,37 @@ namespace StateMachine
             GUI.color = prevColor;
         }
 
-        private void DrawAddNewRuleButton()
+        private void DrawRuleToolbar(bool showOutline)
         {
-            Rect rect = new Rect(Rect.x + Rect.width - TOOLBAR_BUTTON_WIDTH * 2, Rect.y + Rect.height, TOOLBAR_BUTTON_WIDTH * 2, HEADER_HEIGHT);
+            int buttonsAmount = 2;
+            Rect rect = new Rect(Rect.x + Rect.width - TOOLBAR_BUTTON_WIDTH * buttonsAmount, Rect.y + Rect.height, TOOLBAR_BUTTON_WIDTH * buttonsAmount, HEADER_HEIGHT);
             Rect outlineRect = new Rect(rect.x - HighlightMargin.right, rect.y, rect.width + HighlightMargin.horizontal, rect.height);
-            DrawHelper.DrawBoxOutline(outlineRect, OutlineColor);
 
-            GUI.BeginGroup(rect);
+            if (showOutline)
+            {
+                DrawHelper.DrawBoxOutline(outlineRect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+            }
+
+            GUILayout.BeginArea(rect);
+            GUILayout.BeginHorizontal();
             Color prevColor = GUI.color;
             GUI.color = StateBackgroundColor;
-            if (GUI.Button(new Rect(0, 0, TOOLBAR_BUTTON_WIDTH, HEADER_HEIGHT), EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle))
-            {
+
+            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
+            { 
                 manager.Select(CreateNewRule(State));
             }
-            
-            //GUI.enabled = if ruleGroup is selected
-            if (GUI.Button(new Rect(TOOLBAR_BUTTON_WIDTH, 0, TOOLBAR_BUTTON_WIDTH, HEADER_HEIGHT), EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle))
+
+            GUI.enabled = SelectedRule != null;
+            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             {
-                // remove selected ruleGroup
+                RemoveRuleGroup(SelectedRule.RuleGroup);
             }
+            GUI.enabled = true;
+
             GUI.color = prevColor;
-            GUI.EndGroup();
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
         }
 
         private void DrawIsEntryVisual()
@@ -278,6 +322,41 @@ namespace StateMachine
             GUI.Box(r, ENTRY_STRING);
 
             GUI.color = previousColor;
+        }
+
+        private void ShowContextMenu(Event e)
+        {
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Delete State"), false, () => manager.RemoveState(State));
+            menu.AddItem(new GUIContent("Reset State"), false, ResetState);
+            menu.AddItem(new GUIContent("Add Rule"), false, () => manager.Select(CreateNewRule(State)));
+            menu.ShowAsContext();
+
+            manager.ContextMenuIsOpen = true;
+            e.Use();
+        }
+        #endregion
+
+        #region Events
+        public void OnSelect(Event e)
+        {
+            GUI.changed = true;
+            IsSelected = true;
+
+            manager.Select(this);
+        }
+
+        public void OnDeselect(Event e)
+        {
+            GUI.changed = true;
+            IsSelected = false;
+
+            foreach (RuleGroupRenderer renderer in ruleGroupRenderers)
+            {
+                renderer.OnDeselect(e);
+            }
+
+            manager.Deselect(this);
         }
 
         public void OnDrag(Event e)
@@ -301,60 +380,6 @@ namespace StateMachine
         {
             isDragged = false;
         }
-
-        private void ShowContextMenu(Event e)
-        {
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => manager.RemoveState(State));
-            menu.AddItem(new GUIContent("Reset"), false, ResetState);
-            menu.AddItem(new GUIContent("Add Rule"), false, () => manager.Select(CreateNewRule(State)));
-            menu.ShowAsContext();
-
-            manager.ContextMenuIsOpen = true;
-            e.Use();
-        }
-
-        public void OnSelect(Event e)
-        {
-            GUI.changed = true;
-            IsSelected = true;
-
-            manager.Select(this);
-            //style = selectedNodeStyle;
-        }
-
-        public void OnDeselect(Event e)
-        {
-            GUI.changed = true;
-            IsSelected = false;
-
-            foreach(RuleGroupRenderer renderer in ruleGroupRenderers)
-            {
-                renderer.OnDeselect(e);
-            }
-
-            manager.Deselect(this);
-            //style = defaultNodeStyle;
-        }
-
-        private RuleGroupRenderer CreateNewRule(State connectedState)
-        {
-            string assetFilePath = AssetDatabase.GetAssetPath(State);
-            RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
-
-            //foreach(RuleGroupRenderer rend in ruleGroupRenderers)
-            //{
-            //    rend.OnDeselect(Event.current);
-            //}
-
-            State.AddRuleGroup(group);
-            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
-            ruleGroupRenderers.Add(renderer);
-
-            renderer.OnSelect(Event.current);
-            renderer.SetAsNew(Event.current);
-
-            return renderer;
-        }
+        #endregion
     }
 }

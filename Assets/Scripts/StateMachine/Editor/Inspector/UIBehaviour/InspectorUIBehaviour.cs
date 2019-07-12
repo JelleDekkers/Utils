@@ -15,6 +15,7 @@ namespace StateMachine
             Reset,
             Delete,
             EditScript
+            // Copy/paste/move up/move down
         }
 
         protected class ContextMenuResult
@@ -71,10 +72,7 @@ namespace StateMachine
             property = property.GetArrayElementAtIndex(index);
             if (property.objectReferenceValue == null) { return; }
 
-            GUIStyle myStyle = new GUIStyle();
-            myStyle.margin = new RectOffset(15, 0, 0, 0);
-
-            Rect header = EditorGUILayout.BeginHorizontal(myStyle);
+            Rect header = EditorGUILayout.BeginHorizontal(GUIStyles.InspectorStyle);
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, GUIContent.none, true);
             EditorGUI.LabelField(header, GetPropertyName(property), EditorStyles.largeLabel);
             DrawContextMenuDropdown(index);

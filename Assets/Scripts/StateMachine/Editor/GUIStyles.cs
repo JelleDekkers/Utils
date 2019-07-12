@@ -9,6 +9,9 @@ namespace StateMachine
         public static readonly Color KNOB_COLOR_OUT_LINKED = Color.green;
         public static readonly Color KNOB_COLOR_OUT_EMPTY = Color.red;
         public static readonly Color KNOB_COLOR_IN = Color.white;
+        public static readonly Color HIGHLIGHT_OUTLINE_COLOR = Color.yellow;
+        public static readonly Color NODE_LINE_COLOR = Color.red;
+        public static readonly Color NODE_LINE_COLOR_SELECTED = Color.yellow;
 
         private static GUIStyle ruleGroupStyle;
         public static GUIStyle RuleGroupStyle
@@ -83,7 +86,7 @@ namespace StateMachine
                 {
                     ruleGroupOutlineStyle = new GUIStyle();
                     ruleGroupOutlineStyle.border = new RectOffset(4, 4, 4, 4);
-                    ruleGroupOutlineStyle.padding = new RectOffset(4, 4, 3, 4);
+                    ruleGroupOutlineStyle.padding = new RectOffset(4, 4, 4, 4);
                     ruleGroupOutlineStyle.normal.background = OutlineTexture;
                 }
 
@@ -119,6 +122,21 @@ namespace StateMachine
                 }
 
                 return outlineTexture;
+            }
+        }
+
+        private static GUIStyle inspectorStyle;
+        public static GUIStyle InspectorStyle
+        {
+            get
+            {
+                if (inspectorStyle == null)
+                {
+                    inspectorStyle = new GUIStyle();
+                    inspectorStyle.margin = new RectOffset(15, 0, 0, 0);
+                }
+
+                return inspectorStyle;
             }
         }
     }

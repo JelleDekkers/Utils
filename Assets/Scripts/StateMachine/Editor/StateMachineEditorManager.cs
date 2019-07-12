@@ -184,7 +184,7 @@ namespace StateMachine
             }
         }
 
-        public void Refresh()
+        public void Refresh(Action onDone = null)
         {
             Selection = null;
             if (Selection != null)
@@ -196,10 +196,12 @@ namespace StateMachine
             {
                 CreateNewStateRenderer(state);
             }
+
+            onDone?.Invoke();
         }
 
         /// <summary>
-        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called last
+        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called last and the window will be drawn on top
         /// </summary>
         /// <param name="renderer"></param>
         private void ReorderStateRendererToBottom(StateRenderer renderer)

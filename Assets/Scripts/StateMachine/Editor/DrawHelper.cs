@@ -56,6 +56,9 @@ namespace StateMachine
         {
             Rect rect = new Rect(ruleRect.x - handleSize / 2, ruleRect.position.y - handleSize / 2, handleSize, handleSize);
 
+            // slider thumb@2x
+            // Material Icon
+
             Color prevColor = GUI.color;
             GUI.color = color;
             if (GUI.Button(rect, "", GUIStyles.RuleGroupKnobStyle))

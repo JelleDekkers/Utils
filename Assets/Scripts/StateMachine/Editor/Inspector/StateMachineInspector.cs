@@ -16,6 +16,8 @@ namespace StateMachine
         protected StateMachineEditorManager manager;
         protected InspectorUIBehaviour uiBehaviour;
 
+        private Action layoutEvent;
+
         public StateMachineInspector(StateMachineEditorManager manager)
         {
             this.manager = manager;
@@ -24,18 +26,30 @@ namespace StateMachine
         }
 
         public void OnInspectorGUI(Event e)
-        {
-            if(uiBehaviour == null) { return; }
+        {   
+            if (e.type == EventType.Layout)
+            {
+                layoutEvent?.Invoke();
+            }
+
+            if (uiBehaviour == null) { return; }
 
             uiBehaviour.OnInspectorGUI(e);
         }
 
         public void Inspect(IInspectable inspectable)
         {
-            InspectedObject = inspectable.InspectableObject;
+            void inspectOnLayoutEvent()
+            {
+                InspectedObject = inspectable.InspectableObject;
 
-            uiBehaviour = GetCorrectUIBehaviour(InspectedObject);
-            uiBehaviour.Show(manager, InspectedObject);
+                uiBehaviour = GetCorrectUIBehaviour(InspectedObject);
+                uiBehaviour.Show(manager, InspectedObject);
+
+                layoutEvent -= inspectOnLayoutEvent;
+            }
+
+            layoutEvent += inspectOnLayoutEvent;
         }
 
         private InspectorUIBehaviour GetCorrectUIBehaviour(ScriptableObject inspectableObject)
