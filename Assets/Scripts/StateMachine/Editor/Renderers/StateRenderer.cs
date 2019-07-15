@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace StateMachine
 {
     /// <summary>
-    /// Renders the <see cref="global::StateMachine.State"/> node on the <see cref="StateMachineData"/> window
+    /// Renders the <see cref="State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
-    public class StateRenderer : ISelectable, IDraggable, IInspectable
+    public class StateRenderer : NodeRenderer<State>, ISelectable, IDraggable, IDisposable
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
@@ -23,20 +21,29 @@ namespace StateMachine
 
         private const string ENTRY_STRING = "ENTRY"; 
 
-        public State State { get; private set; }
+        public State DataObject { get; private set; }
+
         public Rect Rect
         {
-            get { return State.Rect; }
-            set { State.Rect = value; }
+            get
+            {
+                return new Rect(DataObject.position, size);
+            }
+            private set
+            {
+                DataObject.position = value.position;
+                size = value.size;
+            }
         }
+        private Vector2 size;
 
-        public bool IsEntryState { get { return manager.StateMachineData.EntryState == State; } }
+        public bool IsEntryState { get { return manager.StateMachineData.EntryState == DataObject; } }
         public bool IsSelected { get; private set; }
-        public RuleGroupRenderer SelectedRule { get; set; }
-        public ScriptableObject InspectableObject => State;
+        public RuleGroupRenderer SelectedRuleGroup { get; set; }
+
 
         private readonly RectOffset HighlightMargin = new RectOffset(3, 2, 2, 3);
-        private readonly Color StateBackgroundColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+        private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
         
         private StateMachineEditorManager manager;
@@ -46,19 +53,22 @@ namespace StateMachine
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
         {
-            State = state;
+            DataObject = state;
             manager = renderer;
 
             InitializeRuleRenderers();
+
+            StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
+            StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupRemovedEvent;
         }
 
         public void InitializeRuleRenderers()
         {
             ruleGroupRenderers = new List<RuleGroupRenderer>();
 
-            for (int i = 0; i < State.RuleGroups.Count; i++) 
+            for (int i = 0; i < DataObject.RuleGroups.Count; i++) 
             {
-                ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, manager));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(DataObject.RuleGroups[i], this, manager));
             }
         }
 
@@ -78,7 +88,7 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
-                            manager.RemoveState(State);
+                            manager.StateMachineData.RemoveState(DataObject);
                             e.Use();
                         }
                     }
@@ -90,7 +100,7 @@ namespace StateMachine
                         {
                             if (Rect.Contains(e.mousePosition))
                             {
-                                if (!IsSelected || SelectedRule == null)
+                                if (!IsSelected || SelectedRuleGroup == null)
                                 {
                                     OnSelect(e);
                                     e.Use();
@@ -108,7 +118,7 @@ namespace StateMachine
                         }
                         else if (e.button == 1)
                         {
-                            if (SelectedRule == null && Rect.Contains(e.mousePosition))
+                            if (SelectedRuleGroup == null && Rect.Contains(e.mousePosition))
                             {
                                 ShowContextMenu(e);
                             }
@@ -141,66 +151,7 @@ namespace StateMachine
                 renderer.ProcessEvents(e);
             }
         }
-
-        public void ResetState()
-        {
-            RemoveAllActions();
-            RemoveAllRuleGroups();
-
-            manager.Refresh();
-        }
-
-        public void RemoveAllActions()
-        {
-            for (int i = State.Actions.Count - 1; i >= 0; i--)
-            {
-                UnityEngine.Object.DestroyImmediate(State.Actions[i], true);
-                State.RemoveAction(State.Actions[i]);
-            }
-        }
-
-        public void RemoveAllRuleGroups()
-        {
-            ruleGroupRenderers.Clear();
-
-            for (int i = State.RuleGroups.Count - 1; i >= 0; i--)
-            {
-                RemoveRuleGroup(State.RuleGroups[i]);
-            }
-        }
-
-        public void RemoveRuleGroup(RuleGroup group)
-        {
-            UnityEngine.Object.DestroyImmediate(group, true);
-            State.RemoveRuleGroup(group);
-            SelectedRule = null;
-
-            InitializeRuleRenderers();
-            manager.Select(this);
-            GUI.changed = true;
-        }
-
-        private RuleGroupRenderer CreateNewRule(State connectedState)
-        {
-            string assetFilePath = AssetDatabase.GetAssetPath(State);
-            RuleGroup group = StateMachineEditorUtility.CreateObjectInstance<RuleGroup>(assetFilePath);
-
-            State.AddRuleGroup(group);
-            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
-            ruleGroupRenderers.Add(renderer);
-
-            if(SelectedRule != null)
-            {
-                SelectedRule.OnDeselect(Event.current);
-            }
-
-            SelectedRule = renderer;
-            renderer.OnSelect(Event.current);
-            //renderer.SetAsNew(Event.current);
-
-            return renderer;
-        }
-
+       
         #region Drawing
         public void Draw()
         {
@@ -211,18 +162,18 @@ namespace StateMachine
 
             if (IsSelected)
             {
-                if (SelectedRule == null)
+                if (SelectedRuleGroup == null)
                 {
-                    Rect rect = new Rect(
+                    Rect r = new Rect(
                         Rect.x - HighlightMargin.right,
                         Rect.y - HighlightMargin.left,
                         Rect.width + HighlightMargin.horizontal,
                         Rect.height + HighlightMargin.vertical
                     );
-                    DrawHelper.DrawBoxOutline(rect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                    DrawHelper.DrawBoxOutline(r, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
                 }
 
-                DrawRuleToolbar(IsSelected && SelectedRule == null);
+                DrawRuleToolbar(IsSelected && SelectedRuleGroup == null);
             }
 
             DrawBackground();
@@ -243,7 +194,7 @@ namespace StateMachine
         {
             Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
 
-            GUI.Label(Rect, State.Title, GUIStyles.StateHeaderTitleStyle);
+            GUI.Label(Rect, DataObject.Title, GUIStyles.StateHeaderTitleStyle);
 
             DrawDividerLine(new Rect(Rect.x, Rect.y - HEADER_DIVIDER_HEIGHT, Rect.width, Rect.height), HEADER_DIVIDER_HEIGHT);
 
@@ -256,12 +207,12 @@ namespace StateMachine
 
         private void DrawRuleGroups()
         {
-            for (int i = 0; i < State.RuleGroups.Count; i++)
+            for (int i = 0; i < DataObject.RuleGroups.Count; i++)
             {
                 Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
                 Rect ruleRect = ruleGroupRenderers[i].Draw(position, Rect.width);
 
-                if (i < State.RuleGroups.Count - 1)
+                if (i < DataObject.RuleGroups.Count - 1)
                 {
                     DrawDividerLine(ruleRect);
                 }
@@ -298,13 +249,13 @@ namespace StateMachine
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             { 
-                manager.Select(CreateNewRule(State));
+                DataObject.AddNewRuleGroup();
             }
 
-            GUI.enabled = SelectedRule != null;
+            GUI.enabled = SelectedRuleGroup != null;
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             {
-                RemoveRuleGroup(SelectedRule.RuleGroup);
+                DataObject.RemoveRuleGroup(SelectedRuleGroup.DataObject);
             }
             GUI.enabled = true;
 
@@ -327,9 +278,11 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete State"), false, () => manager.RemoveState(State));
-            menu.AddItem(new GUIContent("Reset State"), false, ResetState);
-            menu.AddItem(new GUIContent("Add Rule"), false, () => manager.Select(CreateNewRule(State)));
+            menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(DataObject));
+            menu.AddItem(new GUIContent("Reset"), false, () => DataObject.Reset());
+            menu.AddItem(new GUIContent("Copy"), false, () => throw new NotImplementedException());
+            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => DataObject.AddNewRuleGroup());
+            menu.AddItem(new GUIContent("Paste Rulegroup"), false, () => throw new NotImplementedException());
             menu.ShowAsContext();
 
             manager.ContextMenuIsOpen = true;
@@ -344,6 +297,9 @@ namespace StateMachine
             IsSelected = true;
 
             manager.Select(this);
+            manager.Inspector.Inspect(DataObject);
+            manager.ReorderStateRendererToBottom(this);
+
         }
 
         public void OnDeselect(Event e)
@@ -368,7 +324,7 @@ namespace StateMachine
             newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.CANVAS_WIDTH);
             newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.CANVAS_HEIGHT);
 
-            State.Rect.position = newPosition;
+            DataObject.position = newPosition;
         }
 
         public void OnDragStart(Event e)
@@ -379,6 +335,39 @@ namespace StateMachine
         public void OnDragEnd(Event e)
         {
             isDragged = false;
+        }
+
+        private void OnRuleGroupRemovedEvent(RuleGroup group)
+        {
+            if (manager.Selection == group as ISelectable)
+            {
+                manager.Select(DataObject as ISelectable);
+            }
+
+            SelectedRuleGroup = null;
+            InitializeRuleRenderers();
+            manager.Select(this);
+            GUI.changed = true;
+        }
+
+        private void OnRuleGroupAddedEvent(RuleGroup group)
+        {
+            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
+            ruleGroupRenderers.Add(renderer);
+
+            if (SelectedRuleGroup != null)
+            {
+                SelectedRuleGroup.OnDeselect(Event.current);
+            }
+
+            SelectedRuleGroup = renderer;
+            renderer.OnSelect(Event.current);
+        }
+
+        public void Dispose()
+        {
+            StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
+            StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupRemovedEvent;
         }
         #endregion
     }

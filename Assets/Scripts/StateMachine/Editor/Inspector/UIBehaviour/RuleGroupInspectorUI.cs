@@ -4,107 +4,42 @@ using UnityEngine;
 
 namespace StateMachine
 {
-    /// <summary>
-    /// Renders the inspector for <see cref="global::StateMachine.RuleGroup"/>s
-    /// Shows all <see cref="Rule"/>s and allows for modification
-    /// </summary>
     [CustomInspectorUI(typeof(RuleGroup))]
-    public class RuleGroupInspectorUI : InspectorUIBehaviour
+    public class RuleGroupInspector : InspectorUIBehaviour
     {
-        private RuleGroup RuleGroup { get { return InspectedObject as RuleGroup; } }
+        public RuleGroup RuleGroup { get { return TargetObject as RuleGroup; } }
 
-        private const string PROPERTY_FIELD_NAME = "rules";
+        private const string PROPERTY_NAME = "rules";
 
-        public override void DrawInspectorContent(Event e)
+        public RuleGroupInspector(StateMachineEditorManager manager, ScriptableObject target) : base(manager, target) { }
+
+        protected override void DrawInspectorContent(Event e)
         {
-            if (!StateMachineRenderer.debug)
-            {
-                DrawHeader();
-                DrawStateFields();
-            }
-            else
-            {
-                DrawProperties();
-            }
+            DrawHeader("Rules", () => DrawAddNewButton(OnAddNewButtonPressedEvent));
+            DrawDividerLine();
+            DrawPropertyFields(PROPERTY_NAME);
         }
 
-        public override void OnInspectorGUI(Event e)
+        protected void OnAddNewButtonPressedEvent()
         {
-            base.OnInspectorGUI(e);
-            DrawAddNewButton();
+            OpenTypeFilterWindow(typeof(Rule), CreateNewType);
         }
 
-        private void DrawStateFields()
+        private void CreateNewType(Type type)
         {
-            SerializedProperty property = SerializedObject.FindProperty(PROPERTY_FIELD_NAME);
-
-            for (int i = 0; i < property.arraySize; i++)
-            {
-                DrawDividerLine();
-                DrawExpandedPropertyFieldArray(property, i);
-            }
-
-            if (property.arraySize == 0)
-            {
-                DrawDividerLine();
-                GUILayout.Label("Empty");
-            }
-        }
-
-        private void DrawHeader()
-        {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Rules", EditorStyles.boldLabel);
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private void DrawAddNewButton()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Add New Rule", GUILayout.MaxWidth(200), GUILayout.MaxHeight(25)))
-            {
-                OpenTypeFilterWindow();
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-        }
-
-        private void OpenTypeFilterWindow()
-        {
-            TypeFilterWindow window = EditorWindow.GetWindow<TypeFilterWindow>(true, string.Format("Choose {0} to add", typeof(Rule).ToString()));
-            TypeFilterWindow.SelectHandler func = (Type t) =>
-            {
-                CreateNewType(t);
-                window.Close();
-            };
-            window.RetrieveTypes<Rule>(func);
-        }
-
-        protected void CreateNewType(Type type)
-        {
-            Undo.RecordObject(StateMachine, "Add Rule");
-            string assetFilePath = AssetDatabase.GetAssetPath(InspectedObject);
-            Rule rule = StateMachineEditorUtility.CreateObjectInstance(type, assetFilePath) as Rule;
-
-            RuleGroup.AddRule(rule);
+            RuleGroup.AddNewRule(type);
             Refresh();
         }
 
-        protected override void OnEditScriptButtonPressed(int index)
+        protected override void OnDeleteButtonPressed(ContextMenuResult result)
         {
-            OpenScript(RuleGroup.Rules[index]);
+            RuleGroup.RemoveRule(RuleGroup.Rules[result.Index]);
+            Refresh();
         }
 
-        protected override void OnDeleteButtonPressed(int index)
+        protected override void OnResetButtonPressed(int index)
         {
-            Undo.RecordObject(StateMachine, "Remove Rule");
-
-            Rule rule = RuleGroup.Rules[index];
-            RuleGroup.RemoveRule(rule);
-            UnityEngine.Object.DestroyImmediate(rule, true);
-
-            Refresh();
+            RuleGroup.Rules[index].Reset();
         }
     }
 }

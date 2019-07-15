@@ -35,7 +35,12 @@ public class TypeFilterWindow : EditorWindow
 
     public void RetrieveTypes<T>(SelectHandler onSelection)
     {
-        allTypes = ReflectionUtility.GetAllTypes(typeof(T));
+        RetrieveTypes(typeof(T), onSelection);
+    }
+
+    public void RetrieveTypes(Type type, SelectHandler onSelection)
+    {
+        allTypes = ReflectionUtility.GetAllTypes(type);
         filteredTypes = allTypes;
 
         selectionCallback = onSelection;

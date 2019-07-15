@@ -8,40 +8,43 @@ namespace StateMachine
     /// <summary>
     /// Class for rendering <see cref="global::StateMachine.StateMachineData"/> window.
     /// </summary>
-    public class StateMachineEditorManager
+    public class StateMachineEditorManager : IDisposable
     {
         public ISelectable Selection { get; private set; }
         public StateMachineData StateMachineData { get; private set; }
         public List<StateRenderer> StateRenderers { get; private set; }
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
+        public StateMachineInspector Inspector { get; private set; }
         public bool ContextMenuIsOpen { get; set; }
 
-        public bool debug;
+        public bool ShowDebug { get; private set; }
 
-        private StateMachineInspector inspector;
         private readonly Action repaintFunc;
 
         public StateMachineEditorManager(StateMachineData stateMachine, Action repaintFunc)
         {
             StateMachineData = stateMachine;
-            inspector = new StateMachineInspector(this);
+            Inspector = new StateMachineInspector(this);
             CanvasRenderer = new StateMachineCanvasRenderer(this);
             this.repaintFunc = repaintFunc;
 
             StateRenderers = new List<StateRenderer>();
-            foreach(State state in stateMachine.States)
+            foreach (State state in stateMachine.States)
             {
                 CreateNewStateRenderer(state);
             }
+
+            StateMachineEditorUtility.StateAddedEvent += CreateNewStateRenderer;
+            StateMachineEditorUtility.StateRemovedEvent += OnStateRemovedEvent;
         }
 
         public void OnInspectorGUI()
         {
             Event e = Event.current;
             CanvasRenderer.OnInspectorGUI(e);
-            inspector.OnInspectorGUI(e);
+            Inspector.OnInspectorGUI(e);
 
-            if (debug)
+            if (ShowDebug)
             {
                 DrawDebugInfo(e);
             }
@@ -80,98 +83,42 @@ namespace StateMachine
 
                 if (Selection is StateRenderer)
                 {   
-                    GUILayout.Label("selection action count " + (Selection as StateRenderer).State.Actions.Count);
+                    GUILayout.Label("selection action count " + (Selection as StateRenderer).DataObject.Actions.Count);
                     GUILayout.Label("selection rect " + (Selection as StateRenderer).Rect);
-                    GUILayout.Label("selection rules " + (Selection as StateRenderer).State.RuleGroups.Count);
-                    GUILayout.Label("entry state == selection " + (StateMachineData.EntryState == (Selection as StateRenderer).State));
+                    GUILayout.Label("selection rules " + (Selection as StateRenderer).DataObject.RuleGroups.Count);
+                    GUILayout.Label("entry state == selection " + (StateMachineData.EntryState == (Selection as StateRenderer).DataObject));
                 }
             }
         }
 
-        public State CreateNewState()
+        private void OnStateRemovedEvent(State state)
         {
-            return CreateNewState(CanvasRenderer.GetWindowCentre());
-        }
-
-        public State CreateNewState(Vector2 position)
-        {
-            // TODO: undo
-            string assetFilePath = AssetDatabase.GetAssetPath(StateMachineData);
-            State state = StateMachineEditorUtility.CreateObjectInstance<State>(assetFilePath);
-            state.Rect.position = position;
-
-            StateMachineData.AddNewState(state);
-            CreateNewStateRenderer(state);
-            
-            return state;
-        }
-
-        private StateRenderer CreateNewStateRenderer(State state)
-        {
-            StateRenderer stateRenderer = new StateRenderer(state, this);
-            StateRenderers.Add(stateRenderer);
-            //Undo.RegisterCreatedObjectUndo(state, "Added state");
-
-            return stateRenderer;
-        }
-
-        public void ResetState(State state)
-        {
-            // TODO: undo
-            (Selection as StateRenderer).ResetState();
-        }
-
-        public void RemoveState(StateRenderer renderer)
-        {
-            // TODO: undo
-            RemoveState(renderer.State);
-        }
-
-        public void RemoveState(State state)
-        {
-            // TODO: undo
-            if(Selection == state as ISelectable)
+            if (Selection == state as ISelectable)
             {
                 Deselect(state as ISelectable);
             }
 
-            bool isEntryState = StateMachineData.EntryState == state;
-
             foreach (StateRenderer renderer in StateRenderers)
             {
-                if (renderer.State == state)
+                if (renderer.DataObject == state)
                 {
                     StateRenderers.Remove(renderer);
                     break;
                 }
             }
+        }
 
-            StateMachineData.RemoveState(state);
-            UnityEngine.Object.DestroyImmediate(state, true);
-
-            EditorUtility.SetDirty(StateMachineData);
-            AssetDatabase.SaveAssets();
-
-            if (isEntryState && StateMachineData.States.Count > 0)
-            {
-                StateMachineData.SetEntryState(StateMachineData.States[0]);
-            }
-
-            EditorUtility.SetDirty(StateMachineData);
+        private void CreateNewStateRenderer(State state)
+        {
+            StateRenderer stateRenderer = new StateRenderer(state, this);
+            StateRenderers.Add(stateRenderer);
         }
 
         public void Select(ISelectable selectable)
         {
-            Selection = selectable;
-
-            if(selectable is IInspectable)
+            if (Selection != selectable)
             {
-                inspector.Inspect(selectable as IInspectable);
-            }
-
-            if(selectable is StateRenderer)
-            {
-                ReorderStateRendererToBottom(selectable as StateRenderer);
+                Selection = selectable;
             }
         }
 
@@ -180,17 +127,13 @@ namespace StateMachine
             if(Selection == selectable)
             {
                 Selection = null;
-                inspector.Clear();
+                Inspector.Clear();
             }
         }
 
         public void Refresh(Action onDone = null)
         {
             Selection = null;
-            if (Selection != null)
-            {
-                inspector.Refresh();
-            }
 
             foreach (State state in StateMachineData.States)
             {
@@ -200,23 +143,26 @@ namespace StateMachine
             onDone?.Invoke();
         }
 
+        public void SetDebug(bool debug)
+        {
+            ShowDebug = debug;
+            Inspector.Refresh();
+        }
+
         /// <summary>
         /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called last and the window will be drawn on top
         /// </summary>
         /// <param name="renderer"></param>
-        private void ReorderStateRendererToBottom(StateRenderer renderer)
+        public void ReorderStateRendererToBottom(StateRenderer renderer)
         {
             StateRenderers.Remove(renderer);
             StateRenderers.Add(renderer);
         }
 
-        public void ClearStateMachine()
+        public void Dispose()
         {
-            Undo.RecordObject(StateMachineData, "Clear Machine");
-
-            StateMachineData.States.Clear();
-            StateRenderers.Clear();
-            inspector.Clear();
+            StateMachineEditorUtility.StateAddedEvent -= CreateNewStateRenderer;
+            StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
         }
     }
 }

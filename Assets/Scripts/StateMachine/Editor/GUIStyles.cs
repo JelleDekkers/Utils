@@ -6,7 +6,7 @@ namespace StateMachine
     {
         public const float KNOB_SIZE = 10;
 
-        public static readonly Color KNOB_COLOR_OUT_LINKED = Color.green;
+        public static readonly Color KNOB_COLOR_OUT_LINKED = new Color(0f, 0.8f, 0.3f, 1f);
         public static readonly Color KNOB_COLOR_OUT_EMPTY = Color.red;
         public static readonly Color KNOB_COLOR_IN = Color.white;
         public static readonly Color HIGHLIGHT_OUTLINE_COLOR = Color.yellow;

@@ -11,6 +11,7 @@ namespace StateMachine
         /// <summary>
         /// The ScriptableObject that will be inspected
         /// </summary>
-        ScriptableObject InspectableObject { get; }
+        ScriptableObject Target { get; }
+        string PropertyName { get; }
     }
 }

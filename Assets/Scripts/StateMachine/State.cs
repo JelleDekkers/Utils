@@ -10,37 +10,14 @@ namespace StateMachine
     [Serializable]
     public class State : ScriptableObject
     {
-        public List<StateAction> Actions => actions;
+        public List<StateAction> Actions { get { return actions; } set { actions = value; } }
         [SerializeField] private List<StateAction> actions = new List<StateAction>();
 
-        public List<RuleGroup> RuleGroups => ruleGroups;
+        public List<RuleGroup> RuleGroups { get { return ruleGroups; } set { ruleGroups = value; } }
         [SerializeField] private List<RuleGroup> ruleGroups = new List<RuleGroup>();
 
         public string Title = "New State";
-
-#if UNITY_EDITOR
-        public Rect Rect;        
-#endif
-
-        public void AddAction(StateAction action)
-        {
-            actions.Add(action);
-        }
-
-        public void RemoveAction(StateAction action)
-        {
-            actions.Remove(action);
-        }
-
-        public void AddRuleGroup(RuleGroup ruleGroup)
-        {
-            ruleGroups.Add(ruleGroup);
-        }
-
-        public void RemoveRuleGroup(RuleGroup ruleGroup)
-        {
-            ruleGroups.Remove(ruleGroup);
-        }
+        public Vector2 position;        
 
         public override string ToString()
         {

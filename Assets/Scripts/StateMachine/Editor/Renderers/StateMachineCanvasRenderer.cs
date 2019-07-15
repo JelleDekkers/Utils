@@ -94,6 +94,14 @@ namespace StateMachine
                         }
                     }
                     break;
+
+                case EventType.KeyDown:
+                    if(e.keyCode == KeyCode.Delete)
+                    {
+                        Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).DataObject);
+                        e.Use();
+                    }
+                    break;
             }
 
 
@@ -126,7 +134,8 @@ namespace StateMachine
         private void ShowContextMenu(Vector2 mousePosition)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add New State"), false, () => Manager.CreateNewState(mousePosition));
+            menu.AddItem(new GUIContent("Add New State"), false, () => Manager.StateMachineData.CreateNewState(mousePosition));
+            menu.AddItem(new GUIContent("Paste State"), false, () => throw new NotImplementedException());
             menu.ShowAsContext();
             Manager.ContextMenuIsOpen = true;
             GUI.changed = true;
@@ -181,18 +190,18 @@ namespace StateMachine
 
             if (GUILayout.Button("New State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.CreateNewState();
+                Manager.StateMachineData.CreateNewState(GetWindowCentre());
             }
 
             GUI.enabled = Manager.Selection != null && Manager.Selection is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.RemoveState(Manager.Selection as StateRenderer);
+                Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).DataObject);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.ResetState((Manager.Selection as StateRenderer).State);
+                (Manager.Selection as StateRenderer).DataObject.Reset();
             }
             GUI.enabled = true;
 
@@ -200,8 +209,7 @@ namespace StateMachine
 
             if (GUILayout.Button("Clear Machine", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.ClearStateMachine();
-
+                Manager.StateMachineData.ClearStateMachine();
             }
 
             EditorGUILayout.EndHorizontal();
@@ -210,7 +218,7 @@ namespace StateMachine
         private void DrawBottomTabs()
         {
             float groupSpace = 10;
-            float maxTabWidth = 150;
+            float maxTabWidth = 100;
 
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Height(EditorStyles.toolbar.fixedHeight), GUILayout.ExpandWidth(true));
 
@@ -238,7 +246,12 @@ namespace StateMachine
             EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), style);
 
             GUILayout.Space(groupSpace);
-            Manager.debug = GUILayout.Toggle(Manager.debug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
+            bool debug = Manager.ShowDebug;
+            debug = GUILayout.Toggle(Manager.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
+            if(debug != Manager.ShowDebug)
+            {
+                Manager.SetDebug(debug);
+            }
 
             EditorGUILayout.EndHorizontal();
         }

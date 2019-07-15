@@ -8,7 +8,7 @@ namespace StateMachine
         public State Destination => destination;
         [SerializeField] private State destination;
 
-        public List<Rule> Rules => rules;
+        public List<Rule> Rules { get { return rules; } set { rules = value; } }
         [SerializeField] private List<Rule> rules = new List<Rule>();
 
 #if UNITY_EDITOR
@@ -31,16 +31,6 @@ namespace StateMachine
         public void SetDestination(State state)
         {
             destination = state;
-        }
-
-        public void AddRule(Rule rule)
-        {
-            rules.Add(rule);
-        }
-
-        public void RemoveRule(Rule rule)
-        {
-            rules.Remove(rule);
         }
     }
 }

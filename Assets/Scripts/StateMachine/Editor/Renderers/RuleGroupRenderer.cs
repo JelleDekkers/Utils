@@ -5,22 +5,18 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering <see cref="global::StateMachine.RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
+    /// Class for rendering <see cref="RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
     /// </summary>
-    public class RuleGroupRenderer : ISelectable, IDraggable, IInspectable
+    public class RuleGroupRenderer : NodeRenderer<RuleGroup>, ISelectable, IDraggable
     {
         private const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
         private const float LINE_THICKNESS = 3f;
         private const string EMPTY_RULE_DISPLAY_LABEL = "TRUE";
 
-        public RuleGroup RuleGroup { get; private set; }
+        public RuleGroup DataObject { get; private set; }
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
-        public ScriptableObject InspectableObject => RuleGroup;
-
-        private readonly Color HighlightNoDestinationColor = Color.red;
-        private readonly Color RuleGroupDividerColor = Color.grey;
-
+        
         private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         private StateRenderer stateRenderer;
@@ -30,7 +26,7 @@ namespace StateMachine
        
         public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
-            RuleGroup = ruleGroup;
+            DataObject = ruleGroup;
             stateRenderer = state;
             manager = stateMachine;
 
@@ -49,7 +45,7 @@ namespace StateMachine
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
-                        stateRenderer.RemoveRuleGroup(RuleGroup);
+                        stateRenderer.DataObject.RemoveRuleGroup(DataObject);
                         e.Use();
                         return;
                     }
@@ -89,17 +85,13 @@ namespace StateMachine
             }
         }
 
-        //public void SetAsNew(Event e)
-        //{
-        //    OnDragStart(e);
-        //}
-
         #region Events
         public void OnSelect(Event e)
         {
             IsSelected = true;
             manager.Select(this);
-            stateRenderer.SelectedRule = this;
+            stateRenderer.SelectedRuleGroup = this;
+            manager.Inspector.Inspect(DataObject);
             GUI.changed = true;
         }
 
@@ -109,9 +101,9 @@ namespace StateMachine
             manager.Deselect(this);
             isDraggingLine = false;
 
-            if(stateRenderer.SelectedRule == this)
+            if(stateRenderer.SelectedRuleGroup == this)
             {
-                stateRenderer.SelectedRule = null;
+                stateRenderer.SelectedRuleGroup = null;
             }
 
             GUI.changed = true;
@@ -132,18 +124,18 @@ namespace StateMachine
         {
             if (manager.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
-                if (stateRenderer.State == this.stateRenderer.State)
+                if (stateRenderer.DataObject == this.stateRenderer.DataObject)
                 {
-                    RuleGroup.SetDestination(null);
+                    DataObject.SetDestination(null);
                 }
                 else
                 {
-                    RuleGroup.SetDestination(stateRenderer.State);
+                    DataObject.SetDestination(stateRenderer.DataObject);
                 }
             }
             else
             {
-                RuleGroup.SetDestination(null);
+                DataObject.SetDestination(null);
             }
 
             isDraggingLine = false;
@@ -155,7 +147,9 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete rulegroup"), false, () => stateRenderer.RemoveRuleGroup(RuleGroup));
+            menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.DataObject.RemoveRuleGroup(DataObject));
+
+            menu.AddItem(new GUIContent("Copy"), false, () => throw new NotImplementedException());
             menu.AddItem(new GUIContent("Move up"), false, () => throw new NotImplementedException());
             menu.AddItem(new GUIContent("Move down"), false, () => throw new NotImplementedException());
             menu.ShowAsContext();
@@ -165,9 +159,9 @@ namespace StateMachine
 
         public Rect Draw(Vector2 position, float width)
         {
-            if (RuleGroup.Destination != null && !isDraggingLine)
+            if (DataObject.Destination != null && !isDraggingLine)
             { 
-                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Rect.x, RuleGroup.Destination.Rect.y + StateRenderer.HEADER_HEIGHT / 2);
+                Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
                 Color lineColor = (IsSelected) ? GUIStyles.NODE_LINE_COLOR_SELECTED : GUIStyles.NODE_LINE_COLOR;
                 DrawLine(SourcePoint, destinationPoint, lineColor);
             }
@@ -188,16 +182,16 @@ namespace StateMachine
         {
             Rect = new Rect(position.x, position.y, width, 0);
 
-            if (RuleGroup.Rules.Count == 0)
+            if (DataObject.Rules.Count == 0)
             {
-                DrawRule(Rect, out Rect ruleRect);
+                DrawLink(Rect, out Rect ruleRect);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
             else
             {
-                for (int i = 0; i < RuleGroup.Rules.Count; i++)
+                for (int i = 0; i < DataObject.Rules.Count; i++)
                 {
-                    DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
+                    DrawLink(Rect, out Rect ruleRect, DataObject.Rules[i]);
                     Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
                 }
             }
@@ -207,7 +201,7 @@ namespace StateMachine
 
         private void DrawNodeKnob()
         {
-            Color knobColor = (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_OUT_LINKED : GUIStyles.KNOB_COLOR_OUT_EMPTY;
+            Color knobColor = (DataObject.Destination != null) ? GUIStyles.KNOB_COLOR_OUT_LINKED : GUIStyles.KNOB_COLOR_OUT_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
                 new Rect(Rect.x + Rect.width + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height), 
@@ -221,7 +215,7 @@ namespace StateMachine
             );
         }
 
-        private void DrawRule(Rect groupRect, out Rect ruleRect, Rule rule = null)
+        private void DrawLink(Rect groupRect, out Rect ruleRect, Rule rule = null)
         {
             ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, RULE_HEIGHT);
             string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
@@ -235,7 +229,7 @@ namespace StateMachine
 
         private void DrawLine(Vector2 source, Vector2 destination, Color color)
         {
-            RuleGroup.line.Draw(source, destination, color, LINE_THICKNESS);
+            DataObject.line.Draw(source, destination, color, LINE_THICKNESS);
         }
         #endregion
     }

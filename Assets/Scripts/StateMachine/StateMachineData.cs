@@ -11,35 +11,20 @@ namespace StateMachine
     [Serializable]
     public class StateMachineData : ScriptableObject
     {
-        public State EntryState { get { return entryState; } }
+        public State EntryState { get { return entryState; } set { entryState = value; } }
         [SerializeField] private State entryState;
 
-        public List<State> States => states;
+        public List<State> States { get { return states; } set { states = value; } }
         [SerializeField] private List<State> states = new List<State>();
 
         public void AddNewState(State state)
         {
             if (States.Count == 0)
             {
-                SetEntryState(state);
+                entryState = state;
             }
 
             States.Add(state);
-        }
-
-        public void RemoveState(State state)
-        {
-            States.Remove(state);
-        }
-
-        public void Clear()
-        {
-            States.Clear();
-        }
-
-        public void SetEntryState(State state)
-        {
-            entryState = state; 
         }
     }
 }

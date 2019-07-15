@@ -32,28 +32,28 @@ namespace StateMachine
                 layoutEvent?.Invoke();
             }
 
-            if (uiBehaviour == null) { return; }
-
-            uiBehaviour.OnInspectorGUI(e);
+            uiBehaviour?.OnInspectorGUI(e);
         }
 
-        public void Inspect(IInspectable inspectable)
+        public void Inspect(ScriptableObject targetObject)
         {
             void inspectOnLayoutEvent()
             {
-                InspectedObject = inspectable.InspectableObject;
-
-                uiBehaviour = GetCorrectUIBehaviour(InspectedObject);
-                uiBehaviour.Show(manager, InspectedObject);
-
+                InspectedObject = targetObject;
+                uiBehaviour = GetUIBehaviour(InspectedObject);
                 layoutEvent -= inspectOnLayoutEvent;
             }
 
             layoutEvent += inspectOnLayoutEvent;
         }
 
-        private InspectorUIBehaviour GetCorrectUIBehaviour(ScriptableObject inspectableObject)
+        private InspectorUIBehaviour GetUIBehaviour(ScriptableObject inspectableObject)
         {
+            if(manager.ShowDebug)
+            {
+                return new InspectorUIBehaviour(manager, inspectableObject);
+            }
+
             IEnumerable<Type> validTypes = ReflectionUtility.GetDerivedTypes(typeof(InspectorUIBehaviour).Assembly, typeof(InspectorUIBehaviour));
 
             foreach (var type in validTypes)
@@ -67,20 +67,20 @@ namespace StateMachine
 
                     if (attribute.InspectorTargetType == inspectableObject.GetType() || attribute.InspectorTargetType.IsAssignableFrom(inspectableObject.GetType()))
                     {
-                        return (InspectorUIBehaviour)Activator.CreateInstance(type);
+                        return (InspectorUIBehaviour)Activator.CreateInstance(type, manager, inspectableObject);
                     }
                 }
             }
 
-            return new InspectorUIBehaviour();
+            return new InspectorUIBehaviour(manager, inspectableObject);
         }
 
+        /// <summary>
+        /// Reinitializes UI
+        /// </summary>
         public void Refresh()
         {
-            if(InspectedObject != null)
-            {
-                uiBehaviour.Refresh();
-            }
+            Inspect(InspectedObject);
         }
 
         public void Clear()
