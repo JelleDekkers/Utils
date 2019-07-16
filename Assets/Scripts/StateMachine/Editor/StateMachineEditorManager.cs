@@ -111,7 +111,8 @@ namespace StateMachine
         private void CreateNewStateRenderer(State state)
         {
             StateRenderer stateRenderer = new StateRenderer(state, this);
-            StateRenderers.Add(stateRenderer);
+            //StateRenderers.Add(stateRenderer);
+            StateRenderers.Insert(0, stateRenderer);
         }
 
         public void Select(ISelectable selectable)
