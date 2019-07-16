@@ -159,6 +159,8 @@ namespace StateMachine
         #region Drawing
         public void Draw()
         {
+            DrawConnections();
+
             if (IsEntryState)
             {
                 DrawIsEntryVisual();
@@ -183,6 +185,14 @@ namespace StateMachine
             DrawBackground();
             DrawHeader();
             DrawRuleGroups();
+        }
+
+        private void DrawConnections()
+        {
+            for (int i = 0; i < ruleGroupRenderers.Count; i++)
+            {
+                ruleGroupRenderers[i].DrawConnection();
+            }
         }
 
         private void DrawBackground()

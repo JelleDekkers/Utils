@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ namespace StateMachine
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
         
-        private Vector2 SourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
+        private Vector2 LineSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         private StateRenderer stateRenderer;
         private StateMachineEditorManager manager;
@@ -178,12 +179,12 @@ namespace StateMachine
 
         public Rect Draw(Vector2 position, float width)
         {
-            if (DataObject.Destination != null && !isDraggingLine)
-            { 
-                Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
-                Color lineColor = (IsSelected) ? GUIStyles.NODE_LINE_COLOR_SELECTED : GUIStyles.NODE_LINE_COLOR;
-                DrawLine(SourcePoint, destinationPoint, lineColor);
-            }
+            //if (DataObject.Destination != null && !isDraggingLine)
+            //{ 
+            //    Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
+            //    Color lineColor = (IsSelected) ? GUIStyles.NODE_LINE_COLOR_SELECTED : GUIStyles.NODE_LINE_COLOR;
+            //    DrawLine(SourcePoint, destinationPoint, lineColor);
+            //}
 
             DrawRules(position, width);
 
@@ -197,20 +198,37 @@ namespace StateMachine
             return Rect;
         }
 
+        public void DrawConnection()
+        {
+            if (DataObject.Destination != null && !isDraggingLine)
+            {
+                Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
+                Color lineColor = (IsSelected) ? GUIStyles.NODE_LINE_COLOR_SELECTED : GUIStyles.NODE_LINE_COLOR;
+                DrawLine(LineSourcePoint, destinationPoint, lineColor);
+            }
+        }
+
+        private void DrawRule(Rect groupRect, out Rect ruleRect, Rule rule = null)
+        {
+            ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, RULE_HEIGHT);
+            string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
+            GUI.Label(ruleRect, label, GUIStyles.RuleGroupStyle);
+        }
+
         private void DrawRules(Vector2 position, float width)
         {
             Rect = new Rect(position.x, position.y, width, 0);
 
             if (DataObject.Rules.Count == 0)
             {
-                DrawLink(Rect, out Rect ruleRect);
+                DrawRule(Rect, out Rect ruleRect);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
             else
             {
                 for (int i = 0; i < DataObject.Rules.Count; i++)
                 {
-                    DrawLink(Rect, out Rect ruleRect, DataObject.Rules[i]);
+                    DrawRule(Rect, out Rect ruleRect, DataObject.Rules[i]);
                     Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
                 }
             }
@@ -234,16 +252,9 @@ namespace StateMachine
             );
         }
 
-        private void DrawLink(Rect groupRect, out Rect ruleRect, Rule rule = null)
-        {
-            ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, RULE_HEIGHT);
-            string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
-            GUI.Label(ruleRect, label, GUIStyles.RuleGroupStyle);
-        }
-
         private void DrawLine(Vector2 destination, Color color)
         {
-            DrawLine(SourcePoint, destination, color);
+            DrawLine(LineSourcePoint, destination, color);
         }
 
         private void DrawLine(Vector2 source, Vector2 destination, Color color)
