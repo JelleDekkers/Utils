@@ -34,8 +34,9 @@ namespace StateMachine
             if (property.objectReferenceValue == null) { return; }
 
             Rect header = EditorGUILayout.BeginHorizontal(GUIStyles.InspectorStyle);
-            header.x += 2;
+            header.x += 3;
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, GUIContent.none, true);
+
             EditorGUI.LabelField(header, NicifyPropertyName(property), EditorStyles.largeLabel);
             if (contextMenuPressedCallback != null)
             {
@@ -102,7 +103,7 @@ namespace StateMachine
 
         public static string NicifyPropertyName(SerializedProperty property)
         {
-            string s = property.objectReferenceValue.ToString();
+            string s = property.objectReferenceValue.GetType().Name;
 
             string[] trim = { "(", ")" };
             for (int i = 0; i < trim.Length; i++)

@@ -15,6 +15,7 @@ MonoBehaviour:
   entryState: {fileID: 114854917038379182}
   states:
   - {fileID: 114854917038379182}
+  - {fileID: 114594339240096858}
 --- !u!114 &114091638368656734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28,6 +29,21 @@ MonoBehaviour:
   m_Name: KeyPressedRule
   m_EditorClassIdentifier: 
   key: 0
+--- !u!114 &114091672711933036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
+  m_Name: RuleGroup
+  m_EditorClassIdentifier: 
+  destination: {fileID: 0}
+  rules:
+  - {fileID: 114871140120486872}
 --- !u!114 &114201522621418788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43,7 +59,81 @@ MonoBehaviour:
   destination: {fileID: 0}
   rules:
   - {fileID: 114091638368656734}
---- !u!114 &114539150154356190
+--- !u!114 &114245342350572910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
+  m_Name: RuleGroup
+  m_EditorClassIdentifier: 
+  destination: {fileID: 0}
+  rules:
+  - {fileID: 114363609723089174}
+--- !u!114 &114259836297018348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: SpawnPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 0}
+  position: {x: 0, y: 0, z: 0}
+--- !u!114 &114363609723089174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
+  m_Name: KeyPressedRule
+  m_EditorClassIdentifier: 
+  key: 61
+--- !u!114 &114555175888780494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
+  m_Name: RuleGroup
+  m_EditorClassIdentifier: 
+  destination: {fileID: 0}
+  rules: []
+--- !u!114 &114594339240096858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: State
+  m_EditorClassIdentifier: 
+  actions:
+  - {fileID: 114916568925127004}
+  ruleGroups:
+  - {fileID: 114245342350572910}
+  Title: Test
+  position: {x: 436, y: 179}
+--- !u!114 &114657069755961306
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -72,8 +162,40 @@ MonoBehaviour:
   m_Name: State
   m_EditorClassIdentifier: 
   actions:
-  - {fileID: 114539150154356190}
+  - {fileID: 114259836297018348}
+  - {fileID: 114657069755961306}
   ruleGroups:
+  - {fileID: 114091672711933036}
   - {fileID: 114201522621418788}
+  - {fileID: 114555175888780494}
   Title: New State
-  position: {x: 248.5, y: 200}
+  position: {x: 173.5, y: 132}
+--- !u!114 &114871140120486872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9408d3cf147149143bf0875b0e674871, type: 3}
+  m_Name: EmptyRule
+  m_EditorClassIdentifier: 
+  testValue: 0
+--- !u!114 &114916568925127004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a180e967ecef5b4da437a4b11e915c0, type: 3}
+  m_Name: TestAction
+  m_EditorClassIdentifier: 
+  testValue: 200
+  testBool: 0
+  testGameObject: {fileID: 0}
+  testList: []

@@ -42,7 +42,7 @@ namespace StateMachine
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
 
-            InspectorUIUtility.DrawHeader("title", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent));
+            InspectorUIUtility.DrawHeader(title, () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent));
         }
 
         private void OnSetEntryStateButtonPressedEvent()
