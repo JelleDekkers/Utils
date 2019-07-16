@@ -41,14 +41,13 @@ namespace StateMachine
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
-
         private readonly RectOffset HighlightMargin = new RectOffset(3, 2, 2, 3);
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
         
         private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
-        public Rect fullRect;
+        private Rect fullRect;
         private bool isDragged;
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
@@ -151,7 +150,12 @@ namespace StateMachine
                 renderer.ProcessEvents(e);
             }
         }
-       
+
+        public void ReorderRuleGroupRenderers(int currentIndex, int newIndex)
+        {
+            ruleGroupRenderers.ReorderItem(currentIndex, newIndex);
+        }
+
         #region Drawing
         public void Draw()
         {
@@ -279,10 +283,22 @@ namespace StateMachine
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(DataObject));
-            menu.AddItem(new GUIContent("Reset"), false, () => DataObject.Reset());
-            menu.AddItem(new GUIContent("Copy"), false, () => throw new NotImplementedException());
+
+            if (DataObject.Actions.Count > 0)
+            {
+                menu.AddItem(new GUIContent("Clear Actions"), false, () => DataObject.ClearActions());
+            }
+
+            if (DataObject.RuleGroups.Count > 0)
+            {
+                menu.AddItem(new GUIContent("Clear Rules"), false, () => DataObject.ClearRules());
+            }
+
             menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => DataObject.AddNewRuleGroup());
-            menu.AddItem(new GUIContent("Paste Rulegroup"), false, () => throw new NotImplementedException());
+
+            //menu.AddItem(new GUIContent("Copy State"), false, () => DataObject.CopyDataToClipboard());
+            //menu.AddItem(new GUIContent("Paste Rulegroup"), false, () => throw new NotImplementedException());
+
             menu.ShowAsContext();
 
             manager.ContextMenuIsOpen = true;
@@ -364,11 +380,19 @@ namespace StateMachine
             renderer.OnSelect(Event.current);
         }
 
+        public void OnStateResetEvent(State state)
+        {
+            if (manager.Selection == state as ISelectable)
+            {
+                manager.Inspector.Refresh();
+            }
+        }
+        #endregion
+
         public void Dispose()
         {
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupRemovedEvent;
         }
-        #endregion
     }
 }

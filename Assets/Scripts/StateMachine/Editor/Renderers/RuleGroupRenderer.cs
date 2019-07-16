@@ -85,6 +85,17 @@ namespace StateMachine
             }
         }
 
+        private void ReorderRuleGroup(ContextMenu.ReorderDirection direction)
+        {
+            int currentIndex = stateRenderer.DataObject.RuleGroups.IndexOf(DataObject);
+            int newIndex = currentIndex + (int)direction;
+            if (newIndex >= 0 && newIndex < stateRenderer.DataObject.RuleGroups.Count)
+            {
+                stateRenderer.DataObject.RuleGroups.ReorderItem(currentIndex, newIndex);
+                stateRenderer.ReorderRuleGroupRenderers(currentIndex, newIndex);
+            }
+        }
+
         #region Events
         public void OnSelect(Event e)
         {
@@ -149,9 +160,17 @@ namespace StateMachine
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.DataObject.RemoveRuleGroup(DataObject));
 
-            menu.AddItem(new GUIContent("Copy"), false, () => throw new NotImplementedException());
-            menu.AddItem(new GUIContent("Move up"), false, () => throw new NotImplementedException());
-            menu.AddItem(new GUIContent("Move down"), false, () => throw new NotImplementedException());
+            if (DataObject.Rules.Count > 0)
+            {
+                menu.AddItem(new GUIContent("Clear"), false, () => DataObject.Clear());
+            }
+
+            //menu.AddItem(new GUIContent("Copy"), false, () => DataObject.CopyDataToClipboard());
+            // if copy/paste buffer contains of type RuleGroup
+            //menu.AddItem(new GUIContent("Paste"), false, () => Debug.Log(DataObject.PasteFromClipboard()));
+
+            menu.AddItem(new GUIContent("Move up"), false, () => ReorderRuleGroup(ContextMenu.ReorderDirection.Up));
+            menu.AddItem(new GUIContent("Move down"), false, () => ReorderRuleGroup(ContextMenu.ReorderDirection.Down));
             menu.ShowAsContext();
 
             e.Use();

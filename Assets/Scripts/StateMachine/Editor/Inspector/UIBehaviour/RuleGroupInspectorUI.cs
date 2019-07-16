@@ -7,22 +7,21 @@ namespace StateMachine
     [CustomInspectorUI(typeof(RuleGroup))]
     public class RuleGroupInspector : InspectorUIBehaviour
     {
-        public RuleGroup RuleGroup { get { return TargetObject as RuleGroup; } }
-
         private const string PROPERTY_NAME = "rules";
+        private RuleGroup RuleGroup { get { return TargetObject as RuleGroup; } }
 
         public RuleGroupInspector(StateMachineEditorManager manager, ScriptableObject target) : base(manager, target) { }
 
         protected override void DrawInspectorContent(Event e)
         {
-            DrawHeader("Rules", () => DrawAddNewButton(OnAddNewButtonPressedEvent));
-            DrawDividerLine();
-            DrawPropertyFields(PROPERTY_NAME);
+            InspectorUIUtility.DrawHeader("Rules", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent));
+            InspectorUIUtility.DrawDividerLine();
+            InspectorUIUtility.DrawPropertyFields(SerializedObject, PROPERTY_NAME, OnContextMenuButtonPressed);
         }
 
         protected void OnAddNewButtonPressedEvent()
         {
-            OpenTypeFilterWindow(typeof(Rule), CreateNewType);
+            InspectorUIUtility.OpenTypeFilterWindow(typeof(Rule), CreateNewType);
         }
 
         private void CreateNewType(Type type)
@@ -31,15 +30,57 @@ namespace StateMachine
             Refresh();
         }
 
-        protected override void OnDeleteButtonPressed(ContextMenuResult result)
+
+        private void OnContextMenuButtonPressed(object o)
+        {
+            ContextMenu.Result result = (ContextMenu.Result)o;
+
+            switch (result.Command)
+            {
+                case ContextMenu.Command.EditScript:
+                    OnEditScriptButtonPressed(result);
+                    break;
+                case ContextMenu.Command.MoveUp:
+                    OnReorderButtonPressed(result, ContextMenu.ReorderDirection.Up);
+                    break;
+                case ContextMenu.Command.MoveDown:
+                    OnReorderButtonPressed(result, ContextMenu.ReorderDirection.Down);
+                    break;
+                case ContextMenu.Command.Reset:
+                    OnResetButtonPressed(result);
+                    break;
+                case ContextMenu.Command.Delete:
+                    OnDeleteButtonPressed(result);
+                    break;
+            }
+        }
+
+        private void OnEditScriptButtonPressed(ContextMenu.Result result)
+        {
+            InspectorUIUtility.OpenScript(result.Obj);
+        }
+
+        private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
             RuleGroup.RemoveRule(RuleGroup.Rules[result.Index]);
             Refresh();
         }
 
-        protected override void OnResetButtonPressed(int index)
+        private void OnResetButtonPressed(ContextMenu.Result result)
         {
-            RuleGroup.Rules[index].Reset();
+            RuleGroup.Rules[result.Index].Reset(RuleGroup);
+            Refresh();
+        }
+
+        private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
+        {
+            int newIndex = result.Index + (int)direction;
+            if (newIndex >= 0 && newIndex < RuleGroup.Rules.Count)
+            {
+                RuleGroup.Rules.ReorderItem(result.Index, newIndex);
+            }
+
+            Manager.Inspector.Refresh();
         }
     }
 }

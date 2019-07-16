@@ -23,6 +23,7 @@ namespace StateMachine
             this.manager = manager;
 
             Undo.undoRedoPerformed += Refresh;
+            StateMachineEditorUtility.ObjectResetEvent += OnObjectResetEvent;
         }
 
         public void OnInspectorGUI(Event e)
@@ -89,9 +90,18 @@ namespace StateMachine
             InspectedObject = null;
         }
 
+        public void OnObjectResetEvent(ScriptableObject obj)
+        {
+            if (InspectedObject == obj)
+            {
+                Refresh();
+            }
+        }
+
         public void Dispose()
         {
             Undo.undoRedoPerformed -= Refresh;
+            StateMachineEditorUtility.ObjectResetEvent -= OnObjectResetEvent;
         }
     }
 }

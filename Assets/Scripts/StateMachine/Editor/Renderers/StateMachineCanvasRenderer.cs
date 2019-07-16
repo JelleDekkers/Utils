@@ -135,7 +135,10 @@ namespace StateMachine
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Add New State"), false, () => Manager.StateMachineData.CreateNewState(mousePosition));
-            menu.AddItem(new GUIContent("Paste State"), false, () => throw new NotImplementedException());
+
+            // if clipboard is of type State
+            //menu.AddItem(new GUIContent("Paste State"), false, () => throw new NotImplementedException());
+
             menu.ShowAsContext();
             Manager.ContextMenuIsOpen = true;
             GUI.changed = true;
@@ -201,7 +204,7 @@ namespace StateMachine
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                (Manager.Selection as StateRenderer).DataObject.Reset();
+                (Manager.Selection as StateRenderer).DataObject.ClearActions();
             }
             GUI.enabled = true;
 

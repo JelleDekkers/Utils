@@ -17,10 +17,12 @@ namespace StateMachine
         public static ScriptableObject CreateObjectInstance(Type type, string assetFilePath)
         {
             ScriptableObject instance = ScriptableObject.CreateInstance(type);
-            instance.hideFlags = HideFlags.HideInHierarchy;
+            instance.name = type.Name.ToString();
+            //instance.hideFlags = HideFlags.HideInHierarchy;
 
             AssetDatabase.AddObjectToAsset(instance, assetFilePath);
-            //AssetDatabase.ImportAsset(assetFilePath);
+            AssetDatabase.ImportAsset(assetFilePath);
+
             return instance;
         }
     }

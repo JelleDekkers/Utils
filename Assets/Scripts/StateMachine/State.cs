@@ -8,7 +8,7 @@ namespace StateMachine
     /// Abstract class for states, used in <see cref="StateMachineData"/>
     /// </summary>
     [Serializable]
-    public class State : ScriptableObject
+    public class State : ScriptableObject, ICloneable
     {
         public List<StateAction> Actions { get { return actions; } set { actions = value; } }
         [SerializeField] private List<StateAction> actions = new List<StateAction>();
@@ -22,6 +22,11 @@ namespace StateMachine
         public override string ToString()
         {
             return string.Format("State '{0}'", Title);
+        }
+
+        public object Clone()
+        {
+            return (State)MemberwiseClone();
         }
     }
 }
