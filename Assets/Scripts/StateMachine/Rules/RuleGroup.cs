@@ -11,9 +11,7 @@ namespace StateMachine
         public List<Rule> Rules { get { return rules; } set { rules = value; } }
         [SerializeField] private List<Rule> rules = new List<Rule>();
 
-#if UNITY_EDITOR
-        public BezierLine line = new BezierLine();
-#endif
+        public LinkData linkData = new LinkData();
 
         public bool AllRulesAreValid()
         {

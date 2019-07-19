@@ -62,8 +62,12 @@ namespace StateMachine
             DrawGrid(gridPrimarySpacing, gridPrimaryColor);
             DrawGrid(gridSecondarySpacing, gridSecondaryColor);
             DrawStates();
-            ProcessStateEvents(e);
-            ProcessEvents(e);
+
+            //if (CanvasWindow.Contains(e.mousePosition))
+            //{
+                ProcessStateEvents(e);
+                ProcessEvents(e);
+            //}
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();

@@ -10,8 +10,8 @@ namespace StateMachine
         public static readonly Color KNOB_COLOR_OUT_EMPTY = Color.red;
         public static readonly Color KNOB_COLOR_IN = Color.white;
         public static readonly Color HIGHLIGHT_OUTLINE_COLOR = Color.yellow;
-        public static readonly Color NODE_LINE_COLOR = Color.red;
-        public static readonly Color NODE_LINE_COLOR_SELECTED = Color.yellow;
+        public static readonly Color LINK_COLOR = Color.red;
+        public static readonly Color LINK_COLOR_SELECTED = Color.yellow;
 
         private static GUIStyle ruleGroupStyle;
         public static GUIStyle RuleGroupStyle
@@ -139,5 +139,22 @@ namespace StateMachine
                 return inspectorStyle;
             }
         }
+
+        private static GUIStyle bezierLineHandleStyle;
+        public static GUIStyle BezierLineHandleStyle
+        {
+            get
+            {
+                if (bezierLineHandleStyle == null)
+                {
+                    bezierLineHandleStyle = new GUIStyle();
+                    bezierLineHandleStyle.normal.background = Resources.Load<Texture2D>("Knob");
+                }
+
+                return bezierLineHandleStyle;
+            }
+        }
+
+
     }
 }

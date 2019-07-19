@@ -77,7 +77,7 @@ namespace StateMachine
 
             if (IsSelected)
             {
-                ProcessRuleEvents(e);
+                ProcessRuleGroupEvents(e);
             }
 
             switch (e.type)
@@ -143,7 +143,7 @@ namespace StateMachine
             }
         }
 
-        private void ProcessRuleEvents(Event e)
+        private void ProcessRuleGroupEvents(Event e)
         {
             foreach (RuleGroupRenderer renderer in ruleGroupRenderers)
             {
@@ -191,7 +191,7 @@ namespace StateMachine
         {
             for (int i = 0; i < ruleGroupRenderers.Count; i++)
             {
-                ruleGroupRenderers[i].DrawConnection();
+                ruleGroupRenderers[i].DrawLink();
             }
         }
 

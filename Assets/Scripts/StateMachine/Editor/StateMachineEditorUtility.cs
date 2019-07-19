@@ -20,7 +20,7 @@ namespace StateMachine
 
             for (int i = 0; i < stateMachine.States.Count; i++)
             {
-                Object.DestroyImmediate(stateMachine.States[i]);
+                Object.DestroyImmediate(stateMachine.States[i], true);
             }
 
             stateMachine.States.Clear();

@@ -18,12 +18,13 @@ namespace StateMachine
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
         
-        private Vector2 LineSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
+        private Vector2 LinkSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         private StateRenderer stateRenderer;
         private StateMachineEditorManager manager;
         private Rect fullRect;
         private bool isDraggingLine;
+        private LinkRenderer linkRenderer;
        
         public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
@@ -32,6 +33,7 @@ namespace StateMachine
             manager = stateMachine;
 
             Rect = new Rect();
+            linkRenderer = new LinkRenderer(DataObject.linkData);
         }
 
         public void ProcessEvents(Event e)
@@ -39,6 +41,11 @@ namespace StateMachine
             if (isDraggingLine)
             {
                 OnDrag(e);
+            }
+
+            if(IsSelected)
+            {
+                linkRenderer.ProcessEvents(e);
             }
 
             switch (e.type)
@@ -128,7 +135,7 @@ namespace StateMachine
 
         public void OnDrag(Event e)
         {
-            DrawLine(e.mousePosition, GUIStyles.NODE_LINE_COLOR);
+            DrawLink(e.mousePosition, GUIStyles.LINK_COLOR);
             GUI.changed = true;
         }
 
@@ -161,14 +168,31 @@ namespace StateMachine
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.DataObject.RemoveRuleGroup(DataObject));
 
+            menu.AddSeparator("");
+
             if (DataObject.Rules.Count > 0)
             {
                 menu.AddItem(new GUIContent("Clear"), false, () => DataObject.Clear());
+            }
+            else
+            {
+                menu.AddDisabledItem(new GUIContent("Clear"));
+            }
+
+            if (DataObject.Destination != null)
+            {
+                menu.AddItem(new GUIContent("Reset line curve"), false, () => linkRenderer.Reset());
+            }
+            else
+            {
+                menu.AddDisabledItem(new GUIContent("Reset line curve"));
             }
 
             //menu.AddItem(new GUIContent("Copy"), false, () => DataObject.CopyDataToClipboard());
             // if copy/paste buffer contains of type RuleGroup
             //menu.AddItem(new GUIContent("Paste"), false, () => Debug.Log(DataObject.PasteFromClipboard()));
+
+            menu.AddSeparator("");
 
             menu.AddItem(new GUIContent("Move up"), false, () => ReorderRuleGroup(ContextMenu.ReorderDirection.Up));
             menu.AddItem(new GUIContent("Move down"), false, () => ReorderRuleGroup(ContextMenu.ReorderDirection.Down));
@@ -198,13 +222,13 @@ namespace StateMachine
             return Rect;
         }
 
-        public void DrawConnection()
+        public void DrawLink()
         {
             if (DataObject.Destination != null && !isDraggingLine)
             {
                 Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
-                Color lineColor = (IsSelected) ? GUIStyles.NODE_LINE_COLOR_SELECTED : GUIStyles.NODE_LINE_COLOR;
-                DrawLine(LineSourcePoint, destinationPoint, lineColor);
+                Color color = (IsSelected) ? GUIStyles.LINK_COLOR_SELECTED : GUIStyles.LINK_COLOR;
+                DrawLink(LinkSourcePoint, destinationPoint, color);
             }
         }
 
@@ -252,14 +276,14 @@ namespace StateMachine
             );
         }
 
-        private void DrawLine(Vector2 destination, Color color)
+        private void DrawLink(Vector2 destination, Color color)
         {
-            DrawLine(LineSourcePoint, destination, color);
+            DrawLink(LinkSourcePoint, destination, color);
         }
 
-        private void DrawLine(Vector2 source, Vector2 destination, Color color)
+        private void DrawLink(Vector2 source, Vector2 destination, Color color)
         {
-            DataObject.line.Draw(source, destination, color, LINE_THICKNESS);
+            linkRenderer.Draw(source, destination, color, LINE_THICKNESS, IsSelected && !isDraggingLine);
         }
         #endregion
     }
