@@ -12,22 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6977acd9219d9241a1e410995c82e31, type: 3}
   m_Name: New StateMachine Data
   m_EditorClassIdentifier: 
-  entryState: {fileID: 114600935581413034}
-  states:
-  - {fileID: 114600935581413034}
---- !u!114 &114600935581413034
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  actions: []
-  ruleGroups: []
-  Title: New State
-  position: {x: 312, y: 286}
+  entryState: {fileID: 0}
+  states: []

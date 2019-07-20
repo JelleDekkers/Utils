@@ -34,8 +34,9 @@ namespace StateMachine
                 CreateNewStateRenderer(state);
             }
 
-            StateMachineEditorUtility.StateAddedEvent += CreateNewStateRenderer;
+            StateMachineEditorUtility.StateAddedEvent += OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent += OnStateRemovedEvent;
+            StateMachineEditorUtility.StateMachineClearedEvent += OnStateMachineClearedEvent;
         }
 
         public void OnInspectorGUI()
@@ -91,7 +92,23 @@ namespace StateMachine
             }
         }
 
-        private void OnStateRemovedEvent(State state)
+        private void OnStateMachineClearedEvent(StateMachineData stateMachine)
+        {
+            if(StateMachineData == stateMachine)
+            {
+                StateRenderers.Clear();
+            }
+        }
+
+        private void OnStateRemovedEvent(StateMachineData stateMachine, State state)
+        {
+           if(StateMachineData == stateMachine)
+            {
+                RemoveStateRenderer(state);
+            }
+        }
+
+        private void RemoveStateRenderer(State state)
         {
             if (Selection == state as ISelectable)
             {
@@ -108,10 +125,17 @@ namespace StateMachine
             }
         }
 
+        private void OnStateAddedEvent(StateMachineData stateMachine, State state)
+        {
+            if (StateMachineData == stateMachine)
+            {
+                CreateNewStateRenderer(state);
+            }
+        }
+
         private void CreateNewStateRenderer(State state)
         {
             StateRenderer stateRenderer = new StateRenderer(state, this);
-            //StateRenderers.Add(stateRenderer);
             StateRenderers.Insert(0, stateRenderer);
         }
 
@@ -166,8 +190,9 @@ namespace StateMachine
 
         public void Dispose()
         {
-            StateMachineEditorUtility.StateAddedEvent -= CreateNewStateRenderer;
+            StateMachineEditorUtility.StateAddedEvent -= OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
+            StateMachineEditorUtility.StateMachineClearedEvent -= OnStateMachineClearedEvent;
         }
     }
 }

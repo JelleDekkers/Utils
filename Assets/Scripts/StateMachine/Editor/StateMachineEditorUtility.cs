@@ -8,8 +8,9 @@ namespace StateMachine
 {
     public static class StateMachineEditorUtility
     {
-        public static Action<State> StateAddedEvent;
-        public static Action<State> StateRemovedEvent;
+        public static Action<StateMachineData> StateMachineClearedEvent;
+        public static Action<StateMachineData, State> StateAddedEvent;
+        public static Action<StateMachineData, State> StateRemovedEvent;
         public static Action<ScriptableObject> ObjectResetEvent;
         public static Action<State, RuleGroup> RuleGroupAddedEvent;
         public static Action<State, RuleGroup> RuleGroupRemovedEvent;
@@ -20,11 +21,25 @@ namespace StateMachine
 
             for (int i = 0; i < stateMachine.States.Count; i++)
             {
-                StateRemovedEvent?.Invoke(stateMachine.States[i]);
-                Object.DestroyImmediate(stateMachine.States[i], true);
+                State state = stateMachine.States[i];
+                foreach (StateAction action in state.Actions)
+                {
+                    Object.DestroyImmediate(action, true);
+                }
+
+                foreach (RuleGroup ruleGroup in state.RuleGroups)
+                {
+                    foreach (Rule rule in ruleGroup.Rules)
+                    {
+                        Object.DestroyImmediate(rule, true);
+                    }
+                    Object.DestroyImmediate(ruleGroup, true);
+                }
+                Object.DestroyImmediate(state, true);
             }
 
             stateMachine.States.Clear();
+            StateMachineClearedEvent?.Invoke(stateMachine);
             EditorUtility.SetDirty(stateMachine);
         }
 
@@ -42,7 +57,7 @@ namespace StateMachine
             state.position = position;
             stateMachine.AddNewState(state);
 
-            StateAddedEvent?.Invoke(state);
+            StateAddedEvent?.Invoke(stateMachine, state);
             EditorUtility.SetDirty(stateMachine);
 
             return state;
@@ -50,7 +65,7 @@ namespace StateMachine
 
         public static void RemoveState(this StateMachineData stateMachine, State state)
         {
-            StateRemovedEvent?.Invoke(state);
+            StateRemovedEvent?.Invoke(stateMachine, state);
 
             Undo.RecordObject(stateMachine, "Remove State");
 
