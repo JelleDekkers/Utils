@@ -6,9 +6,9 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Renders the <see cref="State"/> node on the <see cref="StateMachineData"/> window
+    /// Renders the <see cref="StateMachine.State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
-    public class StateRenderer : NodeRenderer<State>, ISelectable, IDraggable, IDisposable
+    public class StateRenderer : ISelectable, IDraggable, IDisposable
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
@@ -21,23 +21,23 @@ namespace StateMachine
 
         private const string ENTRY_STRING = "ENTRY"; 
 
-        public State DataObject { get; private set; }
+        public State State { get; private set; }
 
         public Rect Rect
         {
             get
             {
-                return new Rect(DataObject.position, size);
+                return new Rect(State.position, size);
             }
             private set
             {
-                DataObject.position = value.position;
+                State.position = value.position;
                 size = value.size;
             }
         }
         private Vector2 size;
 
-        public bool IsEntryState { get { return manager.StateMachineData.EntryState == DataObject; } }
+        public bool IsEntryState { get { return manager.StateMachineData.EntryState == State; } }
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
@@ -52,22 +52,22 @@ namespace StateMachine
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
         {
-            DataObject = state;
+            State = state;
             manager = renderer;
 
             InitializeRuleRenderers();
 
             StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
-            StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupRemovedEvent;
+            StateMachineEditorUtility.RuleGroupRemovedEvent += OnRuleGroupRemovedEvent;
         }
 
         public void InitializeRuleRenderers()
         {
             ruleGroupRenderers = new List<RuleGroupRenderer>();
 
-            for (int i = 0; i < DataObject.RuleGroups.Count; i++) 
+            for (int i = 0; i < State.RuleGroups.Count; i++) 
             {
-                ruleGroupRenderers.Add(new RuleGroupRenderer(DataObject.RuleGroups[i], this, manager));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, manager));
             }
         }
 
@@ -75,10 +75,7 @@ namespace StateMachine
         {
             bool isInsideCanvasWindow = manager.CanvasRenderer.Contains(e.mousePosition);
 
-            if (IsSelected)
-            {
-                ProcessRuleGroupEvents(e);
-            }
+            ProcessRuleGroupEvents(e);
 
             switch (e.type)
             {
@@ -87,7 +84,7 @@ namespace StateMachine
                     {
                         if (Rect.Contains(e.mousePosition))
                         {
-                            manager.StateMachineData.RemoveState(DataObject);
+                            manager.StateMachineData.RemoveState(State);
                             e.Use();
                         }
                     }
@@ -159,8 +156,6 @@ namespace StateMachine
         #region Drawing
         public void Draw()
         {
-            DrawConnections();
-
             if (IsEntryState)
             {
                 DrawIsEntryVisual();
@@ -184,10 +179,11 @@ namespace StateMachine
 
             DrawBackground();
             DrawHeader();
+            DrawRuleGroupLinks();
             DrawRuleGroups();
         }
 
-        private void DrawConnections()
+        private void DrawRuleGroupLinks()
         {
             for (int i = 0; i < ruleGroupRenderers.Count; i++)
             {
@@ -208,7 +204,7 @@ namespace StateMachine
         {
             Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
 
-            GUI.Label(Rect, DataObject.Title, GUIStyles.StateHeaderTitleStyle);
+            GUI.Label(Rect, State.Title, GUIStyles.StateHeaderTitleStyle);
 
             DrawDividerLine(new Rect(Rect.x, Rect.y - HEADER_DIVIDER_HEIGHT, Rect.width, Rect.height), HEADER_DIVIDER_HEIGHT);
 
@@ -221,12 +217,12 @@ namespace StateMachine
 
         private void DrawRuleGroups()
         {
-            for (int i = 0; i < DataObject.RuleGroups.Count; i++)
+            for (int i = 0; i < State.RuleGroups.Count; i++)
             {
                 Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
                 Rect ruleRect = ruleGroupRenderers[i].Draw(position, Rect.width);
 
-                if (i < DataObject.RuleGroups.Count - 1)
+                if (i < State.RuleGroups.Count - 1)
                 {
                     DrawDividerLine(ruleRect);
                 }
@@ -263,13 +259,13 @@ namespace StateMachine
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             { 
-                DataObject.AddNewRuleGroup();
+                State.AddNewRuleGroup();
             }
 
             GUI.enabled = SelectedRuleGroup != null;
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             {
-                DataObject.RemoveRuleGroup(SelectedRuleGroup.DataObject);
+                State.RemoveRuleGroup(SelectedRuleGroup.RuleGroup);
             }
             GUI.enabled = true;
 
@@ -292,19 +288,19 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(DataObject));
+            menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(State));
 
-            if (DataObject.Actions.Count > 0)
+            if (State.Actions.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear Actions"), false, () => DataObject.ClearActions());
+                menu.AddItem(new GUIContent("Clear Actions"), false, () => State.ClearActions());
             }
 
-            if (DataObject.RuleGroups.Count > 0)
+            if (State.RuleGroups.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear Rules"), false, () => DataObject.ClearRules());
+                menu.AddItem(new GUIContent("Clear Rules"), false, () => State.ClearRules());
             }
 
-            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => DataObject.AddNewRuleGroup());
+            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => State.AddNewRuleGroup());
 
             //menu.AddItem(new GUIContent("Copy State"), false, () => DataObject.CopyDataToClipboard());
             //menu.AddItem(new GUIContent("Paste Rulegroup"), false, () => throw new NotImplementedException());
@@ -323,7 +319,7 @@ namespace StateMachine
             IsSelected = true;
 
             manager.Select(this);
-            manager.Inspector.Inspect(DataObject);
+            manager.Inspector.Inspect(State);
             manager.ReorderStateRendererToBottom(this);
 
         }
@@ -350,7 +346,7 @@ namespace StateMachine
             newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.CANVAS_WIDTH);
             newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.CANVAS_HEIGHT);
 
-            DataObject.position = newPosition;
+            State.position = newPosition;
         }
 
         public void OnDragStart(Event e)
@@ -363,21 +359,10 @@ namespace StateMachine
             isDragged = false;
         }
 
-        private void OnRuleGroupRemovedEvent(RuleGroup group)
+        private void OnRuleGroupAddedEvent(State state, RuleGroup group)
         {
-            if (manager.Selection == group as ISelectable)
-            {
-                manager.Select(DataObject as ISelectable);
-            }
+            if(state != State) { return; }
 
-            SelectedRuleGroup = null;
-            InitializeRuleRenderers();
-            manager.Select(this);
-            GUI.changed = true;
-        }
-
-        private void OnRuleGroupAddedEvent(RuleGroup group)
-        {
             RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
             ruleGroupRenderers.Add(renderer);
 
@@ -388,6 +373,22 @@ namespace StateMachine
 
             SelectedRuleGroup = renderer;
             renderer.OnSelect(Event.current);
+        }
+
+        private void OnRuleGroupRemovedEvent(State state, RuleGroup ruleGroup)
+        {
+            if(state != State) { return; }
+
+            if (manager.Selection == ruleGroup as ISelectable)
+            {
+                manager.Select(State as ISelectable);
+            }
+
+            SelectedRuleGroup = null;
+            InitializeRuleRenderers();
+            GUI.changed = true;
+
+            return;
         }
 
         public void OnStateResetEvent(State state)
@@ -402,7 +403,7 @@ namespace StateMachine
         public void Dispose()
         {
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
-            StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupRemovedEvent;
+            StateMachineEditorUtility.RuleGroupRemovedEvent -= OnRuleGroupRemovedEvent;
         }
     }
 }

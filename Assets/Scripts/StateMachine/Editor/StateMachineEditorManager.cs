@@ -6,7 +6,7 @@ using UnityEngine;
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering <see cref="global::StateMachine.StateMachineData"/> window.
+    /// Class for rendering <see cref="StateMachine.StateMachineData"/> in an editor window.
     /// </summary>
     public class StateMachineEditorManager : IDisposable
     {
@@ -83,10 +83,10 @@ namespace StateMachine
 
                 if (Selection is StateRenderer)
                 {   
-                    GUILayout.Label("selection action count " + (Selection as StateRenderer).DataObject.Actions.Count);
+                    GUILayout.Label("selection action count " + (Selection as StateRenderer).State.Actions.Count);
                     GUILayout.Label("selection rect " + (Selection as StateRenderer).Rect);
-                    GUILayout.Label("selection rules " + (Selection as StateRenderer).DataObject.RuleGroups.Count);
-                    GUILayout.Label("entry state == selection " + (StateMachineData.EntryState == (Selection as StateRenderer).DataObject));
+                    GUILayout.Label("selection rules " + (Selection as StateRenderer).State.RuleGroups.Count);
+                    GUILayout.Label("entry state == selection " + (StateMachineData.EntryState == (Selection as StateRenderer).State));
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace StateMachine
 
             foreach (StateRenderer renderer in StateRenderers)
             {
-                if (renderer.DataObject == state)
+                if (renderer.State == state)
                 {
                     StateRenderers.Remove(renderer);
                     break;
@@ -147,11 +147,15 @@ namespace StateMachine
         public void SetDebug(bool debug)
         {
             ShowDebug = debug;
-            Inspector.Refresh();
+
+            if (Inspector.InspectedObject != null)
+            {
+                Inspector.Refresh();
+            }
         }
 
         /// <summary>
-        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called last and the window will be drawn on top
+        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called first and the window will be drawn on top
         /// </summary>
         /// <param name="renderer"></param>
         public void ReorderStateRendererToBottom(StateRenderer renderer)

@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace StateMachine
 {
     /// <summary>
-    /// Class for rendering <see cref="RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
+    /// Class for rendering <see cref="StateMachine.RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
     /// </summary>
-    public class RuleGroupRenderer : NodeRenderer<RuleGroup>, ISelectable, IDraggable
+    public class RuleGroupRenderer : ISelectable, IDraggable
     {
         private const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
         private const float LINE_THICKNESS = 3f;
         private const string EMPTY_RULE_DISPLAY_LABEL = "TRUE";
 
-        public RuleGroup DataObject { get; private set; }
+        public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
         
@@ -23,56 +21,84 @@ namespace StateMachine
         private StateRenderer stateRenderer;
         private StateMachineEditorManager manager;
         private Rect fullRect;
-        private bool isDraggingLine;
+        private bool isDraggingLink;
         private LinkRenderer linkRenderer;
        
         public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
-            DataObject = ruleGroup;
+            RuleGroup = ruleGroup;
             stateRenderer = state;
             manager = stateMachine;
 
             Rect = new Rect();
-            linkRenderer = new LinkRenderer(DataObject.linkData);
+            linkRenderer = new LinkRenderer(RuleGroup.linkData);
         }
 
         public void ProcessEvents(Event e)
         {
-            if (isDraggingLine)
+            if(RuleGroup.Destination != null)
             {
-                OnDrag(e);
+                ProcessEventsOnConnectedLink(e);
             }
 
-            if(IsSelected)
+            if (isDraggingLink)
+            {
+                ProcessEventsOnDraggingLink(e);
+            }
+
+            if (IsSelected)
             {
                 linkRenderer.ProcessEvents(e);
             }
 
+            if(stateRenderer.IsSelected)
+            {
+                ProcessEventOnSelected(e);
+            }
+        }
+
+        private void ProcessEventsOnConnectedLink(Event e)
+        {
+            if (e.type == EventType.MouseDown && e.button == 0)
+            {
+                if (linkRenderer.IsHovering(e.mousePosition))
+                {
+                    OnSelect(e);
+                    e.Use();
+                }
+            }
+        }
+
+        private void ProcessEventsOnDraggingLink(Event e)
+        {
+            OnDrag(e);
+
+            if ((e.type == EventType.MouseDown && e.button == 0) || (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape))
+            {
+                if (isDraggingLink)
+                {
+                    OnDragEnd(e);
+                    e.Use();
+                }
+            }
+        }
+
+        private void ProcessEventOnSelected(Event e)
+        {
             switch (e.type)
             {
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
-                        stateRenderer.DataObject.RemoveRuleGroup(DataObject);
+                        stateRenderer.State.RemoveRuleGroup(RuleGroup);
                         e.Use();
                         return;
-                    }
-                    else if (isDraggingLine && e.keyCode == KeyCode.Escape)
-                    {
-                        OnDragEnd(e);
-                        e.Use();
                     }
                     break;
 
                 case EventType.MouseDown:
-                    if (e.button == 0) 
+                    if (e.button == 0)
                     {
-                        if (isDraggingLine)
-                        {
-                            OnDragEnd(e);
-                            e.Use();
-                        }
-
                         if (IsSelected && !Rect.Contains(e.mousePosition))
                         {
                             OnDeselect(e);
@@ -95,11 +121,11 @@ namespace StateMachine
 
         private void ReorderRuleGroup(ContextMenu.ReorderDirection direction)
         {
-            int currentIndex = stateRenderer.DataObject.RuleGroups.IndexOf(DataObject);
+            int currentIndex = stateRenderer.State.RuleGroups.IndexOf(RuleGroup);
             int newIndex = currentIndex + (int)direction;
-            if (newIndex >= 0 && newIndex < stateRenderer.DataObject.RuleGroups.Count)
+            if (newIndex >= 0 && newIndex < stateRenderer.State.RuleGroups.Count)
             {
-                stateRenderer.DataObject.RuleGroups.ReorderItem(currentIndex, newIndex);
+                stateRenderer.State.RuleGroups.ReorderItem(currentIndex, newIndex);
                 stateRenderer.ReorderRuleGroupRenderers(currentIndex, newIndex);
             }
         }
@@ -107,10 +133,12 @@ namespace StateMachine
         #region Events
         public void OnSelect(Event e)
         {
+            stateRenderer.OnSelect(e);
+
             IsSelected = true;
             manager.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            manager.Inspector.Inspect(DataObject);
+            manager.Inspector.Inspect(RuleGroup);
             GUI.changed = true;
         }
 
@@ -118,7 +146,7 @@ namespace StateMachine
         {
             IsSelected = false;
             manager.Deselect(this);
-            isDraggingLine = false;
+            isDraggingLink = false;
 
             if(stateRenderer.SelectedRuleGroup == this)
             {
@@ -130,12 +158,12 @@ namespace StateMachine
 
         public void OnDragStart(Event e)
         {
-            isDraggingLine = true;
+            isDraggingLink = true;
         }
 
         public void OnDrag(Event e)
         {
-            DrawLink(e.mousePosition, GUIStyles.LINK_COLOR);
+            DrawLink(e.mousePosition, GUIStyles.LINK_COLOR_SELECTED);
             GUI.changed = true;
         }
 
@@ -143,22 +171,29 @@ namespace StateMachine
         {
             if (manager.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
-                if (stateRenderer.DataObject == this.stateRenderer.DataObject)
+                if (stateRenderer.State == this.stateRenderer.State)
                 {
-                    DataObject.SetDestination(null);
+                    RuleGroup.SetDestination(null);
                 }
                 else
                 {
-                    DataObject.SetDestination(stateRenderer.DataObject);
+                    RuleGroup.SetDestination(stateRenderer.State);
                 }
             }
             else
             {
-                DataObject.SetDestination(null);
+                RuleGroup.SetDestination(null);
             }
 
-            isDraggingLine = false;
+            linkRenderer.Reset();
+            isDraggingLink = false;
             GUI.changed = true;
+        }
+
+        private void DeleteRule()
+        {
+            RuleGroup.linkData = new LinkData();
+            stateRenderer.State.RemoveRuleGroup(RuleGroup);
         }
         #endregion
 
@@ -166,26 +201,26 @@ namespace StateMachine
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => stateRenderer.DataObject.RemoveRuleGroup(DataObject));
+            menu.AddItem(new GUIContent("Delete"), false, DeleteRule);
 
             menu.AddSeparator("");
 
-            if (DataObject.Rules.Count > 0)
+            if (RuleGroup.Rules.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear"), false, () => DataObject.Clear());
+                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear());
             }
             else
             {
                 menu.AddDisabledItem(new GUIContent("Clear"));
             }
 
-            if (DataObject.Destination != null)
+            if (RuleGroup.Destination != null)
             {
-                menu.AddItem(new GUIContent("Reset line curve"), false, () => linkRenderer.Reset());
+                menu.AddItem(new GUIContent("Reset link curve"), false, () => linkRenderer.Reset());
             }
             else
             {
-                menu.AddDisabledItem(new GUIContent("Reset line curve"));
+                menu.AddDisabledItem(new GUIContent("Reset link curve"));
             }
 
             //menu.AddItem(new GUIContent("Copy"), false, () => DataObject.CopyDataToClipboard());
@@ -203,13 +238,6 @@ namespace StateMachine
 
         public Rect Draw(Vector2 position, float width)
         {
-            //if (DataObject.Destination != null && !isDraggingLine)
-            //{ 
-            //    Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
-            //    Color lineColor = (IsSelected) ? GUIStyles.NODE_LINE_COLOR_SELECTED : GUIStyles.NODE_LINE_COLOR;
-            //    DrawLine(SourcePoint, destinationPoint, lineColor);
-            //}
-
             DrawRules(position, width);
 
             if (IsSelected)
@@ -224,9 +252,9 @@ namespace StateMachine
 
         public void DrawLink()
         {
-            if (DataObject.Destination != null && !isDraggingLine)
+            if (RuleGroup.Destination != null && !isDraggingLink)
             {
-                Vector2 destinationPoint = new Vector2(DataObject.Destination.position.x, DataObject.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
+                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.position.x, RuleGroup.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
                 Color color = (IsSelected) ? GUIStyles.LINK_COLOR_SELECTED : GUIStyles.LINK_COLOR;
                 DrawLink(LinkSourcePoint, destinationPoint, color);
             }
@@ -243,16 +271,16 @@ namespace StateMachine
         {
             Rect = new Rect(position.x, position.y, width, 0);
 
-            if (DataObject.Rules.Count == 0)
+            if (RuleGroup.Rules.Count == 0)
             {
                 DrawRule(Rect, out Rect ruleRect);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
             else
             {
-                for (int i = 0; i < DataObject.Rules.Count; i++)
+                for (int i = 0; i < RuleGroup.Rules.Count; i++)
                 {
-                    DrawRule(Rect, out Rect ruleRect, DataObject.Rules[i]);
+                    DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
                     Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
                 }
             }
@@ -262,16 +290,11 @@ namespace StateMachine
 
         private void DrawNodeKnob()
         {
-            Color knobColor = (DataObject.Destination != null) ? GUIStyles.KNOB_COLOR_OUT_LINKED : GUIStyles.KNOB_COLOR_OUT_EMPTY;
+            Color knobColor = (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_OUT_LINKED : GUIStyles.KNOB_COLOR_OUT_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
-                new Rect(Rect.x + Rect.width + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height), 
-                () => {
-                    if (stateRenderer.IsSelected)
-                    {
-                        OnDragStart(Event.current);
-                    }
-                }, 
+                new Rect(Rect.x + Rect.width + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height),
+                () => OnDragStart(Event.current),
                 knobColor
             );
         }
@@ -283,7 +306,7 @@ namespace StateMachine
 
         private void DrawLink(Vector2 source, Vector2 destination, Color color)
         {
-            linkRenderer.Draw(source, destination, color, LINE_THICKNESS, IsSelected && !isDraggingLine);
+            linkRenderer.Draw(source, destination, color, LINE_THICKNESS, IsSelected || isDraggingLink);
         }
         #endregion
     }

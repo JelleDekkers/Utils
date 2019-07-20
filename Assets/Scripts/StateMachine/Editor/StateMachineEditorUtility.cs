@@ -11,8 +11,8 @@ namespace StateMachine
         public static Action<State> StateAddedEvent;
         public static Action<State> StateRemovedEvent;
         public static Action<ScriptableObject> ObjectResetEvent;
-        public static Action<RuleGroup> RuleGroupAddedEvent;
-        public static Action<RuleGroup> RuleGroupRemovedEvent;
+        public static Action<State, RuleGroup> RuleGroupAddedEvent;
+        public static Action<State, RuleGroup> RuleGroupRemovedEvent;
 
         public static void ClearStateMachine(this StateMachineData stateMachine)
         {
@@ -20,6 +20,7 @@ namespace StateMachine
 
             for (int i = 0; i < stateMachine.States.Count; i++)
             {
+                StateRemovedEvent?.Invoke(stateMachine.States[i]);
                 Object.DestroyImmediate(stateMachine.States[i], true);
             }
 
@@ -157,7 +158,7 @@ namespace StateMachine
             RuleGroup group = StateMachineEditorUtilityHelper.CreateObjectInstance<RuleGroup>(assetFilePath);
             state.RuleGroups.Add(group);
 
-            RuleGroupAddedEvent?.Invoke(group);
+            RuleGroupAddedEvent?.Invoke(state, group);
             EditorUtility.SetDirty(state);
 
             return group;
@@ -165,7 +166,7 @@ namespace StateMachine
 
         public static void RemoveRuleGroup(this State state, RuleGroup group)
         {
-            RuleGroupRemovedEvent?.Invoke(group);
+            RuleGroupRemovedEvent?.Invoke(state, group);
 
             foreach(Rule rule in group.Rules)
             {

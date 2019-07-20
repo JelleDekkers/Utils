@@ -63,11 +63,8 @@ namespace StateMachine
             DrawGrid(gridSecondarySpacing, gridSecondaryColor);
             DrawStates();
 
-            //if (CanvasWindow.Contains(e.mousePosition))
-            //{
-                ProcessStateEvents(e);
-                ProcessEvents(e);
-            //}
+            ProcessStateEvents(e);
+            ProcessEvents(e);
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -102,7 +99,7 @@ namespace StateMachine
                 case EventType.KeyDown:
                     if(e.keyCode == KeyCode.Delete)
                     {
-                        Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).DataObject);
+                        Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).State);
                         e.Use();
                     }
                     break;
@@ -203,12 +200,12 @@ namespace StateMachine
             GUI.enabled = Manager.Selection != null && Manager.Selection is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).DataObject);
+                Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).State);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                (Manager.Selection as StateRenderer).DataObject.ClearActions();
+                (Manager.Selection as StateRenderer).State.ClearActions();
             }
             GUI.enabled = true;
 
