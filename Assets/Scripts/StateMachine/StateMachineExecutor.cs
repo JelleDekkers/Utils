@@ -11,22 +11,17 @@ namespace StateMachine
         public StateMachineData StateMachineData => stateMachineData;
         [SerializeField] protected StateMachineData stateMachineData;
 
-        private StateMachineLogic logic;
+        public StateMachineLogic Logic { get; private set; }
 
         private void Start()
         {
             DontDestroyOnLoad(this);
-            InitializeStateMachine();
-        }
-
-        private void InitializeStateMachine()
-        {
-            logic = new StateMachineLogic(stateMachineData);
+            Logic = new StateMachineLogic(stateMachineData);
         }
 
         private void Update()
         {
-            logic.Update();
+            Logic.Update();
         }
     }
 }

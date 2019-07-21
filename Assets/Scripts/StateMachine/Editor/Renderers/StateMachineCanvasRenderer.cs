@@ -14,7 +14,6 @@ namespace StateMachine
         public const float CANVAS_WIDTH = 1000;
         public const float CANVAS_HEIGHT = 1000;
 
-        private const float GRID_LINE_INTERVAL = 50f;
         private const float WINDOW_HEIGHT = 400;
 
         public StateMachineEditorManager Manager { get; private set; }

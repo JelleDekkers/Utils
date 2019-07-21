@@ -11,6 +11,7 @@ namespace StateMachine
         private const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
         private const float LINE_THICKNESS = 3f;
         private const string EMPTY_RULE_DISPLAY_LABEL = "TRUE";
+        private readonly Color ValidRuleTextColor = new Color(0, 0.6f, 0);
 
         public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
@@ -23,6 +24,7 @@ namespace StateMachine
         private Rect fullRect;
         private bool isDraggingLink;
         private LinkRenderer linkRenderer;
+        private GUIStyle style;
        
         public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
@@ -32,6 +34,12 @@ namespace StateMachine
 
             Rect = new Rect();
             linkRenderer = new LinkRenderer(RuleGroup.linkData);
+
+            style = new GUIStyle()
+            {
+                alignment = TextAnchor.MiddleRight,
+                padding = new RectOffset(10, 10, 3, 3)
+            };
         }
 
         public void ProcessEvents(Event e)
@@ -264,7 +272,21 @@ namespace StateMachine
         {
             ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, RULE_HEIGHT);
             string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
-            GUI.Label(ruleRect, label, GUIStyles.RuleGroupStyle);
+
+            style.normal.textColor = Color.black;
+            if (Application.isPlaying && stateRenderer.IsCurrentStateInRuntimeLogic()) 
+            {
+                if (rule == null)
+                {
+                    style.normal.textColor = ValidRuleTextColor;
+                }
+                else if(rule.IsValid)
+                {
+                    style.normal.textColor = ValidRuleTextColor;
+                }
+            }
+
+            GUI.Label(ruleRect, label, style);
         }
 
         private void DrawRules(Vector2 position, float width)
@@ -290,7 +312,7 @@ namespace StateMachine
 
         private void DrawNodeKnob()
         {
-            Color knobColor = (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_OUT_LINKED : GUIStyles.KNOB_COLOR_OUT_EMPTY;
+            Color knobColor = (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_LINKED : GUIStyles.KNOB_COLOR_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
                 new Rect(Rect.x + Rect.width + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height),

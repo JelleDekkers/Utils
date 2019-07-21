@@ -58,9 +58,11 @@ namespace StateMachine
             }
             else
             {
-                var centeredStyle = GUI.skin.GetStyle("Label");
+                GUIStyle centeredStyle = GUI.skin.GetStyle("Label");
                 centeredStyle.alignment = TextAnchor.UpperCenter;
-                GUI.Label(new Rect(Screen.width / 2 - 325, Screen.height / 2 - 25, 600, 50), "No State Machine or StateMachineActivator selected", centeredStyle);
+                GUIContent content = new GUIContent(string.Format("No {0} or {1} selected", typeof(StateMachineData).Name, typeof(StateMachineExecutor).Name));
+                Vector2 size = centeredStyle.CalcSize(content);
+                GUI.Label(new Rect(Screen.width / 2 - size.x / 2, Screen.height / 2 - size.y / 2, size.x, size.y), content, centeredStyle);
             }
         }
 

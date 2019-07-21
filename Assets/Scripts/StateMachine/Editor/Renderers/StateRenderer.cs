@@ -13,7 +13,6 @@ namespace StateMachine
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
         public const float HEADER_DIVIDER_HEIGHT = 4;
-        public const float ENTRY_WIDTH = WIDTH - 20;
         public const float ENTRY_VISUAL_HEIGHT = HEADER_HEIGHT;
         public const float TOOLBAR_BUTTON_WIDTH = 20;
         public const float TOOLBAR_BUTTON_HEIGHT = 20;
@@ -43,8 +42,20 @@ namespace StateMachine
 
         private readonly RectOffset HighlightMargin = new RectOffset(3, 2, 2, 3);
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
-        private readonly Color EntryPanelBackgroundColor = new Color(0.8f, 0.8f, 0.8f);
-        
+        private readonly Color RuntimeLogicCurrentStateBackgroundColor = new Color(0.7f, 0.78f, 0.7f);
+        private Rect OutlineRect
+        {
+            get
+            {
+                return new Rect(
+                    Rect.x - HighlightMargin.right,
+                    Rect.y - HighlightMargin.left,
+                    Rect.width + HighlightMargin.horizontal,
+                    Rect.height + HighlightMargin.vertical
+                );
+            }
+        }
+
         private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private Rect fullRect;
@@ -153,6 +164,11 @@ namespace StateMachine
             ruleGroupRenderers.ReorderItem(currentIndex, newIndex);
         }
 
+        public bool IsCurrentStateInRuntimeLogic()
+        {
+            return Application.isPlaying && manager.Executor != null && manager.Executor.Logic != null && manager.Executor.Logic.CurrentState == State;
+        }
+
         #region Drawing
         public void Draw()
         {
@@ -165,16 +181,10 @@ namespace StateMachine
             {
                 if (SelectedRuleGroup == null)
                 {
-                    Rect r = new Rect(
-                        Rect.x - HighlightMargin.right,
-                        Rect.y - HighlightMargin.left,
-                        Rect.width + HighlightMargin.horizontal,
-                        Rect.height + HighlightMargin.vertical
-                    );
-                    DrawHelper.DrawBoxOutline(r, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                    DrawHelper.DrawBoxOutline(OutlineRect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
                 }
 
-                DrawRuleToolbar(IsSelected && SelectedRuleGroup == null);
+                DrawRuleToolbar(SelectedRuleGroup == null);
             }
 
             DrawBackground();
@@ -194,7 +204,7 @@ namespace StateMachine
         private void DrawBackground()
         {
             Color previousBackgroundColor = GUI.color;
-            GUI.color = StateBackgroundColor;
+            GUI.color = (IsCurrentStateInRuntimeLogic()) ? RuntimeLogicCurrentStateBackgroundColor : StateBackgroundColor;
 
             GUI.Box(fullRect, "", GUIStyles.StateHeaderStyle);
             GUI.color = previousBackgroundColor;
@@ -276,13 +286,13 @@ namespace StateMachine
 
         private void DrawIsEntryVisual()
         { 
-            Color previousColor = GUI.color;
-            Rect r = new Rect(Rect.x + Rect.width / 2 - ENTRY_WIDTH / 2, Rect.y - ENTRY_VISUAL_HEIGHT + 2, ENTRY_WIDTH, ENTRY_VISUAL_HEIGHT);
+            Color previousColor = GUI.backgroundColor;
+            Rect r = new Rect(Rect.x, Rect.y - ENTRY_VISUAL_HEIGHT + 2, Rect.width, ENTRY_VISUAL_HEIGHT);
 
-            GUI.color = EntryPanelBackgroundColor;
+            GUI.backgroundColor = StateBackgroundColor;
             GUI.Box(r, ENTRY_STRING);
 
-            GUI.color = previousColor;
+            GUI.backgroundColor = previousColor;
         }
 
         private void ShowContextMenu(Event e)

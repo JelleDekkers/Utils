@@ -19,7 +19,9 @@ namespace StateMachine
 
             if (property.arraySize == 0)
             {
-                GUILayout.Label("Empty");
+                GUIStyle style = new GUIStyle("Label");
+                style.alignment = TextAnchor.UpperLeft;
+                GUILayout.Label("Empty", style);
             }
         }
 

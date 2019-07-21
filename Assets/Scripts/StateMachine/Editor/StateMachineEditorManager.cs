@@ -16,17 +16,18 @@ namespace StateMachine
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
         public StateMachineInspector Inspector { get; private set; }
         public bool ContextMenuIsOpen { get; set; }
-
         public bool ShowDebug { get; private set; }
+        public StateMachineExecutor Executor { get; private set; }
 
         private readonly Action repaintFunc;
 
-        public StateMachineEditorManager(StateMachineData stateMachine, Action repaintFunc)
+        public StateMachineEditorManager(StateMachineData stateMachine, Action repaintFunc, StateMachineExecutor executor = null)
         {
             StateMachineData = stateMachine;
             Inspector = new StateMachineInspector(this);
             CanvasRenderer = new StateMachineCanvasRenderer(this);
             this.repaintFunc = repaintFunc;
+            this.Executor = executor;
 
             StateRenderers = new List<StateRenderer>();
             foreach (State state in stateMachine.States)

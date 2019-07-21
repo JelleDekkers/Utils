@@ -6,45 +6,12 @@ namespace StateMachine
     {
         public const float KNOB_SIZE = 10;
 
-        public static readonly Color KNOB_COLOR_OUT_LINKED = new Color(0f, 0.8f, 0.3f, 1f);
-        public static readonly Color KNOB_COLOR_OUT_EMPTY = Color.red;
-        public static readonly Color KNOB_COLOR_IN = Color.white;
+        public static readonly Color KNOB_COLOR_LINKED = new Color(0f, 0.8f, 0.3f, 1f);
+        public static readonly Color KNOB_COLOR_EMPTY = Color.red;
         public static readonly Color HIGHLIGHT_OUTLINE_COLOR = Color.yellow;
         public static readonly Color LINK_COLOR = Color.red;
         public static readonly Color LINK_COLOR_SELECTED = Color.yellow;
-
-        private static GUIStyle ruleGroupStyle;
-        public static GUIStyle RuleGroupStyle
-        {
-            get
-            {
-                if (ruleGroupStyle == null)
-                {
-                    ruleGroupStyle = new GUIStyle()
-                    {
-                        alignment = TextAnchor.MiddleRight,
-                        padding = new RectOffset(10, 10, 3, 3)
-
-                    };
-                }
-                return ruleGroupStyle;
-            }
-        }
-
-        public static GUIStyle RuleGroupKnobStyle
-        {
-            get
-            {
-                if (ruleGroupKnobStyle == null)
-                {
-                    ruleGroupKnobStyle = new GUIStyle();
-                    ruleGroupKnobStyle.alignment = TextAnchor.MiddleCenter;
-                    ruleGroupKnobStyle.normal.background = Resources.Load<Texture2D>("Knob");
-                }
-                return ruleGroupKnobStyle;
-            }
-        }
-        private static GUIStyle ruleGroupKnobStyle;
+        public static readonly Color CURRENT_ACTIVE_STATE_OUTLINE = Color.green;
 
         public static GUIStyle StateHeaderStyle
         {
@@ -77,20 +44,18 @@ namespace StateMachine
             }
         }
 
-        private static GUIStyle ruleGroupOutlineStyle;
-        public static GUIStyle RuleGroupOutlineStyle
+        private static GUIStyle stateEntryVisualStyle;
+        public static GUIStyle StateEntryVisualStyle
         {
             get
             {
-                if(ruleGroupOutlineStyle == null)
+                if (stateEntryVisualStyle == null)
                 {
-                    ruleGroupOutlineStyle = new GUIStyle();
-                    ruleGroupOutlineStyle.border = new RectOffset(4, 4, 4, 4);
-                    ruleGroupOutlineStyle.padding = new RectOffset(4, 4, 4, 4);
-                    ruleGroupOutlineStyle.normal.background = OutlineTexture;
+                    stateEntryVisualStyle = new GUIStyle();
+                    stateEntryVisualStyle.alignment = TextAnchor.MiddleCenter;
+                    stateEntryVisualStyle.normal.textColor = Color.white;
                 }
-
-                return ruleGroupOutlineStyle;
+                return stateEntryVisualStyle;
             }
         }
 
@@ -108,6 +73,38 @@ namespace StateMachine
                 }
 
                 return stateToolbarButtonsStyle;
+            }
+        }
+
+        public static GUIStyle RuleGroupKnobStyle
+        {
+            get
+            {
+                if (ruleGroupKnobStyle == null)
+                {
+                    ruleGroupKnobStyle = new GUIStyle();
+                    ruleGroupKnobStyle.alignment = TextAnchor.MiddleCenter;
+                    ruleGroupKnobStyle.normal.background = Resources.Load<Texture2D>("Knob");
+                }
+                return ruleGroupKnobStyle;
+            }
+        }
+        private static GUIStyle ruleGroupKnobStyle;
+
+        private static GUIStyle ruleGroupOutlineStyle;
+        public static GUIStyle RuleGroupOutlineStyle
+        {
+            get
+            {
+                if(ruleGroupOutlineStyle == null)
+                {
+                    ruleGroupOutlineStyle = new GUIStyle();
+                    ruleGroupOutlineStyle.border = new RectOffset(4, 4, 4, 4);
+                    ruleGroupOutlineStyle.padding = new RectOffset(4, 4, 4, 4);
+                    ruleGroupOutlineStyle.normal.background = OutlineTexture;
+                }
+
+                return ruleGroupOutlineStyle;
             }
         }
 
@@ -154,7 +151,5 @@ namespace StateMachine
                 return bezierLineHandleStyle;
             }
         }
-
-
     }
 }

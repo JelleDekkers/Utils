@@ -9,43 +9,44 @@ namespace StateMachine
     [CustomEditor(typeof(StateMachineExecutor))]
     public class StateMachineExecutorEditor : Editor
     {
-        private StateMachineExecutor activator;
-        private StateMachineEditorManager renderer;
-
-        private StateMachineData stateMachine;
+        private StateMachineExecutor executor;
+        private StateMachineEditorManager manager;
+        private StateMachineData stateMachineData;
 
         protected void OnEnable()
         {
-            activator = (StateMachineExecutor)target;
-            stateMachine = activator.StateMachineData;
+            executor = (StateMachineExecutor)target;
+            stateMachineData = executor.StateMachineData;
 
-            if (stateMachine != null)
+            if (stateMachineData != null)
             {
-                renderer = new StateMachineEditorManager(activator.StateMachineData, Repaint);
+                manager = new StateMachineEditorManager(executor.StateMachineData, Repaint, executor);
             }
         }
 
         public override void OnInspectorGUI()
         {
+            Repaint();
+
             base.OnInspectorGUI();
 
-            if (stateMachine != null)
+            if (stateMachineData != null)
             {
                 EditorGUILayout.Space();
-                renderer.OnInspectorGUI();
+                manager.OnInspectorGUI();
             }
 
-            if(activator.StateMachineData != stateMachine)
+            if(executor.StateMachineData != stateMachineData)
             {
-                stateMachine = activator.StateMachineData;
+                stateMachineData = executor.StateMachineData;
 
-                if(stateMachine != null)
+                if(stateMachineData != null)
                 {
-                    renderer = new StateMachineEditorManager(activator.StateMachineData, Repaint);
+                    manager = new StateMachineEditorManager(executor.StateMachineData, Repaint);
                 }
                 else
                 {
-                    renderer = null;
+                    manager = null;
                 }
             }
         }

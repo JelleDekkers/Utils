@@ -28,19 +28,23 @@ namespace StateMachine
 
         public void Update()
         {
-            if (StateCanTransitionToNextState(CurrentState, out State newState))
+            if(CurrentState == null) { return; }
+
+            if (StateCanTransitionToNextState(CurrentState, out State newState, out RuleGroup ruleGroup))
             {
-                Debug.LogFormat("chaging from {0} to {1}", CurrentState, newState);
+                Debug.LogFormat("Changing from {0} to {1}", CurrentState, (newState != null) ? newState.ToString() : "NONE");
 
                 OnStateStop(CurrentState);
-
-                if (newState == null)
-                {
-                    Debug.LogErrorFormat("{0} Has no destination state!");
-                }
-
                 CurrentState = newState;
-                OnStateStart(CurrentState);
+
+                if (newState != null)
+                {
+                    OnStateStart(CurrentState);
+                }
+                else
+                {
+                    Debug.LogWarningFormat("{0} Has no destination state!", CurrentState);
+                }
             }
         }
 
@@ -76,18 +80,20 @@ namespace StateMachine
             }
         }
 
-        private bool StateCanTransitionToNextState(State currentState, out State newState)
+        private bool StateCanTransitionToNextState(State currentState, out State newState, out RuleGroup validRuleGroup)
         {
             foreach (RuleGroup ruleGroup in currentState.RuleGroups)
             {
                 if (ruleGroup.AllRulesAreValid())
                 {
                     newState = ruleGroup.Destination;
+                    validRuleGroup = ruleGroup;
                     return true;
                 }
             }
 
             newState = null;
+            validRuleGroup = null;
             return false;
         }
     }
