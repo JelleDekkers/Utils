@@ -111,16 +111,16 @@ namespace StateMachine
 
         private void RemoveStateRenderer(State state)
         {
-            if (Selection == state as ISelectable)
-            {
-                Deselect(state as ISelectable);
-            }
-
             foreach (StateRenderer renderer in StateRenderers)
             {
                 if (renderer.State == state)
                 {
                     StateRenderers.Remove(renderer);
+
+                    if (Selection == renderer as ISelectable )
+                    {
+                        Deselect(renderer as ISelectable);
+                    }
                     break;
                 }
             }

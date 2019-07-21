@@ -93,11 +93,8 @@ namespace StateMachine
                 case EventType.KeyDown:
                     if (e.keyCode == (KeyCode.Delete))
                     {
-                        if (Rect.Contains(e.mousePosition))
-                        {
-                            manager.StateMachineData.RemoveState(State);
-                            e.Use();
-                        }
+                        manager.StateMachineData.RemoveState(State);
+                        e.Use();
                     }
                     break;
                 case EventType.MouseDown:
@@ -331,7 +328,6 @@ namespace StateMachine
             manager.Select(this);
             manager.Inspector.Inspect(State);
             manager.ReorderStateRendererToBottom(this);
-
         }
 
         public void OnDeselect(Event e)
@@ -389,14 +385,9 @@ namespace StateMachine
         {
             if(state != State) { return; }
 
-            if (manager.Selection == ruleGroup as ISelectable)
-            {
-                manager.Select(State as ISelectable);
-            }
-
             SelectedRuleGroup = null;
             InitializeRuleRenderers();
-            GUI.changed = true;
+            OnSelect(Event.current);
 
             return;
         }
