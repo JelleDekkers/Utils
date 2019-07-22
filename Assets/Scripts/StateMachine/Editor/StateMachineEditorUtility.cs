@@ -54,7 +54,7 @@ namespace StateMachine
 
             string assetFilePath = AssetDatabase.GetAssetPath(stateMachine);
             State state = StateMachineEditorUtilityHelper.CreateObjectInstance<State>(assetFilePath);
-            state.position = position;
+            state.Position = position;
             stateMachine.AddNewState(state);
 
             StateAddedEvent?.Invoke(stateMachine, state);

@@ -40,13 +40,14 @@ namespace StateMachine
             sourceHandle.Update(source);
             destinationHandle.Update(destination);
 
+            DrawLine(source, destination, color, thickness);
+
             if (showHandles)
             {
                 sourceHandle.Draw();
                 destinationHandle.Draw();
             }
 
-            DrawLine(source, destination, color, thickness);
             if (isSelected)
             {
                 DrawArrow(selectedArrowTexture, source, destination, sourceHandle.Rect.position, destinationHandle.Rect.position);

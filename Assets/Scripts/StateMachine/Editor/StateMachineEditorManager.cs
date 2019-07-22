@@ -85,6 +85,7 @@ namespace StateMachine
 
                 if (Selection is StateRenderer)
                 {   
+                    GUILayout.Label("selection pos " + (Selection as StateRenderer).State.Position);
                     GUILayout.Label("selection action count " + (Selection as StateRenderer).State.Actions.Count);
                     GUILayout.Label("selection rect " + (Selection as StateRenderer).Rect);
                     GUILayout.Label("selection rules " + (Selection as StateRenderer).State.RuleGroups.Count);

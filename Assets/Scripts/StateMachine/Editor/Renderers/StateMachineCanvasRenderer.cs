@@ -15,6 +15,7 @@ namespace StateMachine
         public const float CANVAS_HEIGHT = 1000;
 
         private const float WINDOW_HEIGHT = 400;
+        private const float DRAG_THRESHOLD = 1;
 
         public StateMachineEditorManager Manager { get; private set; }
         public Rect CanvasWindow { get; private set; }
@@ -28,6 +29,8 @@ namespace StateMachine
 
         private Rect scrollView = new Rect();
         private float zoomScale = 100;
+        private Vector2 dragStartPos;
+        private bool canDrag;
 
         public StateMachineCanvasRenderer(StateMachineEditorManager manager)
         {
@@ -81,6 +84,12 @@ namespace StateMachine
                         break;
                     }
 
+                    if(e.button == 0)
+                    {
+                        dragStartPos = e.mousePosition;
+                        canDrag = false;
+                    }
+
                     Manager.ContextMenuIsOpen = false;
                     break;
 
@@ -89,7 +98,7 @@ namespace StateMachine
                     {
                         if (CanvasWindow.Contains(e.mousePosition))
                         {
-                            Drag(e.delta); 
+                            Drag(e); 
                             e.Use();
                         }
                     }
@@ -144,15 +153,24 @@ namespace StateMachine
             GUI.changed = true;
         }
 
-        private void Drag(Vector2 delta)
+        private void Drag(Event e)
         {
-            Vector2 drag = CanvasDrag;
-            drag -= delta;
-            drag.x = Mathf.Clamp(drag.x, 0, CanvasWindow.width);
-            drag.y = Mathf.Clamp(drag.y, 0, CanvasWindow.height);
+            float dragDif = (dragStartPos - e.mousePosition).magnitude;
+            if (dragDif > DRAG_THRESHOLD)
+            {
+                canDrag = true;
+            }
 
-            CanvasDrag = drag;
-            GUI.changed = true;
+            if (canDrag)
+            {
+                Vector2 drag = CanvasDrag;
+                drag -= e.delta;
+                drag.x = Mathf.Clamp(drag.x, 0, CanvasWindow.width);
+                drag.y = Mathf.Clamp(drag.y, 0, CanvasWindow.height);
+
+                CanvasDrag = drag;
+                GUI.changed = true;
+            }
         }
 
         private void DrawGrid(float gridSpacing, Color gridColor)

@@ -262,7 +262,7 @@ namespace StateMachine
         {
             if (RuleGroup.Destination != null && !isDraggingLink)
             {
-                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.position.x, RuleGroup.Destination.position.y + StateRenderer.HEADER_HEIGHT / 2);
+                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Position.x, RuleGroup.Destination.Position.y + StateRenderer.HEADER_HEIGHT / 2);
                 Color color = (IsSelected) ? GUIStyles.LINK_COLOR_SELECTED : GUIStyles.LINK_COLOR;
                 DrawLink(LinkSourcePoint, destinationPoint, color);
             }

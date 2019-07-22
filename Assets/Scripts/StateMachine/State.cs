@@ -17,7 +17,7 @@ namespace StateMachine
         [SerializeField] private List<RuleGroup> ruleGroups = new List<RuleGroup>();
 
         public string Title = "New State";
-        public Vector2 position;        
+        public Vector2 Position;        
 
         public override string ToString()
         {

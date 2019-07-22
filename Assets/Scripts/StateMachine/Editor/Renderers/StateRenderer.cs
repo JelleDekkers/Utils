@@ -18,7 +18,8 @@ namespace StateMachine
         public const float TOOLBAR_BUTTON_HEIGHT = 20;
         public const float RULE_GROUP_DIVIDER_HEIGHT = 1f;
 
-        private const string ENTRY_STRING = "ENTRY"; 
+        private const string ENTRY_STRING = "ENTRY";
+        private const float DragRounding = 20;
 
         public State State { get; private set; }
 
@@ -26,11 +27,11 @@ namespace StateMachine
         {
             get
             {
-                return new Rect(State.position, size);
+                return new Rect(State.Position, size);
             }
             private set
             {
-                State.position = value.position;
+                State.Position = value.position;
                 size = value.size;
             }
         }
@@ -59,7 +60,9 @@ namespace StateMachine
         private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private Rect fullRect;
-        private bool isDragged;
+        private bool isDragging;
+        private bool roundDragPosition;
+        private Vector2 dragStartSelectionDif;
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
         {
@@ -91,10 +94,20 @@ namespace StateMachine
             switch (e.type)
             {
                 case EventType.KeyDown:
-                    if (e.keyCode == (KeyCode.Delete))
+                    if (e.keyCode == KeyCode.Delete)
                     {
                         manager.StateMachineData.RemoveState(State);
                         e.Use();
+                    }
+                    else if(IsSelected && e.keyCode == KeyCode.LeftControl)
+                    {
+                        roundDragPosition = true;
+                    }
+                    break;
+                case EventType.KeyUp:
+                    if (IsSelected && e.keyCode == KeyCode.LeftControl)
+                    {
+                        roundDragPosition = false;
                     }
                     break;
                 case EventType.MouseDown:
@@ -131,14 +144,14 @@ namespace StateMachine
                     break;
 
                 case EventType.MouseUp:
-                    if (isDragged)
+                    if (isDragging)
                     {
                         OnDragEnd(e);
                     }
                     break;
 
                 case EventType.MouseDrag:
-                    if (e.button == 0 && isDragged)
+                    if (e.button == 0 && isDragging)
                     {
                         OnDrag(e);
                         e.Use();
@@ -345,24 +358,30 @@ namespace StateMachine
 
         public void OnDrag(Event e)
         {
-            Vector2 newPosition = Rect.position;
-            newPosition += e.delta;
+            Vector2 newPosition = e.mousePosition - dragStartSelectionDif;
 
-            // TODO: needs to take it's own size into account?
-            newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.CANVAS_WIDTH);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.CANVAS_HEIGHT);
+            newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.CANVAS_WIDTH - fullRect.width);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.CANVAS_HEIGHT - fullRect.height);
 
-            State.position = newPosition;
+            if (roundDragPosition)
+            {
+                newPosition.x = (int)Mathf.Round(newPosition.x / DragRounding) * DragRounding;
+                newPosition.y = (int)Mathf.Round(newPosition.y / DragRounding) * DragRounding;
+            }
+
+            State.Position = newPosition;
         }
 
         public void OnDragStart(Event e)
         {
-            isDragged = true;
+            isDragging = true;
+            dragStartSelectionDif = e.mousePosition - State.Position;
         }
 
         public void OnDragEnd(Event e)
         {
-            isDragged = false;
+            isDragging = false;
+            dragStartSelectionDif = Vector2.zero;
         }
 
         private void OnRuleGroupAddedEvent(State state, RuleGroup group)
