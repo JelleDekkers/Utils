@@ -76,6 +76,10 @@ namespace StateMachine
         {
             EditorGUILayout.BeginVertical("Box");
 
+            EditorGUILayout.LabelField("Drag " + CanvasRenderer.ScrollViewDrag);
+            EditorGUILayout.LabelField("window size " + CanvasRenderer.Window.size);
+            EditorGUILayout.LabelField("scrollview size " + CanvasRenderer.scrollView.size);
+
             EditorGUILayout.LabelField("mouse pos " + e.mousePosition);
             EditorGUILayout.LabelField("state count " + StateMachineData.States.Count);
             EditorGUILayout.LabelField("entry state " + StateMachineData.EntryState.Title);

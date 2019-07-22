@@ -12,68 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6977acd9219d9241a1e410995c82e31, type: 3}
   m_Name: New StateMachine Data
   m_EditorClassIdentifier: 
-  entryState: {fileID: 114152535721088460}
+  entryState: {fileID: 114801621744578992}
   states:
-  - {fileID: 114152535721088460}
-  - {fileID: 114690464474429348}
-  - {fileID: 114807108209447628}
---- !u!114 &114152535721088460
+  - {fileID: 114801621744578992}
+--- !u!114 &114011519810447894
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
+  m_Script: {fileID: 11500000, guid: 8a180e967ecef5b4da437a4b11e915c0, type: 3}
+  m_Name: TestAction
   m_EditorClassIdentifier: 
-  actions:
-  - {fileID: 114193226233827654}
-  ruleGroups:
-  - {fileID: 114782617898473674}
-  - {fileID: 114175108854366060}
-  Title: Spawn Cube
-  position: {x: 54, y: 131}
---- !u!114 &114175108854366060
+  testValue: 0
+  testBool: 0
+  testGameObject: {fileID: 0}
+  testList: []
+--- !u!114 &114234472056125940
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
-  m_Name: RuleGroup
-  m_EditorClassIdentifier: 
-  destination: {fileID: 114807108209447628}
-  rules:
-  - {fileID: 114497345836929410}
-  - {fileID: 114940704553005146}
-  linkData:
-    sourceHandleData:
-      offset: {x: 40, y: 0}
-    destinationHandleData:
-      offset: {x: -40, y: 0}
---- !u!114 &114193226233827654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
-  m_Name: SpawnPrefabAction
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
-  position: {x: 0, y: 0, z: 0}
---- !u!114 &114293589079864414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -90,63 +50,9 @@ MonoBehaviour:
       offset: {x: 40, y: 0}
     destinationHandleData:
       offset: {x: -40, y: 0}
---- !u!114 &114346394674715298
+--- !u!114 &114801621744578992
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 32
---- !u!114 &114365515436942146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
-  m_Name: SpawnPrefabAction
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
-  position: {x: 0, y: 0, z: 0}
---- !u!114 &114497345836929410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 455b992e422e84041854b6ce82036fc0, type: 3}
-  m_Name: ValueIsHigherThanRule
-  m_EditorClassIdentifier: 
-  value: 12
-  targetValue: 10
---- !u!114 &114594989309926246
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 122
---- !u!114 &114690464474429348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -157,75 +63,8 @@ MonoBehaviour:
   m_Name: State
   m_EditorClassIdentifier: 
   actions:
-  - {fileID: 114717545838369286}
+  - {fileID: 114011519810447894}
   ruleGroups:
-  - {fileID: 114293589079864414}
-  Title: Print stuff
-  position: {x: 333, y: 146}
---- !u!114 &114717545838369286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a180e967ecef5b4da437a4b11e915c0, type: 3}
-  m_Name: TestAction
-  m_EditorClassIdentifier: 
-  testValue: 200
-  testBool: 0
-  testGameObject: {fileID: 0}
-  testList: []
---- !u!114 &114782617898473674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
-  m_Name: RuleGroup
-  m_EditorClassIdentifier: 
-  destination: {fileID: 114690464474429348}
-  rules:
-  - {fileID: 114346394674715298}
-  - {fileID: 114594989309926246}
-  linkData:
-    sourceHandleData:
-      offset: {x: 40, y: 0}
-    destinationHandleData:
-      offset: {x: -40, y: 0}
---- !u!114 &114807108209447628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  actions:
-  - {fileID: 114365515436942146}
-  ruleGroups: []
-  Title: Spawn Cube 2
-  position: {x: 314, y: 293}
---- !u!114 &114940704553005146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 32
+  - {fileID: 114234472056125940}
+  Title: New State
+  Position: {x: 78.590805, y: 104.71265}
