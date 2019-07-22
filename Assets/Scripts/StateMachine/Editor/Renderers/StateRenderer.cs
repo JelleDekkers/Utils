@@ -18,6 +18,7 @@ namespace StateMachine
         public const float TOOLBAR_BUTTON_HEIGHT = 20;
         public const float RULE_GROUP_DIVIDER_HEIGHT = 1f;
 
+        private const float DRAG_THRESHOLD = 5f;
         private const string ENTRY_STRING = "ENTRY";
         private const float DragRounding = 20;
 
@@ -63,6 +64,8 @@ namespace StateMachine
         private bool isDragging;
         private bool roundDragPosition;
         private Vector2 dragStartSelectionDif;
+        private Vector2 dragStartPos;
+        private bool canDrag;
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
         {
@@ -358,6 +361,14 @@ namespace StateMachine
 
         public void OnDrag(Event e)
         {
+            float dragDif = (dragStartPos - e.mousePosition).magnitude;
+            if (dragDif > DRAG_THRESHOLD)
+            {
+                canDrag = true;
+            }
+
+            if(!canDrag) { return; }
+
             Vector2 newPosition = e.mousePosition - dragStartSelectionDif;
 
             newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.CANVAS_WIDTH - fullRect.width);
@@ -375,7 +386,9 @@ namespace StateMachine
         public void OnDragStart(Event e)
         {
             isDragging = true;
-            dragStartSelectionDif = e.mousePosition - State.Position;
+            dragStartPos = e.mousePosition;
+            dragStartSelectionDif = dragStartPos - State.Position;
+            canDrag = false;
         }
 
         public void OnDragEnd(Event e)

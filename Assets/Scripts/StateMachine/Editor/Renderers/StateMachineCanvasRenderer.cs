@@ -15,7 +15,7 @@ namespace StateMachine
         public const float CANVAS_HEIGHT = 1000;
 
         private const float WINDOW_HEIGHT = 400;
-        private const float DRAG_THRESHOLD = 1;
+        private const float DRAG_THRESHOLD = 5;
 
         public StateMachineEditorManager Manager { get; private set; }
         public Rect CanvasWindow { get; private set; }
