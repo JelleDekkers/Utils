@@ -15,7 +15,7 @@ namespace StateMachine
         protected override void DrawInspectorContent(Event e)
         {
             InspectorUIUtility.DrawHeader("Rules", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent));
-            InspectorUIUtility.DrawDividerLine();
+            InspectorUIUtility.DrawHorizontalLine();
             InspectorUIUtility.DrawPropertyFields(SerializedObject, PROPERTY_NAME, OnContextMenuButtonPressed);
         }
 

@@ -13,7 +13,7 @@ namespace StateMachine
             SerializedProperty property = serializedObject.FindProperty(propertyName);
             for (int i = 0; i < property.arraySize; i++)
             {
-                if (i != 0) { DrawDividerLine(); }
+                if (i != 0) { DrawHorizontalLine(); }
                 DrawPropertyArrayField(property, i, contextMenuPressedCallback);
             }
 
@@ -133,7 +133,7 @@ namespace StateMachine
             }
         }
 
-        public static void DrawDividerLine(float height = 1)
+        public static void DrawHorizontalLine(float height = 1)
         {
             GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(height));
         }

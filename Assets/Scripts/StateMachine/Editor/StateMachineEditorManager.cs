@@ -74,24 +74,24 @@ namespace StateMachine
 
         private void DrawDebugInfo(Event e)
         {
-            GUILayout.Label("mouse pos " + e.mousePosition);
-            GUILayout.Label("state count " + StateMachineData.States.Count);
-            GUILayout.Label("entry state " + StateMachineData.EntryState.Title);
-            GUILayout.Label("is inside canvas " + CanvasRenderer.Contains(e.mousePosition));
+            EditorGUILayout.BeginVertical("Box");
+
+            EditorGUILayout.LabelField("mouse pos " + e.mousePosition);
+            EditorGUILayout.LabelField("state count " + StateMachineData.States.Count);
+            EditorGUILayout.LabelField("entry state " + StateMachineData.EntryState.Title);
+            EditorGUILayout.LabelField("is inside canvas " + CanvasRenderer.Contains(e.mousePosition));
 
             if (Selection != null)
             {
-                GUILayout.Label("selection " + Selection);
+                EditorGUILayout.LabelField("selection " + Selection);
 
                 if (Selection is StateRenderer)
-                {   
-                    GUILayout.Label("selection pos " + (Selection as StateRenderer).State.Position);
-                    GUILayout.Label("selection action count " + (Selection as StateRenderer).State.Actions.Count);
-                    GUILayout.Label("selection rect " + (Selection as StateRenderer).Rect);
-                    GUILayout.Label("selection rules " + (Selection as StateRenderer).State.RuleGroups.Count);
-                    GUILayout.Label("entry state == selection " + (StateMachineData.EntryState == (Selection as StateRenderer).State));
+                {
+                    EditorGUILayout.LabelField("selection pos " + (Selection as StateRenderer).State.Position);
+                    EditorGUILayout.LabelField("selection rect " + (Selection as StateRenderer).Rect);
                 }
             }
+            EditorGUILayout.EndVertical();
         }
 
         private void OnStateMachineClearedEvent(StateMachineData stateMachine)

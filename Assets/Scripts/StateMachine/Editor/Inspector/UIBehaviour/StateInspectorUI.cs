@@ -15,7 +15,7 @@ namespace StateMachine
         protected override void DrawInspectorContent(Event e)
         {
             DrawHeader("State Actions");
-            InspectorUIUtility.DrawDividerLine();
+            InspectorUIUtility.DrawHorizontalLine();
             InspectorUIUtility.DrawPropertyFields(SerializedObject, PROPERTY_NAME, OnContextMenuButtonPressed);          
         }
 

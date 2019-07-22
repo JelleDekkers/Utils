@@ -32,7 +32,7 @@ namespace StateMachine
         protected virtual void DrawInspectorContent(Event e)
         {
             InspectorUIUtility.DrawHeader(TargetObject.ToString());
-            InspectorUIUtility.DrawDividerLine();
+            InspectorUIUtility.DrawHorizontalLine();
             InspectorUIUtility.DrawAllProperties(TargetObject);
         }
     }
