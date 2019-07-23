@@ -371,8 +371,8 @@ namespace StateMachine
 
             Vector2 newPosition = e.mousePosition - dragStartSelectionDif;
 
-            newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.SCROLLVIEW_WIDTH - fullRect.width);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.SCROLLVIEW_HEIGHT - fullRect.height);
+            newPosition.x = Mathf.Clamp(newPosition.x, 0, StateMachineCanvasRenderer.SCROLL_VIEW_WIDTH - fullRect.width);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0, StateMachineCanvasRenderer.SCROLL_VIEW_HEIGHT - fullRect.height);
 
             if (roundDragPosition)
             {
