@@ -54,6 +54,7 @@ namespace StateMachine
             }
             else
             {
+                showHandles = false;
                 DrawArrow(arrowTexture, source, destination, sourceHandle.Rect.position, destinationHandle.Rect.position);
             }
             Handles.EndGUI();

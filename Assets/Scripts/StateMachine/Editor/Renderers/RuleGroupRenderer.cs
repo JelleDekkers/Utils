@@ -8,7 +8,7 @@ namespace StateMachine
     /// </summary>
     public class RuleGroupRenderer : ISelectable, IDraggable
     {
-        private const float RULE_HEIGHT = StateRenderer.HEADER_HEIGHT;
+        private const float RULE_HEIGHT_SINGLE_LINE = 20f;
         private const float LINE_THICKNESS = 3f;
         private const string EMPTY_RULE_DISPLAY_LABEL = "TRUE";
         private readonly Color ValidRuleTextColor = new Color(0, 0.6f, 0);
@@ -24,7 +24,6 @@ namespace StateMachine
         private Rect fullRect;
         private bool isDraggingLink;
         private LinkRenderer linkRenderer;
-        private GUIStyle style;
        
         public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
         {
@@ -34,12 +33,6 @@ namespace StateMachine
 
             Rect = new Rect();
             linkRenderer = new LinkRenderer(RuleGroup.linkData);
-
-            style = new GUIStyle()
-            {
-                alignment = TextAnchor.MiddleRight,
-                padding = new RectOffset(10, 10, 3, 3)
-            };
         }
 
         public void ProcessEvents(Event e)
@@ -270,8 +263,11 @@ namespace StateMachine
 
         private void DrawRule(Rect groupRect, out Rect ruleRect, Rule rule = null)
         {
-            ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, RULE_HEIGHT);
+            GUIStyle style = GUIStyles.RuleGroupStyle;
             string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
+
+            float heightNeeded = Mathf.CeilToInt(style.CalcHeight(new GUIContent(label), groupRect.width));
+            ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, (int)heightNeeded);
 
             style.normal.textColor = Color.black;
             if (Application.isPlaying && stateRenderer.IsCurrentStateInRuntimeLogic()) 
@@ -286,7 +282,7 @@ namespace StateMachine
                 }
             }
 
-            GUI.Label(ruleRect, label, style);
+            GUI.Box(ruleRect, label, style);
         }
 
         private void DrawRules(Vector2 position, float width)
@@ -315,7 +311,7 @@ namespace StateMachine
             Color knobColor = (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_LINKED : GUIStyles.KNOB_COLOR_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
-                new Rect(Rect.x + Rect.width + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height),
+                new Rect(Rect.x + Rect.width - 0.5f, Rect.y + Rect.height / 2, Rect.width, Rect.height),
                 () => OnDragStart(Event.current),
                 knobColor
             );

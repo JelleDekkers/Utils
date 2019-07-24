@@ -13,49 +13,20 @@ namespace StateMachine
         public static readonly Color LINK_COLOR_SELECTED = Color.yellow;
         public static readonly Color CURRENT_ACTIVE_STATE_OUTLINE = Color.green;
 
+        private static GUIStyle stateHeaderStyle;
         public static GUIStyle StateHeaderStyle
         {
             get
             {
                 if (stateHeaderStyle == null)
                 {
-                    stateHeaderStyle = new GUIStyle("window");
-                }
-                return stateHeaderStyle;
-            }
-        }
-        private static GUIStyle stateHeaderStyle;
-
-        private static GUIStyle stateHeaderTitleStyle;
-        public static GUIStyle StateHeaderTitleStyle
-        {
-            get
-            {
-                if (stateHeaderTitleStyle == null)
-                {
-                    stateHeaderTitleStyle = new GUIStyle()
+                    stateHeaderStyle = new GUIStyle("Box")
                     {
                         fontStyle = FontStyle.Bold,
-                        alignment = TextAnchor.MiddleCenter,
-                        padding = new RectOffset(0, 0, -2, 0)
+                        alignment = TextAnchor.MiddleCenter
                     };
                 }
-                return stateHeaderTitleStyle;
-            }
-        }
-
-        private static GUIStyle stateEntryVisualStyle;
-        public static GUIStyle StateEntryVisualStyle
-        {
-            get
-            {
-                if (stateEntryVisualStyle == null)
-                {
-                    stateEntryVisualStyle = new GUIStyle();
-                    stateEntryVisualStyle.alignment = TextAnchor.MiddleCenter;
-                    stateEntryVisualStyle.normal.textColor = Color.white;
-                }
-                return stateEntryVisualStyle;
+                return stateHeaderStyle;
             }
         }
 
@@ -75,6 +46,24 @@ namespace StateMachine
                 return stateToolbarButtonsStyle;
             }
         }
+
+        public static GUIStyle RuleGroupStyle
+        {
+            get
+            {
+                if (ruleGroupStyle == null)
+                {
+                    ruleGroupStyle = new GUIStyle()
+                    {
+                        alignment = TextAnchor.MiddleRight,
+                        padding = new RectOffset(10, 10, 3, 3),
+                        wordWrap = true
+                    };
+                }
+                return ruleGroupStyle;
+            }
+        }
+        private static GUIStyle ruleGroupStyle;
 
         public static GUIStyle RuleGroupKnobStyle
         {

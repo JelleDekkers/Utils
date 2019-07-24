@@ -12,7 +12,6 @@ namespace StateMachine
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
-        public const float HEADER_DIVIDER_HEIGHT = 4;
         public const float ENTRY_VISUAL_HEIGHT = HEADER_HEIGHT;
         public const float TOOLBAR_BUTTON_WIDTH = 20;
         public const float TOOLBAR_BUTTON_HEIGHT = 20;
@@ -42,21 +41,10 @@ namespace StateMachine
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
-        private readonly RectOffset HighlightMargin = new RectOffset(3, 2, 2, 3);
+        private readonly Color HeaderBackgroundColor = new Color(0.7529413f, 0.7529413f, 0.7529413f, 0.9f);
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
+        private readonly Color EntryPanelBackgroundColor = new Color(1f, 1f, 1f, 0.7f);
         private readonly Color RuntimeLogicCurrentStateBackgroundColor = new Color(0.7f, 0.78f, 0.7f);
-        private Rect OutlineRect
-        {
-            get
-            {
-                return new Rect(
-                    Rect.x - HighlightMargin.right,
-                    Rect.y - HighlightMargin.left,
-                    Rect.width + HighlightMargin.horizontal,
-                    Rect.height + HighlightMargin.vertical
-                );
-            }
-        }
 
         private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
@@ -187,23 +175,23 @@ namespace StateMachine
         {
             if (IsEntryState)
             {
-                DrawIsEntryVisual();
-            }
-
-            if (IsSelected)
-            {
-                if (SelectedRuleGroup == null)
-                {
-                    DrawHelper.DrawBoxOutline(OutlineRect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
-                }
-
-                DrawRuleToolbar(SelectedRuleGroup == null);
+                DrawIsEntryPanel();
             }
 
             DrawBackground();
             DrawHeader();
             DrawRuleGroupLinks();
             DrawRuleGroups();
+
+            if (IsSelected)
+            {
+                if (SelectedRuleGroup == null)
+                {
+                    DrawHelper.DrawBoxOutline(Rect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                }
+
+                DrawToolbar(SelectedRuleGroup == null);
+            }
         }
 
         private void DrawRuleGroupLinks()
@@ -214,28 +202,27 @@ namespace StateMachine
             }
         }
 
+        private void DrawHeader()
+        {
+            Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
+
+            string label = State.Title;
+            float heightNeeded = Mathf.CeilToInt(GUIStyles.StateHeaderStyle.CalcHeight(new GUIContent(label), Rect.width));
+            Rect = new Rect(Rect.x, Rect.y, Rect.width, (int)heightNeeded);
+
+            Color prevColor = GUI.backgroundColor;
+            GUI.backgroundColor = HeaderBackgroundColor;
+            GUI.Box(Rect, State.Title, GUIStyles.StateHeaderStyle);
+            GUI.backgroundColor = prevColor;
+        }
+
         private void DrawBackground()
         {
             Color previousBackgroundColor = GUI.color;
             GUI.color = (IsCurrentStateInRuntimeLogic()) ? RuntimeLogicCurrentStateBackgroundColor : StateBackgroundColor;
 
-            GUI.Box(fullRect, "", GUIStyles.StateHeaderStyle);
+            GUI.Box(fullRect, "", new GUIStyle("Window"));
             GUI.color = previousBackgroundColor;
-        }
-
-        private void DrawHeader()
-        {
-            Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
-
-            GUI.Label(Rect, State.Title, GUIStyles.StateHeaderTitleStyle);
-
-            DrawDividerLine(new Rect(Rect.x, Rect.y - HEADER_DIVIDER_HEIGHT, Rect.width, Rect.height), HEADER_DIVIDER_HEIGHT);
-
-            //DrawHelper.DrawRuleHandleKnob(
-            //    new Rect(Rect.x + 1, Rect.y + Rect.height / 2, Rect.width, Rect.height),
-            //    null,
-            //    GUIStyles.KNOB_COLOR_IN
-            //);
         }
 
         private void DrawRuleGroups()
@@ -258,21 +245,23 @@ namespace StateMachine
 
         private void DrawDividerLine(Rect rect, float height = RULE_GROUP_DIVIDER_HEIGHT)
         {
-            Color prevColor = GUI.color;
-            GUI.color = Color.grey;
-            GUI.Box(new Rect(rect.x, rect.y + rect.height, rect.width, height), "");
-            GUI.color = prevColor;
+            Color prevColor = Handles.color;
+            Handles.color = Color.black;
+            Vector2 p1 = new Vector3(rect.position.x + 1, rect.position.y + rect.height);
+            Vector2 p2 = new Vector3(rect.position.x + rect.width, rect.position.y + rect.height);
+            Handles.DrawLine(p1, p2);
+            Handles.color = prevColor;
         }
 
-        private void DrawRuleToolbar(bool showOutline)
+        private void DrawToolbar(bool showOutline)
         {
             int buttonsAmount = 2;
             Rect rect = new Rect(Rect.x + Rect.width - TOOLBAR_BUTTON_WIDTH * buttonsAmount, Rect.y + Rect.height, TOOLBAR_BUTTON_WIDTH * buttonsAmount, HEADER_HEIGHT);
-            Rect outlineRect = new Rect(rect.x - HighlightMargin.right, rect.y, rect.width + HighlightMargin.horizontal, rect.height);
 
             if (showOutline)
             {
-                DrawHelper.DrawBoxOutline(outlineRect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                float padding = 2;
+                DrawHelper.DrawBoxOutline(new Rect(rect.x - padding, rect.y, rect.width + padding, rect.height), GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
             }
 
             GUILayout.BeginArea(rect);
@@ -297,14 +286,13 @@ namespace StateMachine
             GUILayout.EndArea();
         }
 
-        private void DrawIsEntryVisual()
+        private void DrawIsEntryPanel()
         { 
-            Color previousColor = GUI.backgroundColor;
             Rect r = new Rect(Rect.x, Rect.y - ENTRY_VISUAL_HEIGHT + 2, Rect.width, ENTRY_VISUAL_HEIGHT);
 
-            GUI.backgroundColor = StateBackgroundColor;
+            Color previousColor = GUI.backgroundColor;
+            GUI.backgroundColor = EntryPanelBackgroundColor;
             GUI.Box(r, ENTRY_STRING);
-
             GUI.backgroundColor = previousColor;
         }
 
