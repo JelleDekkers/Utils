@@ -7,6 +7,7 @@ public class SpawnPrefabAction : StateAction
 
     [SerializeField] private GameObject prefab = null;
     [SerializeField] private Vector3 position;
+    [SerializeField] private bool cleanUpOnStop;
 
     private GameObject instance;
 
@@ -18,7 +19,7 @@ public class SpawnPrefabAction : StateAction
 
     public override void Stop()
     {
-        if (instance != null)
+        if (cleanUpOnStop && instance != null)
         {
             Destroy(instance);
         }

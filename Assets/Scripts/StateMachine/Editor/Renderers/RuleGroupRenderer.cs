@@ -172,14 +172,7 @@ namespace StateMachine
         {
             if (manager.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
-                if (stateRenderer.State == this.stateRenderer.State)
-                {
-                    RuleGroup.SetDestination(null);
-                }
-                else
-                {
-                    RuleGroup.SetDestination(stateRenderer.State);
-                }
+                RuleGroup.SetDestination(stateRenderer.State);   
             }
             else
             {

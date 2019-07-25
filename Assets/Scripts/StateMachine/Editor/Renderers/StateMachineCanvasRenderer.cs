@@ -8,8 +8,8 @@ namespace StateMachine
     /// </summary>
     public class StateMachineCanvasRenderer
     {
-        public const float SCROLL_VIEW_WIDTH = 1000;
-        public const float SCROLL_VIEW_HEIGHT = 1000;
+        public const float SCROLL_VIEW_WIDTH = 10000;
+        public const float SCROLL_VIEW_HEIGHT = 10000;
 
         private const float MIN_WINDOW_HEIGHT = 400;
         private const float DRAG_THRESHOLD = 5;
