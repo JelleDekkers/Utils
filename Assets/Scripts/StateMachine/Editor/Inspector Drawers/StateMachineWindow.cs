@@ -12,8 +12,7 @@ namespace StateMachine
     {
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
-        private StateMachineEditorManager renderer;
-        private StateMachineData stateMachine;
+        private StateMachineEditorManager manager;
 
         [MenuItem("Window/State Machine")]
         public static StateMachineWindow Init()
@@ -46,15 +45,15 @@ namespace StateMachine
         {
             if(stateMachine != null)
             {
-                renderer = new StateMachineEditorManager(stateMachine, Repaint);
+                manager = new StateMachineEditorManager(stateMachine, Repaint);
             }
         }
 
         private void OnGUI()
         {
-            if (renderer != null)
+            if (manager != null)
             {
-                renderer.OnInspectorGUI();
+                manager.OnInspectorGUI();
             }
             else
             {
@@ -69,6 +68,11 @@ namespace StateMachine
         private void OnSelectionChange()
         {
             SetupWindow(this);
+        }
+
+        private void OnDestroy()
+        {
+            manager.Dispose();
         }
     }
 }

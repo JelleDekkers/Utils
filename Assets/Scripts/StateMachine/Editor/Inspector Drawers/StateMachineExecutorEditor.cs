@@ -50,5 +50,10 @@ namespace StateMachine
                 }
             }
         }
+
+        private void OnDestroy()
+        {
+            manager.Dispose();
+        }
     }
 }

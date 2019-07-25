@@ -181,14 +181,14 @@ namespace StateMachine
 
         public static void RemoveRuleGroup(this State state, RuleGroup group)
         {
-            RuleGroupRemovedEvent?.Invoke(state, group);
-
             foreach(Rule rule in group.Rules)
             {
                 Object.DestroyImmediate(rule, true);
             }
 
             state.RuleGroups.Remove(group);
+            RuleGroupRemovedEvent?.Invoke(state, group);
+
             Object.DestroyImmediate(group, true);
             EditorUtility.SetDirty(state);
         }

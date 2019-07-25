@@ -15,7 +15,7 @@ MonoBehaviour:
   entryState: {fileID: 114801621744578992}
   states:
   - {fileID: 114801621744578992}
-  - {fileID: 114483115884558816}
+  - {fileID: 114123746752934926}
 --- !u!114 &114011519810447894
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -32,59 +32,7 @@ MonoBehaviour:
   testBool: 0
   testGameObject: {fileID: 0}
   testList: []
---- !u!114 &114030284688528694
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
-  m_Name: RuleGroup
-  m_EditorClassIdentifier: 
-  destination: {fileID: 0}
-  rules: []
-  linkData:
-    sourceHandleData:
-      offset: {x: 40, y: 0}
-    destinationHandleData:
-      offset: {x: -40, y: 0}
---- !u!114 &114234472056125940
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
-  m_Name: RuleGroup
-  m_EditorClassIdentifier: 
-  destination: {fileID: 0}
-  rules:
-  - {fileID: 114344180956180336}
-  linkData:
-    sourceHandleData:
-      offset: {x: 40, y: 0}
-    destinationHandleData:
-      offset: {x: -40, y: 0}
---- !u!114 &114344180956180336
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6950148a406e1674cbea433deda9dce3, type: 3}
-  m_Name: TitleTestRule
-  m_EditorClassIdentifier: 
-  title: 'fdsdsfdsfsdfdsfs dfsfsdfsdfsdfdsfsfsdfds '
---- !u!114 &114483115884558816
+--- !u!114 &114123746752934926
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -99,26 +47,7 @@ MonoBehaviour:
   actions: []
   ruleGroups: []
   Title: New State
-  Position: {x: 313.18024, y: 356.7805}
---- !u!114 &114622101679032468
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
-  m_Name: RuleGroup
-  m_EditorClassIdentifier: 
-  destination: {fileID: 0}
-  rules: []
-  linkData:
-    sourceHandleData:
-      offset: {x: 40, y: 0}
-    destinationHandleData:
-      offset: {x: -40, y: 0}
+  Position: {x: 405, y: 254}
 --- !u!114 &114801621744578992
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -133,9 +62,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actions:
   - {fileID: 114011519810447894}
-  ruleGroups:
-  - {fileID: 114234472056125940}
-  - {fileID: 114622101679032468}
-  - {fileID: 114030284688528694}
-  Title: New State
-  Position: {x: 78.590805, y: 104.71265}
+  ruleGroups: []
+  Title: Init
+  Position: {x: 135.59082, y: 115.71265}

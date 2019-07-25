@@ -8,7 +8,7 @@ namespace StateMachine
     /// <summary>
     /// Class for rendering <see cref="StateMachine.StateMachineData"/> in an editor window.
     /// </summary>
-    public class StateMachineEditorManager : IDisposable
+    public class StateMachineEditorManager
     {
         public ISelectable Selection { get; private set; }
         public StateMachineData StateMachineData { get; private set; }
@@ -18,6 +18,8 @@ namespace StateMachine
         public bool ContextMenuIsOpen { get; set; }
         public bool ShowDebug { get; private set; }
         public StateMachineExecutor Executor { get; private set; }
+
+        public Action OnDisposeEvent;
 
         private readonly Action repaintFunc;
 
@@ -198,6 +200,8 @@ namespace StateMachine
             StateMachineEditorUtility.StateAddedEvent -= OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
             StateMachineEditorUtility.StateMachineClearedEvent -= OnStateMachineClearedEvent;
+
+            OnDisposeEvent?.Invoke();
         }
     }
 }

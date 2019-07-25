@@ -8,7 +8,7 @@ namespace StateMachine
     /// <summary>
     /// Renders the <see cref="StateMachine.State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
-    public class StateRenderer : ISelectable, IDraggable, IDisposable
+    public class StateRenderer : ISelectable, IDraggable
     {
         public const float WIDTH = 175;
         public const float HEADER_HEIGHT = 20;
@@ -64,6 +64,8 @@ namespace StateMachine
 
             StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent += OnRuleGroupRemovedEvent;
+
+            manager.OnDisposeEvent += Dispose;
         }
 
         public void InitializeRuleRenderers()
@@ -425,6 +427,8 @@ namespace StateMachine
         {
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent -= OnRuleGroupRemovedEvent;
+
+            manager.OnDisposeEvent -= Dispose;
         }
     }
 }
