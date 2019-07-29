@@ -10,7 +10,7 @@ namespace StateMachine
     /// </summary>
     public class StateRenderer : ISelectable, IDraggable
     {
-        public const float WIDTH = 175;
+        public const float WIDTH = 150;
         public const float HEADER_HEIGHT = 20;
         public const float ENTRY_VISUAL_HEIGHT = HEADER_HEIGHT;
         public const float TOOLBAR_BUTTON_WIDTH = 20;

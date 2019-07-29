@@ -13,6 +13,22 @@ namespace StateMachine
         public static readonly Color LINK_COLOR_SELECTED = Color.yellow;
         public static readonly Color CURRENT_ACTIVE_STATE_OUTLINE = Color.green;
 
+        private static GUIStyle canvasWindowStyle;
+        public static GUIStyle CanvasWindowStyle
+        {
+            get
+            {
+                if(canvasWindowStyle == null)
+                {
+                    canvasWindowStyle = new GUIStyle("Box");
+                    canvasWindowStyle.padding = new RectOffset();
+                    canvasWindowStyle.margin = new RectOffset(0, 0, -(int)UnityEditor.EditorStyles.toolbar.fixedHeight, 0);
+                }
+
+                return canvasWindowStyle;
+            }
+        }
+
         private static GUIStyle stateHeaderStyle;
         public static GUIStyle StateHeaderStyle
         {

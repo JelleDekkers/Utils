@@ -23,7 +23,7 @@ namespace StateMachine
             handleRect.y -= HandleRect.height / 2;
             handleRect.height = height;
 
-            GUI.Box(HandleRect, "", new GUIStyle());
+            GUI.Box(HandleRect, "", GUIStyle.none);
             if (HandleRect.Contains(Event.current.mousePosition) || isDragging)
             {
                 EditorGUIUtility.AddCursorRect(HandleRect, MouseCursor.ResizeVertical);

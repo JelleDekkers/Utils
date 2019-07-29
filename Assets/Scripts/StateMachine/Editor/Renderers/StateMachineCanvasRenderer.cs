@@ -29,32 +29,35 @@ namespace StateMachine
         private Rect scrollView; 
         private float zoomScale = 1f;
         private Vector2 dragStartPos;
-        private bool canDrag;
+        private bool dragThresholdReached;
         private HorizontalResizeHandle resizeHandle;
 
         public StateMachineCanvasRenderer(StateMachineEditorManager manager)
         {
             Manager = manager;
+
             scrollView = new Rect(Vector2.zero, new Vector2(SCROLL_VIEW_WIDTH, SCROLL_VIEW_HEIGHT));
             resizeHandle = new HorizontalResizeHandle(MIN_WINDOW_HEIGHT, float.MaxValue);
         }
 
         public void OnInspectorGUI(Event e)
         {
-            DrawTopTabs();
             DrawCanvasWindow(e);
-            DrawBottomTabs();
 
-            EditorGUILayout.Space();
             resizeHandle.Draw();
             resizeHandle.ProcessEvents(e, ref windowRect);
         }
 
         private void DrawCanvasWindow(Event e)
         {
-            Rect rect = EditorGUILayout.BeginVertical(GUILayout.Height(windowRect.height));
+            DrawTopToolbar();
 
-            Vector2 windowPos = EditorGUILayout.BeginScrollView(ScrollViewDrag, false, false, GUIStyle.none, GUIStyle.none, GUIStyle.none, GUILayout.Height(rect.height));
+            Color oldColor = GUI.backgroundColor;
+            GUI.backgroundColor = backgroundColor;
+            Rect rect = EditorGUILayout.BeginVertical(GUIStyles.CanvasWindowStyle, GUILayout.Height(windowRect.height));
+            GUI.backgroundColor = oldColor;
+
+            Vector2 windowPos = EditorGUILayout.BeginScrollView(ScrollViewDrag, false, false, GUIStyle.none, GUIStyle.none, new GUIStyle(), GUILayout.Height(rect.height));
 
             // For some reason rect is 0 every other frame, this if statement is needed to prevent incorrect positioning
             if (rect.size != Vector2.zero)
@@ -62,8 +65,9 @@ namespace StateMachine
                 windowRect = new Rect(windowPos, new Vector2(rect.width, windowRect.height));
             }
 
-            Color oldColor = GUI.backgroundColor;
-            GUI.backgroundColor = backgroundColor;
+            // This box functions as the internal view area of the scrollview it is required for the scroll area to work, since everything is drawn without GUILayout
+            oldColor = GUI.backgroundColor;
+            GUI.backgroundColor = Color.clear;
             GUILayout.Box(GUIContent.none, GUILayout.Width(SCROLL_VIEW_WIDTH), GUILayout.Height(SCROLL_VIEW_HEIGHT));
             GUI.backgroundColor = oldColor;
 
@@ -76,6 +80,10 @@ namespace StateMachine
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+
+            DrawBottomToolbar();
+
+            EditorGUILayout.Space();
         }
 
         private void ProcessEvents(Event e)
@@ -95,7 +103,7 @@ namespace StateMachine
                         if (windowRect.Contains(e.mousePosition))
                         {
                             dragStartPos = e.mousePosition;
-                            canDrag = false;
+                            dragThresholdReached = false;
                         }
                     }
 
@@ -160,10 +168,10 @@ namespace StateMachine
             float dragDif = (dragStartPos - e.mousePosition).magnitude;
             if (dragDif > DRAG_THRESHOLD)
             {
-                canDrag = true;
+                dragThresholdReached = true;
             }
 
-            if (canDrag)
+            if (dragThresholdReached)
             {
                 Vector2 drag = ScrollViewDrag;
                 drag -= e.delta;
@@ -205,11 +213,14 @@ namespace StateMachine
             }
         }
 
-        private void DrawTopTabs()
+        private void DrawTopToolbar()
         {
             float maxTabWidth = 150;
-            float groupSpace = 10;
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Height(EditorStyles.toolbar.fixedHeight), GUILayout.ExpandWidth(true));
+
+            GUIStyle style = new GUIStyle(EditorStyles.toolbar);
+            style.padding = new RectOffset();
+
+            EditorGUILayout.BeginHorizontal(style, GUILayout.Height(EditorStyles.toolbar.fixedHeight), GUILayout.ExpandWidth(true));
 
             if (GUILayout.Button("New State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
@@ -231,7 +242,7 @@ namespace StateMachine
             }
             GUI.enabled = true;
 
-            GUILayout.Space(groupSpace);
+            GUILayout.Space(10);
 
             if (GUILayout.Button("Clear Machine", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
@@ -241,19 +252,19 @@ namespace StateMachine
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawBottomTabs()
+        private void DrawBottomToolbar()
         {
-            float groupSpace = 10;
-            float maxTabWidth = 100;
+            GUIStyle toolbarStyle = new GUIStyle(EditorStyles.toolbar);
+            toolbarStyle.padding = new RectOffset();
 
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Height(EditorStyles.toolbar.fixedHeight), GUILayout.ExpandWidth(true));
+            EditorGUILayout.BeginHorizontal(toolbarStyle, GUILayout.Height(EditorStyles.toolbar.fixedHeight), GUILayout.ExpandWidth(true));
 
             EditorGUIUtility.labelWidth = 40;
             EditorGUILayout.PrefixLabel((zoomScale * 100).ToString("#") + "%", EditorStyles.toolbarTextField);
 
             zoomScale = GUILayout.HorizontalSlider(zoomScale, ZOOM_SCALE_MIN, ZOOM_SCALE_MAX, GUILayout.MaxWidth(100));
 
-            if (GUILayout.Button("Reset View", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
+            if (GUILayout.Button("Reset View", EditorStyles.toolbarButton, GUILayout.MaxWidth(80)))
             {
                 ResetView();
                 windowRect.height = MIN_WINDOW_HEIGHT;
@@ -265,10 +276,11 @@ namespace StateMachine
             string stateMachineName = AssetDatabase.GetAssetPath(Manager.StateMachineData);
             EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), style);
 
-            GUILayout.Space(groupSpace);
+            GUILayout.Space(10);
+
             bool debug = Manager.ShowDebug;
             debug = GUILayout.Toggle(Manager.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
-            if(debug != Manager.ShowDebug)
+            if (debug != Manager.ShowDebug)
             {
                 Manager.SetDebug(debug);
             }
