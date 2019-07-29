@@ -1,28 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Utils.Core.Injection;
 
 namespace StateMachine
 {
     /// <summary>
-    /// Class for handling <see cref="StateMachineData"/> logic during runtime
+    /// Class for handling <see cref="StateMachineData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s
     /// </summary>
     public class StateMachineLogic
     {
-        public StateMachineData Data => data;
-        [SerializeField] private StateMachineData data;
-
+        public StateMachineData Data { get; private set; }
         public State CurrentState { get; private set; }
+
+        private readonly DependencyInjector dependencyInjector;
 
         public StateMachineLogic(StateMachineData data)
         {
-            this.data = data;
-            Initialize();
+            Data = data;
+            dependencyInjector = new DependencyInjector();
+
+            StartStateMachine();
         }
 
-        private void Initialize()
+        private void StartStateMachine()
         {
-            CurrentState = data.EntryState;
+            CurrentState = Data.EntryState;
             OnStateStart(CurrentState);
         }
 
@@ -52,6 +53,7 @@ namespace StateMachine
         {
             foreach (StateAction action in state.Actions)
             {
+                dependencyInjector.InjectMethod(action);
                 action.Start();
             }
 
@@ -59,6 +61,7 @@ namespace StateMachine
             {
                 foreach(Rule rule in group.Rules)
                 {
+                    dependencyInjector.InjectMethod(rule);
                     rule.OnActivate();
                 }
             }

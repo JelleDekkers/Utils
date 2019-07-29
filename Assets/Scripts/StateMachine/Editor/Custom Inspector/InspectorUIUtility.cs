@@ -158,11 +158,15 @@ namespace StateMachine
             style.normal.background = GUI.skin.button.normal.background;
             style.padding.left = 1;
             style.margin.top = 3;
+            Color prevColor = GUI.backgroundColor;
+            GUI.backgroundColor = Color.green;
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), style, GUILayout.MaxWidth(18)))
             {
                 buttonPressedEvent.Invoke();
             }
+
+            GUI.backgroundColor = prevColor;
         }
 
         public static void OpenTypeFilterWindow(Type type, Action<Type> typeSelectedEvent)

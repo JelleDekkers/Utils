@@ -8,6 +8,8 @@ namespace StateMachine
     {
         public override string DisplayName => title;
 
+#pragma warning disable CS0649
         [SerializeField] private string title;
+#pragma warning restore CS0649
     }
 }

@@ -16,22 +16,6 @@ MonoBehaviour:
   states:
   - {fileID: 114801621744578992}
   - {fileID: 114123746752934926}
---- !u!114 &114011519810447894
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a180e967ecef5b4da437a4b11e915c0, type: 3}
-  m_Name: TestAction
-  m_EditorClassIdentifier: 
-  testValue: 0
-  testBool: 0
-  testGameObject: {fileID: 0}
-  testList: []
 --- !u!114 &114123746752934926
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -47,7 +31,75 @@ MonoBehaviour:
   actions: []
   ruleGroups: []
   Title: New State
-  Position: {x: 405, y: 254}
+  Position: {x: 341, y: 99}
+--- !u!114 &114202368782121648
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
+  m_Name: RuleGroup
+  m_EditorClassIdentifier: 
+  destination: {fileID: 114123746752934926}
+  rules:
+  - {fileID: 114824909134103306}
+  linkData:
+    sourceHandleData:
+      offset: {x: 76, y: 4}
+    destinationHandleData:
+      offset: {x: -40, y: 0}
+--- !u!114 &114439292551911622
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
+  m_Name: KeyPressedRule
+  m_EditorClassIdentifier: 
+  key: 32
+--- !u!114 &114445616185990316
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25e3eb9ff9a3e14790dc021ac98c448, type: 3}
+  m_Name: RuleGroup
+  m_EditorClassIdentifier: 
+  destination: {fileID: 114123746752934926}
+  rules:
+  - {fileID: 114439292551911622}
+  linkData:
+    sourceHandleData:
+      offset: {x: 41, y: 6}
+    destinationHandleData:
+      offset: {x: -40, y: 0}
+--- !u!114 &114636541582056266
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: SpawnPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 2376965535278278977, guid: a3a535f9f173b1d408fda5ffc5dde8fa, type: 3}
+  position: {x: 0, y: 0, z: 0}
+  cleanUpOnStop: 1
 --- !u!114 &114801621744578992
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -61,7 +113,22 @@ MonoBehaviour:
   m_Name: State
   m_EditorClassIdentifier: 
   actions:
-  - {fileID: 114011519810447894}
-  ruleGroups: []
+  - {fileID: 114636541582056266}
+  ruleGroups:
+  - {fileID: 114445616185990316}
+  - {fileID: 114202368782121648}
   Title: Init
-  Position: {x: 135.59082, y: 115.71265}
+  Position: {x: 52.59082, y: 73.71265}
+--- !u!114 &114824909134103306
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0558a1af5fc41ea4ab0a151e4af0c095, type: 3}
+  m_Name: DelayRule
+  m_EditorClassIdentifier: 
+  delay: 2

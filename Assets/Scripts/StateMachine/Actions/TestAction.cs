@@ -7,8 +7,9 @@ public class TestAction : StateAction
 {
     public override string DisplayName => "This is a test";
 
+#pragma warning disable CS0649
     [SerializeField] private float testValue;
-    [SerializeField] private bool testBool;
+#pragma warning restore CS0649
     [SerializeField] private GameObject testGameObject;
     [SerializeField] private List<TestChild> testList;
 
