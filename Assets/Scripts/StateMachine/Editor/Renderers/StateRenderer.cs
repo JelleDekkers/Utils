@@ -42,9 +42,9 @@ namespace StateMachine
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
         private readonly Color HeaderBackgroundColor = new Color(0.7529413f, 0.7529413f, 0.7529413f, 0.9f);
+        private readonly Color RuntimeCurrentStateHeaderBackgroundColor = new Color(0f, 1f, 0f);
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(1f, 1f, 1f, 0.7f);
-        private readonly Color RuntimeLogicCurrentStateBackgroundColor = new Color(0.7f, 0.78f, 0.7f);
 
         private StateMachineEditorManager manager;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
@@ -213,7 +213,7 @@ namespace StateMachine
             Rect = new Rect(Rect.x, Rect.y, Rect.width, (int)heightNeeded);
 
             Color prevColor = GUI.backgroundColor;
-            GUI.backgroundColor = HeaderBackgroundColor;
+            GUI.backgroundColor = (IsCurrentStateInRuntimeLogic()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
             GUI.Box(Rect, State.Title, GUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
         }
@@ -221,7 +221,7 @@ namespace StateMachine
         private void DrawBackground()
         {
             Color previousBackgroundColor = GUI.color;
-            GUI.color = (IsCurrentStateInRuntimeLogic()) ? RuntimeLogicCurrentStateBackgroundColor : StateBackgroundColor;
+            GUI.color = StateBackgroundColor;
 
             GUI.Box(fullRect, "", new GUIStyle("Window"));
             GUI.color = previousBackgroundColor;

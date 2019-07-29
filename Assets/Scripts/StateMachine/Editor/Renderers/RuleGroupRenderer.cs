@@ -11,7 +11,7 @@ namespace StateMachine
         private const float RULE_HEIGHT_SINGLE_LINE = 20f;
         private const float LINE_THICKNESS = 3f;
         private const string EMPTY_RULE_DISPLAY_LABEL = "TRUE";
-        private readonly Color ValidRuleTextColor = new Color(0, 0.6f, 0);
+        private readonly Color ValidRuleTextColor = new Color(0, 0.7f, 0);
 
         public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
