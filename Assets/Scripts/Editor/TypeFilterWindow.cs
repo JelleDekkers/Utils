@@ -19,13 +19,14 @@ public class TypeFilterWindow : EditorWindow
     private const string SEARCHBOX_GUI_STYLE = "SearchTextField";
     private const string SEARCHBOX_CANCEL_BUTTON_GUI_STYLE = "SearchCancelButton";
     private const string SEARCHBOX_CANCEL_BUTTON_EMPTY_GUI_STYLE = "SearchCancelButtonEmpty";
+    private const string SEARCH_FIELD_CONTROL_NAME = "SearchField";
 
     private string searchTerm;
     private IEnumerable<Type> allTypes;
     private IEnumerable<Type> filteredTypes;
     private Vector2 scrollPosition;
-
     private Color32 selectionBackgroundColor = new Color32(62, 125, 231, 128);
+    private bool focusOnInit;
 
     protected void OnGUI()
     {
@@ -96,6 +97,7 @@ public class TypeFilterWindow : EditorWindow
     {
         GUILayout.BeginHorizontal();
 
+        GUI.SetNextControlName(SEARCH_FIELD_CONTROL_NAME);
         string newSearch = GUILayout.TextField(searchTerm, new GUIStyle(SEARCHBOX_GUI_STYLE));
 
         if (!string.IsNullOrEmpty(searchTerm) && GUILayout.Button(string.Empty, new GUIStyle(SEARCHBOX_CANCEL_BUTTON_GUI_STYLE)))
@@ -114,6 +116,12 @@ public class TypeFilterWindow : EditorWindow
         }
 
         GUILayout.EndHorizontal();
+
+        if(!focusOnInit)
+        {
+            GUI.FocusControl(SEARCH_FIELD_CONTROL_NAME);
+            focusOnInit = false;
+        }
     }
 
     private void OnTypeSelectedEvent(Type type)
