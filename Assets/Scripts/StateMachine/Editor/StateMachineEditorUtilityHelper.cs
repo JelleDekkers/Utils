@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Utility class for state machine related assets

@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Editor class for viewing a <see cref="StateMachineEditorManager"/> in an editor window

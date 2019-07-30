@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Abstract class for inspecting serialized properties of a ScriptableObject

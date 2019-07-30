@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Abstract class for states, used in <see cref="StateMachineData"/>

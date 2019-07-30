@@ -1,16 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Utils.Core.Flow;
 
-namespace StateMachine
+public class KeyPressedRule : Rule
 {
-    public class KeyPressedRule : Rule
-    {
-        public override string DisplayName => "Pressed " + key.ToString();
-        public override bool IsValid => Input.GetKeyDown(key);
+    public override string DisplayName => "Pressed " + key.ToString();
+    public override bool IsValid => Input.GetKeyDown(key);
 
 #pragma warning disable CS0649
-        [SerializeField] private KeyCode key;
+    [SerializeField] private KeyCode key;
 #pragma warning restore CS0649
-    }
 }

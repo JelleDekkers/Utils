@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Renders the <see cref="StateMachine.State"/> node on the <see cref="StateMachineData"/> window
+    /// Renders the <see cref="Flow.State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
     public class StateRenderer : ISelectable, IDraggable
     {

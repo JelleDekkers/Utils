@@ -1,4 +1,4 @@
-﻿using Utils.Core.Services;
+﻿using Utils.Core.Events;
 
 class TestEvent : IEvent
 {

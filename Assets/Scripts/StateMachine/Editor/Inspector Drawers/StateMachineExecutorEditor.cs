@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
-using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Editor class for <see cref="StateMachineExecutor"/>

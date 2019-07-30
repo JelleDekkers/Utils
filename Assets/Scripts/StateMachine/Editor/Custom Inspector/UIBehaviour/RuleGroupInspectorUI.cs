@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     [CustomInspectorUI(typeof(RuleGroup))]
     public class RuleGroupInspector : InspectorUIBehaviour

@@ -1,7 +1,6 @@
 ﻿using System;
-using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Attribute for using a custom class on <see cref="StateMachineInspector"/>

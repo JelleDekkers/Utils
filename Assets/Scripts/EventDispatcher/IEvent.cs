@@ -1,4 +1,4 @@
-﻿namespace Utils.Core.Services
+﻿namespace Utils.Core.Events
 {
     public interface IEvent { }
 }

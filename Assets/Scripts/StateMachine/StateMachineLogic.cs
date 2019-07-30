@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Utils.Core.Injection;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Class for handling <see cref="StateMachineData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s

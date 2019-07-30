@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering <see cref="StateMachine.StateMachineData"/> in an editor window.
+    /// Class for rendering <see cref="Flow.StateMachineData"/> in an editor window.
     /// </summary>
     public class StateMachineEditorManager
     {

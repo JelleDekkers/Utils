@@ -23,7 +23,7 @@ public class EventDispatcherTester : MonoBehaviour
     private void OnTestEventInvoked(TestEvent testEvent)
     {
         Debug.Log("Invoked testEvent " + testEvent.testValue);
-        eventDispatcher.Unsubscribe<TestEvent>(OnTestEventInvoked);
+        eventDispatcher.UnSubscribe<TestEvent>(OnTestEventInvoked);
     }
 }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StateMachine
+namespace Flow
 {
     /// <summary>
     /// Interface for defining variables needed by <see cref="StateMachineInspector"/>

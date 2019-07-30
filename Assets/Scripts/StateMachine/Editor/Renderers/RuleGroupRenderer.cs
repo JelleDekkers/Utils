@@ -1,10 +1,10 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering <see cref="StateMachine.RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
+    /// Class for rendering <see cref="Flow.RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
     /// </summary>
     public class RuleGroupRenderer : ISelectable, IDraggable
     {

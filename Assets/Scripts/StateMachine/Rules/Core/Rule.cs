@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Class for deciding when a <see cref="State"/> inside the <see cref="StateMachineData>"/> needs to transition to another

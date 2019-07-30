@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     public static class DrawHelper
     {

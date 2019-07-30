@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Container class for serializing the required link data between 2 <see cref="State"/>s in the StateMachine Editor

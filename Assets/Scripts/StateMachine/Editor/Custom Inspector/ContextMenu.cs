@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     public class ContextMenu
     {

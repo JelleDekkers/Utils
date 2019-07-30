@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Class for rendering links between 2 <see cref=" StateRenderer"/>s, uses <see cref="LinkData"/> for serialization

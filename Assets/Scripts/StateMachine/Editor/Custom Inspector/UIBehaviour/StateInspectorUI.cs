@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     [CustomInspectorUI(typeof(State))]
     public class StateInspector : InspectorUIBehaviour

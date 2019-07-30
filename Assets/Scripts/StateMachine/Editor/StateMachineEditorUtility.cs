@@ -4,7 +4,7 @@ using UnityEngine;
 
 using Object = UnityEngine.Object; 
 
-namespace StateMachine
+namespace Utils.Core.Flow
 {
     public static class StateMachineEditorUtility
     {
