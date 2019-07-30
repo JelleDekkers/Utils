@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace Utils.ServiceSystem
+namespace Utils.Core.Services
 {
     public class ServiceLocator
     {

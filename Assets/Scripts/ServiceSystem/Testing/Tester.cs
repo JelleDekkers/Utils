@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Utils.ServiceSystem;
+using Utils.Core.Services;
 
 public class Tester : MonoBehaviour
 {

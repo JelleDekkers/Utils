@@ -1,4 +1,4 @@
-﻿namespace Utils.ServiceSystem
+﻿namespace Utils.Core.Services
 {
     /// <summary>
     /// Interface for constructing a new service

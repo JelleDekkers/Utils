@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using Utils.ServiceSystem;
+using Utils.Core.Services;
 
 namespace Utils.Core.Injection
 {
