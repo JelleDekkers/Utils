@@ -1,14 +1,20 @@
 ﻿using UnityEngine;
+using Utils.Core;
 using Utils.Core.Flow;
 using Utils.Core.Events;
 
+/// <summary>
+/// Rule that goes valid when <see cref="eventType"/> is invoked by <see cref="eventDispatcher"/>
+/// </summary>
 public class EventRule : Rule
 {
     public override bool IsValid => isValid;
     private bool isValid;
 
+    public override string DisplayName => (eventType.Type != null) ? "On " + eventType.ToString() : "No Event Picked!";
+
 #pragma warning disable CS0649
-    [SerializeField] private IEvent eventObject;
+    [ClassTypeImplements(typeof(IEvent)), SerializeField] private ClassTypeReference eventType;
 #pragma warning restore CS0649
     private EventDispatcher eventDispatcher;
 
@@ -19,16 +25,17 @@ public class EventRule : Rule
 
     public override void OnActivate()
     {
-        eventDispatcher.Subscribe(eventObject.GetType(), OnEventInvoked);
+        eventDispatcher.SubscribeToType(eventType, OnEventInvoked);
     }
 
     public override void OnDeactivate()
     {
-        eventDispatcher.UnSubscribe(eventObject.GetType(), OnEventInvoked);
+        eventDispatcher.UnsubscribeToType(eventType, OnEventInvoked);
     }
 
-    private void OnEventInvoked()
+    private void OnEventInvoked(IEvent eventObject)
     {
+        Debug.Log("onEvent recieved " + eventObject.GetType());
         isValid = true;
     }
 }

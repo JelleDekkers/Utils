@@ -4,6 +4,9 @@ using Utils.Core.Services;
 
 namespace Utils.Core.Events
 {
+    /// <summary>
+    /// Service class for handling subscribing, unsubscribing and invoking events of type <see cref="IEvent"/>. 
+    /// </summary>
     public class EventDispatcher : IService
     {
         private readonly Dictionary<Type, Action<object>> eventCallbackMap = new Dictionary<Type, Action<object>>();
@@ -18,7 +21,7 @@ namespace Utils.Core.Events
                 eventCallbackMap.Add(type, delegate { });
             }
 
-            // To store the callback into the dictionary it has to be converted as an anonymous delegate of type Action<object> 
+            // To store the callback into the dictionary it has to be converted to an anonymous delegate of type Action<object> 
             // This also prevents having to use DynamicInvoke in Invoke() which is slow
             Action<object> func = obj => callback((T)obj);
             eventCallbackMap[type] += func;
@@ -34,7 +37,7 @@ namespace Utils.Core.Events
             }
         }
 
-        public void UnSubscribe<T>(Action<T> callback) where T : IEvent
+        public void Unsubscribe<T>(Action<T> callback) where T : IEvent
         {
             Type type = typeof(T);
             if (eventCallbackMap.ContainsKey(type) && anonymousDelegateLookup.ContainsKey(callback))
@@ -48,16 +51,16 @@ namespace Utils.Core.Events
             }
         }
 
-        public void Subscribe(Type type, Action callback)
+        public void SubscribeToType(Type type, Action<IEvent> callback)
         {
             if (!eventCallbackMap.ContainsKey(type))
             {
                 eventCallbackMap.Add(type, delegate { });
             }
 
-            // To store the callback into the dictionary it has to be converted as an anonymous delegate of type Action<object> 
+            // To store the callback into the dictionary it has to be converted to an anonymous delegate of type Action<object> 
             // This also prevents having to use DynamicInvoke in Invoke() which is slow
-            Action<object> func = obj => callback();
+            Action<object> func = obj => callback((IEvent)obj);
             eventCallbackMap[type] += func;
 
             // Store the anonymous delegate in a lookup, to be able to unsubscribe it later 
@@ -71,7 +74,7 @@ namespace Utils.Core.Events
             }
         }
 
-        public void UnSubscribe(Type type, Action callback)
+        public void UnsubscribeToType(Type type, Action<IEvent> callback)
         {
             if (eventCallbackMap.ContainsKey(type) && anonymousDelegateLookup.ContainsKey(callback))
             {

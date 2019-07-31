@@ -9,21 +9,21 @@ public class EventDispatcherTester : MonoBehaviour
     private void Start()
     {
         eventDispatcher = ServiceLocator.Instance.Get<EventDispatcher>();
-        eventDispatcher.Subscribe<TestEvent>(OnTestEventInvoked);
+        eventDispatcher.Subscribe<TestEvent>(OnEventInvoked);
     }
 
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            eventDispatcher.Invoke(new TestEvent(5));
+            eventDispatcher.Invoke(new TestEvent(20));
         }
     }
 
-    private void OnTestEventInvoked(TestEvent testEvent)
+    private void OnEventInvoked(TestEvent testEvent)
     {
         Debug.Log("Invoked testEvent " + testEvent.testValue);
-        eventDispatcher.UnSubscribe<TestEvent>(OnTestEventInvoked);
+        eventDispatcher.Unsubscribe<TestEvent>(OnEventInvoked);
     }
 }
 

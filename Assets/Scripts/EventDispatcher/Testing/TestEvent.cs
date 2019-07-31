@@ -1,6 +1,6 @@
 ﻿using Utils.Core.Events;
 
-class TestEvent : IEvent
+public class TestEvent : IEvent
 {
     public float testValue;
 

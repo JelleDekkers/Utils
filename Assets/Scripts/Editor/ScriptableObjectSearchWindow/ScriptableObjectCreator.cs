@@ -1,20 +1,26 @@
 ﻿using System;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 /// <summary>
 /// Static class for creating a <see cref="ScriptableObject"/> that can be filtered using <see cref="TypeFilterWindow"/>
 /// </summary>
-public static class ScriptableObjectCreator
+public class ScriptableObjectCreator
 {
-    private static TypeFilterWindow window;
+    protected static TypeFilterWindow window;
+    protected static ScriptableObjectCreator instance;
 
-    [MenuItem("Assets/Create/ScriptableObject", priority = 0)]
+    [MenuItem("Assets/Create/New ScriptableObject", priority = 0)]
     private static void Open()
     {
+        instance = new ScriptableObjectCreator();
+        instance.OpenFilterWindow<ScriptableObject>();
+    }
+
+    public virtual void OpenFilterWindow<T>() where T : ScriptableObject
+    {
         window = EditorWindow.GetWindow<TypeFilterWindow>(true, "ScriptableObject");
-        window.RetrieveTypes<ScriptableObject>(OnTypeSelectedEvent);
+        window.RetrieveTypes<T>(OnTypeSelectedEvent);
     }
 
     private static void OnTypeSelectedEvent(Type type)
@@ -33,5 +39,6 @@ public static class ScriptableObjectCreator
         Selection.activeObject = asset;
 
         window.Close();
+        instance = null;
     }
 }
