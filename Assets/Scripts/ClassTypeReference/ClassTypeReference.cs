@@ -5,6 +5,7 @@ namespace Utils.Core
 {
     /// <summary>
     /// Reference to a class <see cref="System.Type"/> with support for Unity serialization.
+    /// Use with <see cref="ClassTypeImplementsAttribute"/> or <see cref="ClassTypeExtendsAttribute"/> to show in the inspector
     /// </summary>
     [Serializable]
     public sealed class ClassTypeReference : ISerializationCallbackReceiver
