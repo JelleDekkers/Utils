@@ -2,7 +2,7 @@
 using UnityEngine;
 using Utils.Core.Flow;
 
-public class TestAction : StateAction
+public class TestAction : Utils.Core.Flow.StateAction
 {
     public override string DisplayName => "This is a test";
 

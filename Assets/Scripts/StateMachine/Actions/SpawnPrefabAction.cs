@@ -2,7 +2,7 @@
 using Utils.Core.Flow;
 using Utils.Core.Injection;
 
-public class SpawnPrefabAction : StateAction
+public class SpawnPrefabAction : Utils.Core.Flow.StateAction
 {
     public override string DisplayName => "Spawn " + prefab?.name;
 

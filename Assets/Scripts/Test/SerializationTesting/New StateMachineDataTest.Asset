@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1054f8607d9d8da4ba7e834068409460, type: 3}
+  m_Name: New StateMachineDataTest
+  m_EditorClassIdentifier: 
+  serializedActions:
+  - dataType: Action2Imp
+    data: '{"testString":"12test"}'
+    identifier: 07c321b2-95e9-4fec-8287-4fb2906aea23
+  - dataType: ActionImplementation
+    data: '{"testInt":10,"testFloat":0.0,"testString":"","testVector3":{"x":0.0,"y":0.0,"z":0.0}}'
+    identifier: d3f260dc-436a-47a0-b8a2-7e8023fbb12d
+  serializedAction:
+    dataType: ActionImplementation
+    data: '{"testInt":100,"testFloat":0.0,"testString":"","testVector3":{"x":0.0,"y":0.0,"z":0.0}}'
+    identifier: 47eb1b12-0b8b-4659-b17a-a36c2a19aa5b
+  updateSerializedClasses: 0
