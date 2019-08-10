@@ -23,7 +23,7 @@ namespace Utils.Core.Flow
             return string.Format("State '{0}'", Title);
         }
 
-        public void Start()
+        public void OnStart()
         {
             RunTimeActions = new List<StateAction>();
             for (int i = 0; i < TemplateActions.Count; i++)
@@ -32,7 +32,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void Stop()
+        public void OnExit()
         {
             RunTimeActions = null;
         }

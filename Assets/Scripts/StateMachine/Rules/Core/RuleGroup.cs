@@ -33,7 +33,7 @@ namespace Utils.Core.Flow
             Destination = state;
         }
 
-        public void Start()
+        public void OnEnter()
         {
             RuntimeRules = new List<Rule>();
             for (int i = 0; i < TemplateRules.Count; i++)
@@ -42,7 +42,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void Stop()
+        public void OnExit()
         {
             RuntimeRules = null;
         }

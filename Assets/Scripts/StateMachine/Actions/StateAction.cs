@@ -7,7 +7,7 @@ namespace Utils.Core.Flow
     /// Abstract class for actions on a <see cref="State"/>, inherits from <see cref=" ScriptableObject"/> to allow for abstract inspector editing
     /// </summary>
     [Serializable]
-    public abstract class StateAction : ScriptableObject
+    public abstract class StateAction : ScriptableObject, IUpdatable
     {
         /// <summary>
         /// The name that shows in the editor window
@@ -17,20 +17,16 @@ namespace Utils.Core.Flow
         /// <summary>
         /// Called when the state is starting
         /// </summary>
-        public virtual void OnStateStart() { }
+        public virtual void OnEnter() { }
 
         /// <summary>
         /// Called each frame when this state is active
         /// </summary>
-        public virtual void OnStateUpdate() { }
+        public virtual void Update() { }
 
         /// <summary>
         /// Called when the state exits
         /// </summary>
-        public virtual void OnStateExit() { }
-
-        public virtual void Start() { }
-
-        public virtual void Stop() { }
+        public virtual void OnExit() { }
     }
 }

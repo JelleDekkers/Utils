@@ -47,26 +47,31 @@ namespace Utils.Core.Flow
                     Debug.LogWarningFormat("{0} Has no destination state!", CurrentState);
                 }
             }
+
+            for (int i = 0; i < CurrentState.RunTimeActions.Count; i++)
+            {
+                CurrentState.RunTimeActions[i].Update();
+            }
         }
 
         private void OnStateStart(State state)
         {
-            state.Start();
+            state.OnStart();
 
             foreach (StateAction action in state.RunTimeActions)
             {
                 dependencyInjector.InjectMethod(action);
-                action.Start();
+                action.OnEnter();
             }
 
             foreach(RuleGroup group in state.RuleGroups)
             {
-                group.Start();
+                group.OnEnter();
 
                 foreach(Rule rule in group.RuntimeRules)
                 {
                     dependencyInjector.InjectMethod(rule);
-                    rule.Start();
+                    rule.OnActivate();
                 }
             }
         }
@@ -75,20 +80,20 @@ namespace Utils.Core.Flow
         {
             foreach (StateAction action in state.RunTimeActions)
             {
-                action.Stop();
+                action.OnExit();
             }
 
             foreach (RuleGroup group in state.RuleGroups)
             {
                 foreach (Rule rule in group.RuntimeRules)
                 {
-                    rule.Stop();
+                    rule.OnDeactivate();
                 }
 
-                group.Stop();
+                group.OnExit();
             }
 
-            state.Stop();
+            state.OnExit();
         }
 
         private bool StateCanTransitionToNextState(State currentState, out State newState, out RuleGroup validRuleGroup)

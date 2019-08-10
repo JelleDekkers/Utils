@@ -72,7 +72,14 @@ namespace Utils.Core.Services
             }
             else
             {
-                service = (IService)Activator.CreateInstance(serviceType);
+                if (serviceType.IsSubclassOf(typeof(MonoBehaviour)))
+                {
+                    service = new GameObject().AddComponent(serviceType) as IService;
+                }
+                else
+                {
+                    service = (IService)Activator.CreateInstance(serviceType);
+                }
             }
 
             InstantiatedServices.Add(service.GetType(), service);

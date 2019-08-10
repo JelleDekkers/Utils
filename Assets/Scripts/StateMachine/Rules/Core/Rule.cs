@@ -22,11 +22,11 @@ namespace Utils.Core.Flow
         /// <summary>
         /// Called when the state begins
         /// </summary>
-        public virtual void Start() { }
+        public virtual void OnActivate() { }
 
         /// <summary>
         /// Called when the state ends
         /// </summary>
-        public virtual void Stop() { }
+        public virtual void OnDeactivate() { }
     }
 }

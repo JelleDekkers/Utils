@@ -2,7 +2,7 @@
 using UnityEngine;
 using Utils.Core.Flow;
 
-public class TestAction : Utils.Core.Flow.StateAction
+public class TestAction : StateAction
 {
     public override string DisplayName => "This is a test";
 
@@ -12,12 +12,12 @@ public class TestAction : Utils.Core.Flow.StateAction
     [SerializeField] private GameObject testGameObject;
     [SerializeField] private List<TestChild> testList;
 
-    public override void Start()
+    public override void OnEnter()
     {
         Debug.Log("OnStateStart() TestAction, value: " + testValue);
     }
 
-    public override void Stop()
+    public override void OnExit()
     {
         Debug.Log("OnStateExit() TestAction");
     }

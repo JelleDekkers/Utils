@@ -21,7 +21,7 @@ public class SpawnPrefabAction : Utils.Core.Flow.StateAction
         this.injector = injector;
     }
 
-    public override void Start()
+    public override void OnEnter()
     {
         instance = Instantiate(prefab, position, Quaternion.identity);
         injector.InjectGameObject(instance);
@@ -32,7 +32,7 @@ public class SpawnPrefabAction : Utils.Core.Flow.StateAction
         }
     }
 
-    public override void Stop()
+    public override void OnExit()
     {
         if (cleanUpOnStop && instance != null)
         {

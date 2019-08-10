@@ -23,12 +23,12 @@ public class EventRule : Rule
         this.eventDispatcher = eventDispatcher;
     }
 
-    public override void Start()
+    public override void OnActivate()
     {
         eventDispatcher.SubscribeToType(eventType, OnEventInvoked);
     }
 
-    public override void Stop()
+    public override void OnDeactivate()
     {
         eventDispatcher.UnsubscribeToType(eventType, OnEventInvoked);
     }
