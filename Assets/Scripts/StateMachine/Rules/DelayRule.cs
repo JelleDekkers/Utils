@@ -10,9 +10,9 @@ public class DelayRule : Rule
 
     private float timer;
 
-    public override void OnActivate()
+    public override void Start()
     {
-        base.OnActivate();
+        base.Start();
         timer = Time.time + delay;
     }
 }

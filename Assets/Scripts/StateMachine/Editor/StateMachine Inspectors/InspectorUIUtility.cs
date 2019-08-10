@@ -2,20 +2,25 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Utils.Core.Flow
+namespace Utils.Core.Flow.Inspector
 {
     public static class InspectorUIUtility
     {
         public static void DrawPropertyFields(SerializedObject serializedObject, string propertyName, GenericMenu.MenuFunction2 contextMenuPressedCallback = null)
         {
             SerializedProperty property = serializedObject.FindProperty(propertyName);
-            for (int i = 0; i < property.arraySize; i++)
+            DrawPropertyFields(property, contextMenuPressedCallback);
+        }
+
+        public static void DrawPropertyFields(SerializedProperty serializedProperty, GenericMenu.MenuFunction2 contextMenuPressedCallback = null)
+        {
+            for (int i = 0; i < serializedProperty.arraySize; i++)
             {
-                if (i != 0) { DrawHorizontalLine(); }
-                DrawPropertyArrayField(property, i, contextMenuPressedCallback);
+                //if (i != 0) { DrawHorizontalLine(); }
+                DrawPropertyArrayField(serializedProperty, i, contextMenuPressedCallback);
             }
 
-            if (property.arraySize == 0)
+            if (serializedProperty.arraySize == 0)
             {
                 GUIStyle style = new GUIStyle("Label");
                 style.alignment = TextAnchor.UpperLeft;
@@ -37,7 +42,7 @@ namespace Utils.Core.Flow
             header.x += 3;
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, GUIContent.none, true);
 
-            EditorGUI.LabelField(header, NicifyPropertyName(property), EditorStyles.largeLabel);
+            EditorGUI.LabelField(header, NicifyPropertyName(property), GUIStyles.FieldNameLabelStyle);
             if (contextMenuPressedCallback != null)
             {
                 DrawContextMenuDropdown(index, property.objectReferenceValue as ScriptableObject, contextMenuPressedCallback);
@@ -82,10 +87,9 @@ namespace Utils.Core.Flow
         /// <summary>
         /// Draws all properties of <see cref="TargetObject"/>.
         /// </summary>
-        public static void DrawAllProperties(ScriptableObject targetObject)
+        public static void DrawAllProperties(SerializedObject targetObject)
         {
-            SerializedObject serializedObject = new SerializedObject(targetObject);
-            SerializedProperty property = serializedObject.GetIterator();
+            SerializedProperty property = targetObject.GetIterator();
 
             if (property.NextVisible(true))
             {
@@ -93,12 +97,12 @@ namespace Utils.Core.Flow
                 {
                     Rect header = EditorGUILayout.BeginHorizontal(GUIStyles.InspectorStyle);
                     EditorGUIUtility.labelWidth = header.width / 2.5f;
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty(property.name), true);
+                    EditorGUILayout.PropertyField(targetObject.FindProperty(property.name), true);
                     EditorGUILayout.EndHorizontal();
                 }
                 while (property.NextVisible(false));
             }
-            serializedObject.ApplyModifiedProperties();
+            targetObject.ApplyModifiedProperties();
         }
 
         public static string NicifyPropertyName(SerializedProperty property)

@@ -11,7 +11,7 @@ public class EventRule : Rule
     public override bool IsValid => isValid;
     private bool isValid;
 
-    public override string DisplayName => (eventType.Type != null) ? "On " + eventType.ToString() : "No Event Picked!";
+    public override string DisplayName => (eventType != null && eventType.Type != null) ? "On " + eventType.ToString() : "No Event Picked!";
 
 #pragma warning disable CS0649
     [ClassTypeImplements(typeof(IEvent)), SerializeField] private ClassTypeReference eventType;
@@ -23,12 +23,12 @@ public class EventRule : Rule
         this.eventDispatcher = eventDispatcher;
     }
 
-    public override void OnActivate()
+    public override void Start()
     {
         eventDispatcher.SubscribeToType(eventType, OnEventInvoked);
     }
 
-    public override void OnDeactivate()
+    public override void Stop()
     {
         eventDispatcher.UnsubscribeToType(eventType, OnEventInvoked);
     }

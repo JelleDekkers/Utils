@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Utils.Core.Flow.Inspector;
 
 namespace Utils.Core.Flow
 {
@@ -302,7 +303,7 @@ namespace Utils.Core.Flow
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(State));
 
-            if (State.Actions.Count > 0)
+            if (State.TemplateActions.Count > 0)
             {
                 menu.AddItem(new GUIContent("Clear Actions"), false, () => State.ClearActions());
             }
@@ -331,7 +332,7 @@ namespace Utils.Core.Flow
             IsSelected = true;
 
             manager.Select(this);
-            manager.Inspector.Inspect(State);
+            manager.Inspector.Inspect(new StateInspectorUI(manager, State));
             manager.ReorderStateRendererToBottom(this);
         }
 

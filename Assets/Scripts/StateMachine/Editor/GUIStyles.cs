@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace Utils.Core.Flow
 {
@@ -139,6 +140,22 @@ namespace Utils.Core.Flow
                 }
 
                 return inspectorStyle;
+            }
+        }
+
+        private static GUIStyle fieldNameLabelStyle;
+        public static GUIStyle FieldNameLabelStyle
+        {
+            get
+            {
+                if (fieldNameLabelStyle == null)
+                {
+                    fieldNameLabelStyle = new GUIStyle(EditorStyles.largeLabel);
+                    fieldNameLabelStyle.fontStyle = FontStyle.Bold;
+
+                }
+
+                return fieldNameLabelStyle;
             }
         }
 

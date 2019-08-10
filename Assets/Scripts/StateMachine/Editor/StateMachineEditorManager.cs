@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Utils.Core.Flow.Inspector;
 
 namespace Utils.Core.Flow
 {
@@ -21,14 +22,14 @@ namespace Utils.Core.Flow
 
         public Action OnDisposeEvent;
 
-        private readonly Action repaintFunc;
+        private readonly Action repaintEvent;
 
-        public StateMachineEditorManager(StateMachineData stateMachine, Action repaintFunc, StateMachineExecutor executor = null)
+        public StateMachineEditorManager(StateMachineData stateMachine, Action repaintEvent, StateMachineExecutor executor = null)
         {
             StateMachineData = stateMachine;
             Inspector = new StateMachineInspector(this);
             CanvasRenderer = new StateMachineCanvasRenderer(this);
-            this.repaintFunc = repaintFunc;
+            this.repaintEvent = repaintEvent;
             this.Executor = executor;
 
             StateRenderers = new List<StateRenderer>();
@@ -55,7 +56,7 @@ namespace Utils.Core.Flow
 
             if (GUI.changed)
             {
-                repaintFunc();
+                repaintEvent();
             }
         }
 
@@ -178,11 +179,7 @@ namespace Utils.Core.Flow
         public void SetDebug(bool debug)
         {
             ShowDebug = debug;
-
-            if (Inspector.InspectedObject != null)
-            {
-                Inspector.Refresh();
-            }
+            Inspector.Refresh();
         }
 
         /// <summary>

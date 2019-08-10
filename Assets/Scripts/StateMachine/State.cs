@@ -8,25 +8,33 @@ namespace Utils.Core.Flow
     /// Abstract class for states, used in <see cref="StateMachineData"/>
     /// </summary>
     [Serializable]
-    public class State : ScriptableObject, ICloneable
+    public class State : ScriptableObject
     {
-        public List<StateAction> Actions { get { return actions; } set { actions = value; } }
-        [SerializeField] private List<StateAction> actions = new List<StateAction>();
+        public List<StateAction> TemplateActions = new List<StateAction>();
+        public List<StateAction> RunTimeActions;
 
-        public List<RuleGroup> RuleGroups { get { return ruleGroups; } set { ruleGroups = value; } }
-        [SerializeField] private List<RuleGroup> ruleGroups = new List<RuleGroup>();
+        public List<RuleGroup> RuleGroups = new List<RuleGroup>();
 
         public string Title = "New State";
-        public Vector2 Position;        
+        public Vector2 Position;
 
         public override string ToString()
         {
             return string.Format("State '{0}'", Title);
         }
 
-        public object Clone()
+        public void Start()
         {
-            return (State)MemberwiseClone();
+            RunTimeActions = new List<StateAction>();
+            for (int i = 0; i < TemplateActions.Count; i++)
+            {
+                RunTimeActions.Add(Instantiate(TemplateActions[i]));
+            }
+        }
+
+        public void Stop()
+        {
+            RunTimeActions = null;
         }
     }
 }

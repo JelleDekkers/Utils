@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Utils.Core.Flow
+namespace Utils.Core.Flow.Inspector
 {
     /// <summary>
     /// Attribute for using a custom class on <see cref="StateMachineInspector"/>

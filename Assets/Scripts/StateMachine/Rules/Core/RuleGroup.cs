@@ -3,21 +3,23 @@ using UnityEngine;
 
 namespace Utils.Core.Flow
 {
-    public class RuleGroup : ScriptableObject
+    /// <summary>
+    /// Class for handling multiple rules, when all <see cref="RuntimeRules"/> are valid, the stateMachine can transition to <see cref="Destination"/>
+    /// </summary>
+    [System.Serializable]
+    public class RuleGroup
     {
-        public State Destination => destination;
-        [SerializeField] private State destination;
+        public List<Rule> TemplateRules = new List<Rule>();
+        public List<Rule> RuntimeRules;
 
-        public List<Rule> Rules { get { return rules; } set { rules = value; } }
-        [SerializeField] private List<Rule> rules = new List<Rule>();
-
+        public State Destination;
         public LinkData linkData = new LinkData();
 
         public bool AllRulesAreValid()
         {
-            for (int i = 0; i < rules.Count; i++)
+            for (int i = 0; i < RuntimeRules.Count; i++)
             {
-                if(!rules[i].IsValid)
+                if (!RuntimeRules[i].IsValid)
                 {
                     return false;
                 }
@@ -28,7 +30,21 @@ namespace Utils.Core.Flow
 
         public void SetDestination(State state)
         {
-            destination = state;
+            Destination = state;
+        }
+
+        public void Start()
+        {
+            RuntimeRules = new List<Rule>();
+            for (int i = 0; i < TemplateRules.Count; i++)
+            {
+                RuntimeRules.Add(Object.Instantiate(TemplateRules[i]));
+            }
+        }
+
+        public void Stop()
+        {
+            RuntimeRules = null;
         }
     }
 }

@@ -11,17 +11,14 @@ namespace Utils.Core.Flow
     [Serializable]
     public class StateMachineData : ScriptableObject
     {
-        public State EntryState { get { return entryState; } set { entryState = value; } }
-        [SerializeField] private State entryState;
-
-        public List<State> States { get { return states; } set { states = value; } }
-        [SerializeField] private List<State> states = new List<State>();
+        [SerializeField] public State EntryState;
+        [SerializeField] public List<State> States = new List<State>();
 
         public void AddNewState(State state)
         {
             if (States.Count == 0)
             {
-                entryState = state;
+                EntryState = state;
             }
 
             States.Add(state);

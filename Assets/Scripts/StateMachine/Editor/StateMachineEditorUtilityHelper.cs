@@ -18,7 +18,7 @@ namespace Utils.Core.Flow
         {
             ScriptableObject instance = ScriptableObject.CreateInstance(type);
             instance.name = type.Name.ToString();
-            instance.hideFlags = HideFlags.HideInHierarchy;
+            //instance.hideFlags = HideFlags.HideInHierarchy;
 
             AssetDatabase.AddObjectToAsset(instance, assetFilePath);
             AssetDatabase.ImportAsset(assetFilePath);

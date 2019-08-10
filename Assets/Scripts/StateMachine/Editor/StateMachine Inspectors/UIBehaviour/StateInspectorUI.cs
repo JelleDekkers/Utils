@@ -2,21 +2,37 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Utils.Core.Flow
+namespace Utils.Core.Flow.Inspector
 {
     [CustomInspectorUI(typeof(State))]
-    public class StateInspector : InspectorUIBehaviour
+    public class StateInspectorUI : IInspectorUIBehaviour
     {
-        private const string PROPERTY_NAME = "actions";
-        private State State { get { return TargetObject as State; } }
+        private const string PROPERTY_NAME = "TemplateActions";
 
-        public StateInspector(StateMachineEditorManager manager, ScriptableObject target) : base(manager, target) { }
+        private StateMachineEditorManager manager;
+        private State state;
+        private SerializedObject serializedState;
 
-        protected override void DrawInspectorContent(Event e)
+        public StateInspectorUI(StateMachineEditorManager manager, State state)
         {
+            this.manager = manager;
+            this.state = state;
+
+            serializedState = new SerializedObject(state);
+        }
+
+        public void Refresh()
+        {
+            serializedState = new SerializedObject(state);
+        }
+
+        public void OnInspectorGUI(Event e)
+        {
+            EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
             DrawHeader("State Actions");
             InspectorUIUtility.DrawHorizontalLine();
-            InspectorUIUtility.DrawPropertyFields(SerializedObject, PROPERTY_NAME, OnContextMenuButtonPressed);          
+            InspectorUIUtility.DrawPropertyFields(serializedState, PROPERTY_NAME, OnContextMenuButtonPressed);
+            EditorGUILayout.EndVertical();
         }
 
         protected void DrawHeader(string title)
@@ -25,16 +41,16 @@ namespace Utils.Core.Flow
             buttonStyle.margin.top = 0;
 
             EditorGUILayout.BeginHorizontal();
-            string newName = EditorGUILayout.DelayedTextField(State.Title);
+            string newName = EditorGUILayout.DelayedTextField(state.Title);
 
-            if (newName != State.Title)
+            if (newName != state.Title)
             {
-                Undo.RecordObject(Manager.StateMachineData, "Change State Name");
-                State.Title = newName;
-                EditorUtility.SetDirty(TargetObject);
+                Undo.RecordObject(manager.StateMachineData, "Change State Name");
+                state.Title = newName;
+                EditorUtility.SetDirty(serializedState.targetObject);
             }
 
-            GUI.enabled = Manager.StateMachineData.EntryState != State;
+            GUI.enabled = manager.StateMachineData.EntryState != state;
             if (GUILayout.Button("Entry State", buttonStyle, GUILayout.Width(90)))
             {
                 OnSetEntryStateButtonPressedEvent();
@@ -47,7 +63,7 @@ namespace Utils.Core.Flow
 
         private void OnSetEntryStateButtonPressedEvent()
         {
-            Manager.StateMachineData.SetEntryState(State);
+            manager.StateMachineData.SetEntryState(state);
         }
 
         private void OnAddNewButtonPressedEvent()
@@ -57,7 +73,7 @@ namespace Utils.Core.Flow
 
         private void CreateNewType(Type type)
         {
-            State.AddStateAction(type);
+            state.AddStateAction(type);
             Refresh();
         }
 
@@ -88,29 +104,30 @@ namespace Utils.Core.Flow
         private void OnEditScriptButtonPressed(ContextMenu.Result result)
         {
             InspectorUIUtility.OpenScript(result.Obj);
+            manager.Inspector.Refresh();
         }
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            State.RemoveStateAction(State.Actions[result.Index]);
+            state.RemoveStateAction(state.TemplateActions[result.Index]);
             Refresh();
         }
 
         private void OnResetButtonPressed(ContextMenu.Result result)
         {
-            State.Actions[result.Index].Reset(State);
+            state.TemplateActions[result.Index].Reset(state);
             Refresh();
         }
 
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {
             int newIndex = result.Index + (int)direction;
-            if (newIndex >= 0 && newIndex < State.Actions.Count)
+            if (newIndex >= 0 && newIndex < state.TemplateActions.Count)
             {
-                State.Actions.ReorderItem(result.Index, newIndex);
+                state.TemplateActions.ReorderItem(result.Index, newIndex);
             }
 
-            Manager.Inspector.Refresh();
+            Refresh();
         }
     }
 }

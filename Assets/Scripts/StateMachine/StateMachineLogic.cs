@@ -51,7 +51,9 @@ namespace Utils.Core.Flow
 
         private void OnStateStart(State state)
         {
-            foreach (StateAction action in state.Actions)
+            state.Start();
+
+            foreach (StateAction action in state.RunTimeActions)
             {
                 dependencyInjector.InjectMethod(action);
                 action.Start();
@@ -59,28 +61,34 @@ namespace Utils.Core.Flow
 
             foreach(RuleGroup group in state.RuleGroups)
             {
-                foreach(Rule rule in group.Rules)
+                group.Start();
+
+                foreach(Rule rule in group.RuntimeRules)
                 {
                     dependencyInjector.InjectMethod(rule);
-                    rule.OnActivate();
+                    rule.Start();
                 }
             }
         }
 
         private void OnStateStop(State state)
         {
-            foreach (StateAction action in state.Actions)
+            foreach (StateAction action in state.RunTimeActions)
             {
                 action.Stop();
             }
 
             foreach (RuleGroup group in state.RuleGroups)
             {
-                foreach (Rule rule in group.Rules)
+                foreach (Rule rule in group.RuntimeRules)
                 {
-                    rule.OnDeactivate();
+                    rule.Stop();
                 }
+
+                group.Stop();
             }
+
+            state.Stop();
         }
 
         private bool StateCanTransitionToNextState(State currentState, out State newState, out RuleGroup validRuleGroup)

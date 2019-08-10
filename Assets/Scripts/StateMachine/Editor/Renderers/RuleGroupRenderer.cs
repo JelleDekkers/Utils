@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using Utils.Core.Flow.Inspector;
 
 namespace Utils.Core.Flow
 {
@@ -19,17 +20,17 @@ namespace Utils.Core.Flow
         
         private Vector2 LinkSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
-        private StateRenderer stateRenderer;
+        public StateRenderer stateRenderer;
         private StateMachineEditorManager manager;
         private Rect fullRect;
         private bool isDraggingLink;
         private LinkRenderer linkRenderer;
-       
-        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer state, StateMachineEditorManager stateMachine)
+
+        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer stateRenderer, StateMachineEditorManager stateMachineManager)
         {
             RuleGroup = ruleGroup;
-            stateRenderer = state;
-            manager = stateMachine;
+            this.stateRenderer = stateRenderer;
+            manager = stateMachineManager;
 
             Rect = new Rect();
             linkRenderer = new LinkRenderer(RuleGroup.linkData);
@@ -139,7 +140,7 @@ namespace Utils.Core.Flow
             IsSelected = true;
             manager.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            manager.Inspector.Inspect(RuleGroup);
+            manager.Inspector.Inspect(new RuleGroupInspector(manager, this.stateRenderer.State, RuleGroup));
             GUI.changed = true;
         }
 
@@ -199,7 +200,7 @@ namespace Utils.Core.Flow
 
             menu.AddSeparator("");
 
-            if (RuleGroup.Rules.Count > 0)
+            if (RuleGroup.TemplateRules.Count > 0)
             {
                 menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear());
             }
@@ -282,16 +283,16 @@ namespace Utils.Core.Flow
         {
             Rect = new Rect(position.x, position.y, width, 0);
 
-            if (RuleGroup.Rules.Count == 0)
+            if (RuleGroup.TemplateRules.Count == 0)
             {
                 DrawRule(Rect, out Rect ruleRect);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
             }
             else
             {
-                for (int i = 0; i < RuleGroup.Rules.Count; i++)
+                for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
                 {
-                    DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
+                    DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
                     Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
                 }
             }
