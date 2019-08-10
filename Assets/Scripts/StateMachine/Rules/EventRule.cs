@@ -35,7 +35,6 @@ public class EventRule : Rule
 
     private void OnEventInvoked(IEvent eventObject)
     {
-        Debug.Log("onEvent recieved " + eventObject.GetType());
         isValid = true;
     }
 }

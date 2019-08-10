@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Utils.Core.Flow;
 
-public class ValueIsHigherThanRule : Rule
+public class ValueIsHigherThanTestRule : Rule
 {
     public override string DisplayName => string.Format("{0} > {1}", value, targetValue);
     public override bool IsValid { get { return value > targetValue; } }

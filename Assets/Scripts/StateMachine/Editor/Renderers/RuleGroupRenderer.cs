@@ -254,6 +254,37 @@ namespace Utils.Core.Flow
                 DrawLink(LinkSourcePoint, destinationPoint, color);
             }
         }
+        private void DrawRules(Vector2 position, float width)
+        {
+            Rect = new Rect(position.x, position.y, width, 0);
+
+            if (RuleGroup.TemplateRules.Count == 0)
+            {
+                DrawRule(Rect, out Rect ruleRect);
+                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+            }
+            else
+            {
+                if (Application.isPlaying && stateRenderer.IsCurrentStateInRuntimeLogic())
+                {
+                    for (int i = 0; i < RuleGroup.RuntimeRules.Count; i++)
+                    {
+                        DrawRule(Rect, out Rect ruleRect, RuleGroup.RuntimeRules[i]);
+                        Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
+                    {
+                        DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
+                        Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+                    }
+                }
+            }
+
+            fullRect = Rect;
+        }
 
         private void DrawRule(Rect groupRect, out Rect ruleRect, Rule rule = null)
         {
@@ -266,38 +297,13 @@ namespace Utils.Core.Flow
             style.normal.textColor = Color.black;
             if (Application.isPlaying && stateRenderer.IsCurrentStateInRuntimeLogic()) 
             {
-                if (rule == null)
-                {
-                    style.normal.textColor = ValidRuleTextColor;
-                }
-                else if(rule.IsValid)
+                if (rule == null || rule.IsValid)
                 {
                     style.normal.textColor = ValidRuleTextColor;
                 }
             }
 
             GUI.Box(ruleRect, label, style);
-        }
-
-        private void DrawRules(Vector2 position, float width)
-        {
-            Rect = new Rect(position.x, position.y, width, 0);
-
-            if (RuleGroup.TemplateRules.Count == 0)
-            {
-                DrawRule(Rect, out Rect ruleRect);
-                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
-            }
-            else
-            {
-                for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
-                {
-                    DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
-                    Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
-                }
-            }
-
-            fullRect = Rect;
         }
 
         private void DrawNodeKnob()

@@ -12,5 +12,197 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6977acd9219d9241a1e410995c82e31, type: 3}
   m_Name: New StateMachine Data
   m_EditorClassIdentifier: 
-  EntryState: {fileID: 0}
-  States: []
+  EntryState: {fileID: 114217467383767934}
+  States:
+  - {fileID: 114217467383767934}
+  - {fileID: 114484004396870992}
+  - {fileID: 114791374537843954}
+--- !u!114 &114169400641757948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
+  m_Name: KeyPressedRule
+  m_EditorClassIdentifier: 
+  key: 32
+--- !u!114 &114211708944461616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: SpawnPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 2376965535278278977, guid: a3a535f9f173b1d408fda5ffc5dde8fa, type: 3}
+  position: {x: 0, y: 0, z: 0}
+  instanceName: 
+  cleanUpOnStop: 1
+--- !u!114 &114217467383767934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: State
+  m_EditorClassIdentifier: 
+  TemplateActions:
+  - {fileID: 114220974935498632}
+  RunTimeActions: []
+  RuleGroups:
+  - TemplateRules:
+    - {fileID: 114418661089536288}
+    RuntimeRules: []
+    Destination: {fileID: 114484004396870992}
+    linkData:
+      sourceHandleData:
+        offset: {x: 40, y: 0}
+      destinationHandleData:
+        offset: {x: -40, y: 0}
+  - TemplateRules:
+    - {fileID: 114434740121757598}
+    RuntimeRules: []
+    Destination: {fileID: 114484004396870992}
+    linkData:
+      sourceHandleData:
+        offset: {x: 40, y: 0}
+      destinationHandleData:
+        offset: {x: -40, y: 0}
+  Title: Splash
+  Position: {x: 95.5, y: 134}
+--- !u!114 &114220974935498632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: SpawnPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 7792867791196201259, guid: 5976a890574cc2f4bab22de820a43148, type: 3}
+  position: {x: 0, y: 0, z: 0}
+  instanceName: 
+  cleanUpOnStop: 1
+--- !u!114 &114418661089536288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
+  m_Name: KeyPressedRule
+  m_EditorClassIdentifier: 
+  key: 32
+--- !u!114 &114434740121757598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0558a1af5fc41ea4ab0a151e4af0c095, type: 3}
+  m_Name: DelayRule
+  m_EditorClassIdentifier: 
+  delay: 2
+--- !u!114 &114484004396870992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: State
+  m_EditorClassIdentifier: 
+  TemplateActions:
+  - {fileID: 114211708944461616}
+  RunTimeActions: []
+  RuleGroups:
+  - TemplateRules:
+    - {fileID: 114695021070330666}
+    RuntimeRules: []
+    Destination: {fileID: 114791374537843954}
+    linkData:
+      sourceHandleData:
+        offset: {x: 40, y: 0}
+      destinationHandleData:
+        offset: {x: -40, y: 0}
+  Title: Login
+  Position: {x: 301, y: 132}
+--- !u!114 &114606410884083848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: SpawnPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
+  position: {x: 0, y: 0, z: 0}
+  instanceName: 
+  cleanUpOnStop: 1
+--- !u!114 &114695021070330666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 076dcd209dc787e4388be3929fc0a44d, type: 3}
+  m_Name: LoggedInRule
+  m_EditorClassIdentifier: 
+--- !u!114 &114791374537843954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: State
+  m_EditorClassIdentifier: 
+  TemplateActions:
+  - {fileID: 114606410884083848}
+  RunTimeActions: []
+  RuleGroups:
+  - TemplateRules:
+    - {fileID: 114169400641757948}
+    RuntimeRules: []
+    Destination: {fileID: 114217467383767934}
+    linkData:
+      sourceHandleData:
+        offset: {x: 75, y: -151}
+      destinationHandleData:
+        offset: {x: -163, y: -85}
+  Title: Menu
+  Position: {x: 493, y: 130}
