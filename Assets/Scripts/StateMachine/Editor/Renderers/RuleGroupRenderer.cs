@@ -38,11 +38,6 @@ namespace Utils.Core.Flow
 
         public void ProcessEvents(Event e)
         {
-            if(RuleGroup.Destination != null)
-            {
-                ProcessEventsOnConnectedLink(e);
-            }
-
             if (isDraggingLink)
             {
                 ProcessEventsOnDraggingLink(e);
@@ -51,6 +46,11 @@ namespace Utils.Core.Flow
             if (IsSelected)
             {
                 linkRenderer.ProcessEvents(e);
+            }
+
+            if(RuleGroup.Destination != null)
+            {
+                ProcessEventsOnConnectedLink(e);
             }
 
             if(stateRenderer.IsSelected)
@@ -140,7 +140,7 @@ namespace Utils.Core.Flow
             IsSelected = true;
             manager.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            manager.Inspector.Inspect(new RuleGroupInspector(manager, this.stateRenderer.State, RuleGroup));
+            manager.Inspector.Inspect(new RuleGroupInspector(manager, stateRenderer.State, RuleGroup));
             GUI.changed = true;
         }
 

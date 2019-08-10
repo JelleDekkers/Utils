@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Utils.Core.Services
 {
+    /// <summary>
+    /// Keeps track of <see cref="IService"/>s. 
+    /// When requesting a service, <see cref="InstantiatedServices"/> is checked. If no instance is found a new instance is created. 
+    /// If the service has a corresponding <see cref="IServiceFactory"/>, the factory will construct the instance.
+    /// </summary>
     public class ServiceLocator
     {
         public static ServiceLocator Instance

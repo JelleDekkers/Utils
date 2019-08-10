@@ -6,6 +6,10 @@ using Utils.Core.Services;
 
 namespace Utils.Core.Injection
 {
+    /// <summary>
+    /// Class for handling dependency injection. 
+    /// Dependencies need to be of type <see cref="IService>"/> and are resolved by <see cref="ServiceLocator"/>
+    /// </summary>
     public class DependencyInjector
     {
         private readonly string injectionMethodName;
@@ -40,6 +44,7 @@ namespace Utils.Core.Injection
                 }
             }
         }
+
         public void InjectGameObject(GameObject go)
         {
             MonoBehaviour[] monoBehaviours = go.GetComponentsInChildren<MonoBehaviour>();
