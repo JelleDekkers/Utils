@@ -33,10 +33,10 @@ namespace Utils.Core.Flow
 
             if (StateCanTransitionToNextState(CurrentState, out State newState, out RuleGroup ruleGroup))
             {
-                Debug.LogFormat("Changing from {0} to {1}", CurrentState, (newState != null) ? newState.ToString() : "NONE");
-
                 OnStateStop(CurrentState);
                 CurrentState = newState;
+
+                Debug.LogFormat("Changing from {0} to {1}", CurrentState, (newState != null) ? newState.ToString() : "NONE");
 
                 if (newState != null)
                 {

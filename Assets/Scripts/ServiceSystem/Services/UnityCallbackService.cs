@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Utils.Core.Services
 {
+    /// <summary>
+    /// Service for subscribing to MonoBehaviour calls such as Update()
+    /// </summary>
     public class UnityCallbackService : MonoBehaviour, IService, IDisposable
     {
         public event Action GUIEvent = delegate { };
@@ -15,7 +18,7 @@ namespace Utils.Core.Services
         public event Action FixedUpdateEvent = delegate { };
         public event Action LateUpdateEvent = delegate { };
 
-        private const string OBJECT_NAME = "UnityCallbackService";
+        private const string OBJECT_NAME = "[SERVICE] UnityCallbackService";
 
         private void Awake()
         {
