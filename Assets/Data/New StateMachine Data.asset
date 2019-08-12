@@ -62,6 +62,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TemplateActions:
   - {fileID: 114220974935498632}
+  - {fileID: 114788888542784838}
+  - {fileID: 114464684930573382}
   RunTimeActions: []
   RuleGroups:
   - TemplateRules:
@@ -133,6 +135,21 @@ MonoBehaviour:
   m_Name: KeyPressedRule
   m_EditorClassIdentifier: 
   key: 32
+--- !u!114 &114464684930573382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02512f579aedec74faf4062ef624f0b3, type: 3}
+  m_Name: DispatchEventAction
+  m_EditorClassIdentifier: 
+  eventType:
+    classRef: TestEvent, Assembly-CSharp
+  delayInSeconds: 1
 --- !u!114 &114484004396870992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,13 +164,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TemplateActions:
   - {fileID: 114211708944461616}
-  RunTimeActions:
-  - {fileID: 0}
+  - {fileID: 114657457123389782}
+  RunTimeActions: []
   RuleGroups:
   - TemplateRules:
     - {fileID: 114695021070330666}
-    RuntimeRules:
-    - {fileID: 0}
+    RuntimeRules: []
     Destination: {fileID: 114791374537843954}
     linkData:
       sourceHandleData:
@@ -191,7 +207,7 @@ MonoBehaviour:
         offset: {x: -65, y: 22}
   Title: New State
   Position: {x: 98, y: 282}
---- !u!114 &114606410884083848
+--- !u!114 &114657457123389782
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -200,13 +216,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
-  m_Name: SpawnPrefabAction
+  m_Script: {fileID: 11500000, guid: 5855653ac3eda7a46a6ea6c3cc2b0613, type: 3}
+  m_Name: SpawnScopedPrefabAction
   m_EditorClassIdentifier: 
   prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
-  position: {x: 0, y: 0, z: 0}
-  instanceName: 
-  cleanUpOnStop: 1
 --- !u!114 &114695021070330666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,6 +232,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 076dcd209dc787e4388be3929fc0a44d, type: 3}
   m_Name: LoggedInRule
   m_EditorClassIdentifier: 
+--- !u!114 &114788888542784838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5855653ac3eda7a46a6ea6c3cc2b0613, type: 3}
+  m_Name: SpawnScopedPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
 --- !u!114 &114791374537843954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,13 +257,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
   m_Name: State
   m_EditorClassIdentifier: 
-  TemplateActions:
-  - {fileID: 114606410884083848}
-  RunTimeActions: []
+  TemplateActions: []
+  RunTimeActions:
+  - {fileID: 0}
   RuleGroups:
   - TemplateRules:
     - {fileID: 114169400641757948}
-    RuntimeRules: []
+    RuntimeRules:
+    - {fileID: 0}
     Destination: {fileID: 114217467383767934}
     linkData:
       sourceHandleData:

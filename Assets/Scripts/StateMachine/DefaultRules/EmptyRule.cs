@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Utils.Core.Flow
+namespace Utils.Core.Flow.DefaultRules
 {
     public class EmptyRule : Rule
     {
