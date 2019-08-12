@@ -10,14 +10,14 @@ namespace Utils.Core.Flow
     public abstract class StateAction : ScriptableObject, IUpdatable
     {
         /// <summary>
-        /// The name that shows in the editor window
+        /// Called when the state will be starting, is called before <see cref="OnStopped"/> on the previous state
         /// </summary>
-        public virtual string DisplayName { get; private set; }
+        public virtual void OnStarting() { }
 
         /// <summary>
-        /// Called when the state is starting
+        /// Called when the state has started
         /// </summary>
-        public virtual void OnEnter() { }
+        public virtual void OnStarted() { }
 
         /// <summary>
         /// Called each frame when this state is active
@@ -25,8 +25,13 @@ namespace Utils.Core.Flow
         public virtual void Update() { }
 
         /// <summary>
-        /// Called when the state exits
+        /// Called when the state stops, is called before <see cref="OnStarted"/> on the new state
         /// </summary>
-        public virtual void OnExit() { }
+        public virtual void OnStopping() { }
+
+        /// <summary>
+        /// Called when the state has fully stopped
+        /// </summary>
+        public virtual void OnStopped() { }
     }
 }

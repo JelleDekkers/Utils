@@ -2,10 +2,8 @@
 using Utils.Core.Flow;
 using Utils.Core.Injection;
 
-public class SpawnPrefabAction : Utils.Core.Flow.StateAction
+public class SpawnPrefabAction : StateAction
 {
-    public override string DisplayName => "Spawn " + prefab?.name;
-
     [SerializeField] private GameObject prefab = null;
 #pragma warning disable CS0649
     [SerializeField] private Vector3 position;
@@ -21,7 +19,7 @@ public class SpawnPrefabAction : Utils.Core.Flow.StateAction
         this.injector = injector;
     }
 
-    public override void OnEnter()
+    public override void OnStarted()
     {
         instance = Instantiate(prefab, position, Quaternion.identity);
         injector.InjectGameObject(instance);
@@ -32,7 +30,7 @@ public class SpawnPrefabAction : Utils.Core.Flow.StateAction
         }
     }
 
-    public override void OnExit()
+    public override void OnStopped()
     {
         if (cleanUpOnStop && instance != null)
         {

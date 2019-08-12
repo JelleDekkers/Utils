@@ -24,7 +24,7 @@ namespace Utils.Core.Flow
         private void StartStateMachine()
         {
             CurrentState = Data.EntryState;
-            OnStateStart(CurrentState);
+            TransitionToState(null, CurrentState);
         }
 
         public void Update()
@@ -33,17 +33,10 @@ namespace Utils.Core.Flow
 
             if (StateCanTransitionToNextState(CurrentState, out State newState, out RuleGroup ruleGroup))
             {
-                OnStateStop(CurrentState);
-                CurrentState = newState;
+                TransitionToState(CurrentState, newState);
 
-                Debug.LogFormat("Changing from {0} to {1}", CurrentState, (newState != null) ? newState.ToString() : "NONE");
-
-                if (newState != null)
-                {
-                    OnStateStart(CurrentState);
-                }
-                else
-                {
+                if(newState == null)
+                { 
                     Debug.LogWarningFormat("{0} Has no destination state!", CurrentState);
                 }
             }
@@ -54,46 +47,75 @@ namespace Utils.Core.Flow
             }
         }
 
-        private void OnStateStart(State state)
+        private void TransitionToState(State prevState, State newState)
         {
-            state.OnStart();
+            Debug.LogFormat("Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE");
 
-            foreach (StateAction action in state.RunTimeActions)
+            if (newState != null)
             {
-                dependencyInjector.InjectMethod(action);
-                action.OnEnter();
-            }
+                newState.OnStart();
 
-            foreach(RuleGroup group in state.RuleGroups)
-            {
-                group.OnEnter();
-
-                foreach(Rule rule in group.RuntimeRules)
+                // newState OnStarting
+                foreach (StateAction action in newState.RunTimeActions)
                 {
-                    dependencyInjector.InjectMethod(rule);
-                    rule.OnActivate();
+                    dependencyInjector.InjectMethod(action);
+                    action.OnStarting();
                 }
             }
-        }
 
-        private void OnStateStop(State state)
-        {
-            foreach (StateAction action in state.RunTimeActions)
+            if (prevState != null)
             {
-                action.OnExit();
+                // prevState OnStopping
+                foreach (StateAction action in prevState.RunTimeActions)
+                {
+                    action.OnStopping();
+                }
             }
 
-            foreach (RuleGroup group in state.RuleGroups)
+            if (newState != null)
             {
-                foreach (Rule rule in group.RuntimeRules)
+                // newState OnStarted
+                foreach (StateAction action in newState.RunTimeActions)
                 {
-                    rule.OnDeactivate();
+                    action.OnStarted();
                 }
 
-                group.OnExit();
+                // newState Rules OnActivate 
+                foreach (RuleGroup group in newState.RuleGroups)
+                {
+                    group.OnActivate();
+
+                    foreach (Rule rule in group.RuntimeRules)
+                    {
+                        dependencyInjector.InjectMethod(rule);
+                        rule.OnActivate();
+                    }
+                }
             }
 
-            state.OnExit();
+            if (prevState != null)
+            {
+                // prevState OnStopped
+                foreach (StateAction action in prevState.RunTimeActions)
+                {
+                    action.OnStopped();
+                }
+         
+                // prevState Rules OnDeactivate
+                foreach (RuleGroup group in prevState.RuleGroups)
+                {
+                    foreach (Rule rule in group.RuntimeRules)
+                    {
+                        rule.OnDeactivate();
+                    }
+
+                    group.OnDeactivatie();
+                }
+
+                prevState.OnExit();
+            }
+
+            CurrentState = newState;
         }
 
         private bool StateCanTransitionToNextState(State currentState, out State newState, out RuleGroup validRuleGroup)

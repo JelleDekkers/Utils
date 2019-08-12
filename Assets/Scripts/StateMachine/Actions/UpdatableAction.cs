@@ -11,7 +11,7 @@ public class UpdatableAction : StateAction
 
     private GameObject cubeInstance;
 
-    public override void OnEnter()
+    public override void OnStarted()
     {
         cubeInstance = Instantiate(cubePrefab);
     }
@@ -21,7 +21,7 @@ public class UpdatableAction : StateAction
         cubeInstance.transform.Rotate(Vector3.up, Time.deltaTime * rotateSpeed);
     }
 
-    public override void OnExit()
+    public override void OnStopped()
     {
         Destroy(cubeInstance);
     }
