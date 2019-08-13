@@ -31,7 +31,7 @@ namespace Utils.Core.Flow
         {
             if(CurrentState == null) { return; }
 
-            if (StateCanTransitionToNextState(CurrentState, out State newState, out RuleGroup ruleGroup))
+            if (EvaluateStatesForTransition(CurrentState, out State newState, out RuleGroup ruleGroup))
             {
                 TransitionToState(CurrentState, newState);
 
@@ -118,7 +118,7 @@ namespace Utils.Core.Flow
             CurrentState = newState;
         }
 
-        private bool StateCanTransitionToNextState(State currentState, out State newState, out RuleGroup validRuleGroup)
+        private bool EvaluateStatesForTransition(State currentState, out State newState, out RuleGroup validRuleGroup)
         {
             foreach (RuleGroup ruleGroup in currentState.RuleGroups)
             {

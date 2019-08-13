@@ -6,9 +6,9 @@ using Utils.Core.Flow.Inspector;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Renders the <see cref="Flow.State"/> node on the <see cref="StateMachineData"/> window
+    /// Renders the <see cref="State"/> node on the <see cref="StateMachineData"/> window
     /// </summary>
-    public class StateRenderer : ISelectable, IDraggable
+    public class StateRenderer : INodeRenderer<State>
     {
         public const float WIDTH = 150;
         public const float HEADER_HEIGHT = 20;
@@ -21,23 +21,23 @@ namespace Utils.Core.Flow
         private const string ENTRY_STRING = "ENTRY";
         private const float DragRounding = 20;
 
-        public State State { get; private set; }
+        public State Node { get; private set; }
 
         public Rect Rect
         {
             get
             {
-                return new Rect(State.Position, size);
+                return new Rect(Node.Position, size);
             }
             private set
             {
-                State.Position = value.position;
+                Node.Position = value.position;
                 size = value.size;
             }
         }
         private Vector2 size;
 
-        public bool IsEntryState { get { return manager.StateMachineData.EntryState == State; } }
+        public bool IsEntryState { get { return manager.StateMachineData.EntryState == Node; } }
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
@@ -57,7 +57,7 @@ namespace Utils.Core.Flow
 
         public StateRenderer(State state, StateMachineEditorManager renderer)
         {
-            State = state;
+            Node = state;
             manager = renderer;
 
             InitializeRuleRenderers();
@@ -72,9 +72,9 @@ namespace Utils.Core.Flow
         {
             ruleGroupRenderers = new List<RuleGroupRenderer>();
 
-            for (int i = 0; i < State.RuleGroups.Count; i++) 
+            for (int i = 0; i < Node.RuleGroups.Count; i++) 
             {
-                ruleGroupRenderers.Add(new RuleGroupRenderer(State.RuleGroups[i], this, manager));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(Node.RuleGroups[i], this, manager));
             }
         }
 
@@ -89,7 +89,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.Delete)
                     {
-                        manager.StateMachineData.RemoveState(State);
+                        manager.StateMachineData.RemoveState(Node);
                         e.Use();
                     }
                     else if(IsSelected && e.keyCode == KeyCode.LeftControl)
@@ -169,7 +169,7 @@ namespace Utils.Core.Flow
 
         public bool IsCurrentStateInRuntimeLogic()
         {
-            return Application.isPlaying && manager.Executor != null && manager.Executor.Logic != null && manager.Executor.Logic.CurrentState == State;
+            return Application.isPlaying && manager.Executor != null && manager.Executor.Logic != null && manager.Executor.Logic.CurrentState == Node;
         }
 
         #region Drawing
@@ -208,13 +208,13 @@ namespace Utils.Core.Flow
         {
             Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
 
-            string label = State.Title;
+            string label = Node.Title;
             float heightNeeded = Mathf.CeilToInt(GUIStyles.StateHeaderStyle.CalcHeight(new GUIContent(label), Rect.width));
             Rect = new Rect(Rect.x, Rect.y, Rect.width, (int)heightNeeded);
 
             Color prevColor = GUI.backgroundColor;
             GUI.backgroundColor = (IsCurrentStateInRuntimeLogic()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
-            GUI.Box(Rect, State.Title, GUIStyles.StateHeaderStyle);
+            GUI.Box(Rect, Node.Title, GUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
         }
 
@@ -229,12 +229,12 @@ namespace Utils.Core.Flow
 
         private void DrawRuleGroups()
         {
-            for (int i = 0; i < State.RuleGroups.Count; i++)
+            for (int i = 0; i < Node.RuleGroups.Count; i++)
             {
                 Vector2 position = new Vector2(Rect.x, Rect.y + Rect.height);
                 Rect ruleRect = ruleGroupRenderers[i].Draw(position, Rect.width);
 
-                if (i < State.RuleGroups.Count - 1)
+                if (i < Node.RuleGroups.Count - 1)
                 {
                     DrawDividerLine(ruleRect);
                 }
@@ -273,13 +273,13 @@ namespace Utils.Core.Flow
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             { 
-                State.AddNewRuleGroup();
+                Node.AddNewRuleGroup();
             }
 
             GUI.enabled = SelectedRuleGroup != null;
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             {
-                State.RemoveRuleGroup(SelectedRuleGroup.RuleGroup);
+                Node.RemoveRuleGroup(SelectedRuleGroup.RuleGroup);
             }
             GUI.enabled = true;
 
@@ -301,19 +301,19 @@ namespace Utils.Core.Flow
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(State));
+            menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(Node));
 
-            if (State.TemplateActions.Count > 0)
+            if (Node.TemplateActions.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear Actions"), false, () => State.ClearActions());
+                menu.AddItem(new GUIContent("Clear Actions"), false, () => Node.ClearActions());
             }
 
-            if (State.RuleGroups.Count > 0)
+            if (Node.RuleGroups.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear Rules"), false, () => State.ClearRules());
+                menu.AddItem(new GUIContent("Clear Rules"), false, () => Node.ClearRules());
             }
 
-            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => State.AddNewRuleGroup());
+            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => Node.AddNewRuleGroup());
 
             //menu.AddItem(new GUIContent("Copy State"), false, () => DataObject.CopyDataToClipboard());
             //menu.AddItem(new GUIContent("Paste Rulegroup"), false, () => throw new NotImplementedException());
@@ -332,8 +332,8 @@ namespace Utils.Core.Flow
             IsSelected = true;
 
             manager.Select(this);
-            manager.Inspector.Inspect(new StateInspectorUI(manager, State));
-            manager.ReorderStateRendererToBottom(this);
+            manager.Inspector.Inspect(new StateInspectorUI(manager, Node));
+            manager.ReorderNodeRendererToBottom(this);
         }
 
         public void OnDeselect(Event e)
@@ -370,14 +370,14 @@ namespace Utils.Core.Flow
                 newPosition.y = (int)Mathf.Round(newPosition.y / DragRounding) * DragRounding;
             }
 
-            State.Position = newPosition;
+            Node.Position = newPosition;
         }
 
         public void OnDragStart(Event e)
         {
             isDragging = true;
             dragStartPos = e.mousePosition;
-            dragStartSelectionDif = dragStartPos - State.Position;
+            dragStartSelectionDif = dragStartPos - Node.Position;
             canDrag = false;
         }
 
@@ -389,7 +389,7 @@ namespace Utils.Core.Flow
 
         private void OnRuleGroupAddedEvent(State state, RuleGroup group)
         {
-            if(state != State) { return; }
+            if(state != Node) { return; }
 
             RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
             ruleGroupRenderers.Add(renderer);
@@ -405,7 +405,7 @@ namespace Utils.Core.Flow
 
         private void OnRuleGroupRemovedEvent(State state, RuleGroup ruleGroup)
         {
-            if(state != State) { return; }
+            if(state != Node) { return; }
 
             SelectedRuleGroup = null;
             InitializeRuleRenderers();

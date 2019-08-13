@@ -92,7 +92,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
-                        stateRenderer.State.RemoveRuleGroup(RuleGroup);
+                        stateRenderer.Node.RemoveRuleGroup(RuleGroup);
                         e.Use();
                         return;
                     }
@@ -123,11 +123,11 @@ namespace Utils.Core.Flow
 
         private void ReorderRuleGroup(ContextMenu.ReorderDirection direction)
         {
-            int currentIndex = stateRenderer.State.RuleGroups.IndexOf(RuleGroup);
+            int currentIndex = stateRenderer.Node.RuleGroups.IndexOf(RuleGroup);
             int newIndex = currentIndex + (int)direction;
-            if (newIndex >= 0 && newIndex < stateRenderer.State.RuleGroups.Count)
+            if (newIndex >= 0 && newIndex < stateRenderer.Node.RuleGroups.Count)
             {
-                stateRenderer.State.RuleGroups.ReorderItem(currentIndex, newIndex);
+                stateRenderer.Node.RuleGroups.ReorderItem(currentIndex, newIndex);
                 stateRenderer.ReorderRuleGroupRenderers(currentIndex, newIndex);
             }
         }
@@ -140,7 +140,7 @@ namespace Utils.Core.Flow
             IsSelected = true;
             manager.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            manager.Inspector.Inspect(new RuleGroupInspector(manager, stateRenderer.State, RuleGroup));
+            manager.Inspector.Inspect(new RuleGroupInspector(manager, stateRenderer.Node, RuleGroup));
             GUI.changed = true;
         }
 
@@ -173,7 +173,7 @@ namespace Utils.Core.Flow
         {
             if (manager.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
-                RuleGroup.SetDestination(stateRenderer.State);   
+                RuleGroup.SetDestination(stateRenderer.Node as State);   
             }
             else
             {
@@ -188,7 +188,7 @@ namespace Utils.Core.Flow
         private void DeleteRule()
         {
             RuleGroup.linkData = new LinkData();
-            stateRenderer.State.RemoveRuleGroup(RuleGroup);
+            stateRenderer.Node.RemoveRuleGroup(RuleGroup);
         }
         #endregion
 

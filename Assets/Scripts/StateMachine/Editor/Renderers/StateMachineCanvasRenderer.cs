@@ -74,8 +74,8 @@ namespace Utils.Core.Flow
             DrawGrid(gridPrimarySpacing, gridPrimaryColor);
             DrawGrid(gridSecondarySpacing, gridSecondaryColor);
 
-            DrawStates();
-            ProcessStateEvents(e);
+            DrawNodes();
+            ProcessNodeRendererEvents(e);
             ProcessEvents(e);
 
             EditorGUILayout.EndScrollView();
@@ -142,11 +142,11 @@ namespace Utils.Core.Flow
             return new Vector2(windowRect.position.x + windowRect.width / 2, windowRect.position.y + windowRect.height / 2);
         }
 
-        private void ProcessStateEvents(Event e)
+        private void ProcessNodeRendererEvents(Event e)
         {
-            for (int i = Manager.StateRenderers.Count - 1; i >= 0; i--)
+            for (int i = Manager.NodeRenderers.Count - 1; i >= 0; i--)
             {
-                Manager.StateRenderers[i].ProcessEvents(e);
+                Manager.NodeRenderers[i].ProcessEvents(e);
             }
         }
 
@@ -205,11 +205,11 @@ namespace Utils.Core.Flow
             Handles.EndGUI();
         }
 
-        private void DrawStates()
+        private void DrawNodes()
         {
-            for (int i = 0; i < Manager.StateRenderers.Count; i++)
+            for (int i = 0; i < Manager.NodeRenderers.Count; i++)
             {
-                Manager.StateRenderers[i].Draw();
+                Manager.NodeRenderers[i].Draw();
             }
         }
 
@@ -233,12 +233,12 @@ namespace Utils.Core.Flow
             GUI.enabled = Manager.Selection != null && Manager.Selection is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).State);
+                Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).Node);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                (Manager.Selection as StateRenderer).State.ClearActions();
+                (Manager.Selection as StateRenderer).Node.ClearActions();
             }
             GUI.enabled = true;
 

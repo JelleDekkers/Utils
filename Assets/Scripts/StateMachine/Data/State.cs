@@ -8,7 +8,7 @@ namespace Utils.Core.Flow
     /// Abstract class for states, used in <see cref="StateMachineData"/>
     /// </summary>
     [Serializable]
-    public class State : ScriptableObject
+    public class State : ScriptableObject, INode
     {
         public List<StateAction> TemplateActions = new List<StateAction>();
         public List<StateAction> RunTimeActions;
@@ -16,7 +16,13 @@ namespace Utils.Core.Flow
         public List<RuleGroup> RuleGroups = new List<RuleGroup>();
 
         public string Title = "New State";
-        public Vector2 Position;
+
+        [SerializeField] private Vector2 position;
+        public Vector2 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
 
         public override string ToString()
         {

@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Flow
+namespace Utils.Core.Flow
 {
     /// <summary>
     /// Interface for defining variables needed by <see cref="StateMachineInspector"/>

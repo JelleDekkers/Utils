@@ -13,7 +13,7 @@ namespace Utils.Core.Flow
     {
         public ISelectable Selection { get; private set; }
         public StateMachineData StateMachineData { get; private set; }
-        public List<StateRenderer> StateRenderers { get; private set; }
+        public List<StateRenderer> NodeRenderers { get; private set; }
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
         public StateMachineInspector Inspector { get; private set; }
         public bool ContextMenuIsOpen { get; set; }
@@ -30,12 +30,12 @@ namespace Utils.Core.Flow
             Inspector = new StateMachineInspector(this);
             CanvasRenderer = new StateMachineCanvasRenderer(this);
             this.repaintEvent = repaintEvent;
-            this.Executor = executor;
+            Executor = executor;
 
-            StateRenderers = new List<StateRenderer>();
+            NodeRenderers = new List<StateRenderer>();
             foreach (State state in stateMachine.States)
             {
-                CreateNewStateRenderer(state);
+                CreateNewNodeRenderer(state);
             }
 
             StateMachineEditorUtility.StateAddedEvent += OnStateAddedEvent;
@@ -62,7 +62,7 @@ namespace Utils.Core.Flow
 
         public bool IsStateAtPosition(Vector2 position, out StateRenderer result)
         {
-            foreach(StateRenderer renderer in StateRenderers)
+            foreach(StateRenderer renderer in NodeRenderers)
             {
                 if(renderer.Rect.Contains(position))
                 {
@@ -93,7 +93,7 @@ namespace Utils.Core.Flow
 
                 if (Selection is StateRenderer)
                 {
-                    EditorGUILayout.LabelField("selection pos " + (Selection as StateRenderer).State.Position);
+                    EditorGUILayout.LabelField("selection pos " + (Selection as StateRenderer).Node.Position);
                     EditorGUILayout.LabelField("selection rect " + (Selection as StateRenderer).Rect);
                 }
             }
@@ -104,7 +104,7 @@ namespace Utils.Core.Flow
         {
             if(StateMachineData == stateMachine)
             {
-                StateRenderers.Clear();
+                NodeRenderers.Clear();
             }
         }
 
@@ -118,11 +118,11 @@ namespace Utils.Core.Flow
 
         private void RemoveStateRenderer(State state)
         {
-            foreach (StateRenderer renderer in StateRenderers)
+            foreach (StateRenderer renderer in NodeRenderers)
             {
-                if (renderer.State == state)
+                if (renderer.Node == state)
                 {
-                    StateRenderers.Remove(renderer);
+                    NodeRenderers.Remove(renderer);
 
                     if (Selection == renderer as ISelectable )
                     {
@@ -137,14 +137,14 @@ namespace Utils.Core.Flow
         {
             if (StateMachineData == stateMachine)
             {
-                CreateNewStateRenderer(state);
+                CreateNewNodeRenderer(state);
             }
         }
 
-        private void CreateNewStateRenderer(State state)
+        private void CreateNewNodeRenderer(State state) 
         {
             StateRenderer stateRenderer = new StateRenderer(state, this);
-            StateRenderers.Insert(0, stateRenderer);
+            NodeRenderers.Insert(0, stateRenderer);
         }
 
         public void Select(ISelectable selectable)
@@ -170,7 +170,7 @@ namespace Utils.Core.Flow
 
             foreach (State state in StateMachineData.States)
             {
-                CreateNewStateRenderer(state);
+                CreateNewNodeRenderer(state);
             }
 
             onDone?.Invoke();
@@ -186,10 +186,10 @@ namespace Utils.Core.Flow
         /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called first and the window will be drawn on top
         /// </summary>
         /// <param name="renderer"></param>
-        public void ReorderStateRendererToBottom(StateRenderer renderer)
+        public void ReorderNodeRendererToBottom(StateRenderer renderer)
         {
-            StateRenderers.Remove(renderer);
-            StateRenderers.Add(renderer);
+            NodeRenderers.Remove(renderer);
+            NodeRenderers.Add(renderer);
         }
 
         public void Dispose()

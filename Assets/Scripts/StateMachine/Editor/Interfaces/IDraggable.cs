@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 
-public interface IDraggable 
+namespace Utils.Core.Flow
 {
-    void OnDragStart(Event e);
-    void OnDrag(Event e);
-    void OnDragEnd(Event e);
+    public interface IDraggable
+    {
+        void OnDragStart(Event e);
+        void OnDrag(Event e);
+        void OnDragEnd(Event e);
+    }
 }

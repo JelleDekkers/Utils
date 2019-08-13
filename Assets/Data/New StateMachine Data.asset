@@ -17,8 +17,6 @@ MonoBehaviour:
   - {fileID: 114217467383767934}
   - {fileID: 114484004396870992}
   - {fileID: 114791374537843954}
-  - {fileID: 114496786568150212}
-  - {fileID: 114911103445327606}
 --- !u!114 &114169400641757948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,7 +61,6 @@ MonoBehaviour:
   TemplateActions:
   - {fileID: 114220974935498632}
   - {fileID: 114788888542784838}
-  - {fileID: 114464684930573382}
   RunTimeActions: []
   RuleGroups:
   - TemplateRules:
@@ -77,7 +74,7 @@ MonoBehaviour:
       destinationHandleData:
         offset: {x: -40, y: 0}
   Title: Splash
-  Position: {x: 95.5, y: 134}
+  position: {x: 77, y: 190}
 --- !u!114 &114220974935498632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,34 +91,6 @@ MonoBehaviour:
   position: {x: 0, y: 0, z: 0}
   instanceName: 
   cleanUpOnStop: 1
---- !u!114 &114245492093365186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 32
---- !u!114 &114416520837076436
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79d022df0ea88f749af8a27af043b7dd, type: 3}
-  m_Name: UpdatableAction
-  m_EditorClassIdentifier: 
-  cubePrefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8,
-    type: 3}
-  rotateSpeed: 100
 --- !u!114 &114418661089536288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,21 +104,6 @@ MonoBehaviour:
   m_Name: KeyPressedRule
   m_EditorClassIdentifier: 
   key: 32
---- !u!114 &114464684930573382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02512f579aedec74faf4062ef624f0b3, type: 3}
-  m_Name: DispatchEventAction
-  m_EditorClassIdentifier: 
-  eventType:
-    classRef: TestEvent, Assembly-CSharp
-  delayInSeconds: 1
 --- !u!114 &114484004396870992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,36 +131,7 @@ MonoBehaviour:
       destinationHandleData:
         offset: {x: -40, y: 0}
   Title: Login
-  Position: {x: 301, y: 132}
---- !u!114 &114496786568150212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  TemplateActions:
-  - {fileID: 114416520837076436}
-  RunTimeActions:
-  - {fileID: 0}
-  RuleGroups:
-  - TemplateRules:
-    - {fileID: 114245492093365186}
-    RuntimeRules:
-    - {fileID: 0}
-    Destination: {fileID: 114911103445327606}
-    linkData:
-      sourceHandleData:
-        offset: {x: 46, y: 1}
-      destinationHandleData:
-        offset: {x: -65, y: 22}
-  Title: New State
-  Position: {x: 98, y: 282}
+  position: {x: 314, y: 212}
 --- !u!114 &114657457123389782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,24 +197,7 @@ MonoBehaviour:
       destinationHandleData:
         offset: {x: -163, y: -85}
   Title: Menu
-  Position: {x: 493, y: 130}
---- !u!114 &114911103445327606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  TemplateActions: []
-  RunTimeActions: []
-  RuleGroups: []
-  Title: New State
-  Position: {x: 509, y: 301}
+  position: {x: 534, y: 211}
 --- !u!114 &114936907437367504
 MonoBehaviour:
   m_ObjectHideFlags: 0
