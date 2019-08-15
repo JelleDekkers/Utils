@@ -104,7 +104,7 @@ namespace Utils.Core.Events
         }
 
         public void Invoke(Type type, IEvent eventObject)
-        { 
+        {
             Action<object> callback;
 
             if (eventCallbackMap.TryGetValue(type, out callback))

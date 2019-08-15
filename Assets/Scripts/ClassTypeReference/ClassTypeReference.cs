@@ -10,6 +10,29 @@ namespace Utils.Core
     [Serializable]
     public sealed class ClassTypeReference : ISerializationCallbackReceiver
     {
+        public string Name { get { return Type.Name; } }
+
+        /// <summary>
+        /// Gets or sets type of class reference.
+        /// </summary>
+        /// <exception cref="ArgumentException">
+        /// If <paramref name="value"/> is not a class type.
+        /// </exception>
+        public Type Type
+        {
+            get { return classType; }
+            set
+            {
+                if (value != null && !value.IsClass)
+                {
+                    throw new ArgumentException(string.Format("'{0}' is not a class type.", value.FullName), "value");
+                }
+
+                classType = value;
+                classRef = GetClassRef(value);
+            }
+        }
+
         [SerializeField] private string classRef;
 
         private Type classType;
@@ -59,28 +82,6 @@ namespace Utils.Core
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-        }
-
-
-        /// <summary>
-        /// Gets or sets type of class reference.
-        /// </summary>
-        /// <exception cref="ArgumentException">
-        /// If <paramref name="value"/> is not a class type.
-        /// </exception>
-        public Type Type
-        {
-            get { return classType; }
-            set
-            {
-                if (value != null && !value.IsClass)
-                {
-                    throw new ArgumentException(string.Format("'{0}' is not a class type.", value.FullName), "value");
-                }
-
-                classType = value;
-                classRef = GetClassRef(value);
-            }
         }
 
         public static implicit operator string(ClassTypeReference typeReference)

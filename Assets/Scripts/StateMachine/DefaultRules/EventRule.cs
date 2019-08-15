@@ -11,7 +11,7 @@ namespace Utils.Core.Flow.DefaultRules
         public override bool IsValid => isValid;
         private bool isValid;
 
-        public override string DisplayName => (eventType != null && eventType.Type != null) ? "On " + eventType.ToString() : "No Event Picked!";
+        public override string DisplayName => (eventType != null && eventType.Type != null) ? "On " + eventType.Name : "No Event Picked!";
 
         [ClassTypeImplements(typeof(IEvent)), SerializeField] private ClassTypeReference eventType = null;
         private EventDispatcher eventDispatcher;

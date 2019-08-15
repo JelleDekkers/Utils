@@ -25,7 +25,7 @@ namespace Utils.Core.Flow
         public virtual void Update() { }
 
         /// <summary>
-        /// Called when the state stops, is called before <see cref="OnStarted"/> on the new state
+        /// Called when the state is going to be stopped, is called before <see cref="OnStarted"/> on the new state and before <see cref="OnStopped"/>
         /// </summary>
         public virtual void OnStopping() { }
 

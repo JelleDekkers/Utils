@@ -1,30 +1,70 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using Utils.Core.Injection;
 
 namespace Utils.Core.Flow
 {
     /// <summary>
     /// Class for handling <see cref="StateMachineData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s
+    /// Use scripting define symbol "DEBUG_FLOW" to show debugs
     /// </summary>
     public class StateMachineLogic
     {
-        public StateMachineData Data { get; private set; }
-        public State CurrentState { get; private set; }
+        public Action<StateMachineLayer, StateMachineLayer> LayerChangedEvent;
+        public Action<State, State> TransitionDoneEvent;
+
+        public StateMachineData CurrentStateMachineData { get { return layerStack.Peek().Data; } }
+        public State CurrentState { get { return layerStack.Peek().currentState; } }
 
         private readonly DependencyInjector dependencyInjector;
 
+        private Stack<StateMachineLayer> layerStack = new Stack<StateMachineLayer>();
+
         public StateMachineLogic(StateMachineData data)
         {
-            Data = data;
+            layerStack.Push(new StateMachineLayer(data, this));
             dependencyInjector = new DependencyInjector();
+            dependencyInjector.RegisterInstance<StateMachineLogic>(this);
 
             StartStateMachine();
         }
 
+        public void PushStateMachineToStack(StateMachineLayer layer)
+        {
+            void OnTransitionDoneEvent(State from, State to)
+            {
+                TransitionDoneEvent -= OnTransitionDoneEvent;
+
+                State prevState = CurrentState;
+                StateMachineLayer prevLayer = layerStack.Peek();
+
+                layerStack.Push(layer);
+                TransitionToNewLayer(prevState, layer.Data.EntryState);
+
+                LayerChangedEvent?.Invoke(prevLayer, layerStack.Peek());
+            };
+
+            TransitionDoneEvent += OnTransitionDoneEvent;
+        }
+
+        public void PopCurrentStateMachineFromStack()
+        {
+            void OnTransitionDoneEvent(State from, State to)
+            {
+                TransitionDoneEvent -= OnTransitionDoneEvent;
+                StateMachineLayer prevData = layerStack.Pop();
+                TransitionFromPoppedLayer(prevData.currentState, CurrentState);
+
+                LayerChangedEvent?.Invoke(prevData, layerStack.Peek());
+            };
+
+            TransitionDoneEvent += OnTransitionDoneEvent;
+        }
+
         private void StartStateMachine()
         {
-            CurrentState = Data.EntryState;
-            TransitionToState(null, CurrentState);
+            TransitionToState(null, CurrentStateMachineData.EntryState);
         }
 
         public void Update()
@@ -36,8 +76,8 @@ namespace Utils.Core.Flow
                 TransitionToState(CurrentState, newState);
 
                 if(newState == null)
-                { 
-                    Debug.LogWarningFormat("{0} Has no destination state!", CurrentState);
+                {
+                    DebugLog(string.Format("{0} Has no destination state!", CurrentState));
                 }
             }
 
@@ -47,9 +87,72 @@ namespace Utils.Core.Flow
             }
         }
 
+        private void TransitionToNewLayer(State prevState, State newState)
+        {
+            DebugLog("starting state on new layer " + newState);
+
+            newState.OnStart();
+
+            foreach (StateAction action in newState.RunTimeActions)
+            {
+                dependencyInjector.InjectMethod(action);
+                action.OnStarting();
+            }
+           
+            foreach (StateAction action in newState.RunTimeActions)
+            {
+                action.OnStarted();
+            }
+
+            foreach (RuleGroup group in newState.RuleGroups)
+            {
+                group.OnActivate();
+
+                foreach (Rule rule in group.RuntimeRules)
+                {
+                    dependencyInjector.InjectMethod(rule);
+                    rule.OnActivate();
+                }
+            }
+
+            layerStack.Peek().currentState = newState;
+            TransitionDoneEvent?.Invoke(prevState, newState);
+        }
+
+        private void TransitionFromPoppedLayer(State prevState, State newState)
+        {
+            DebugLog(string.Format("LAYER POPPED, Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE"));
+
+            foreach (StateAction action in prevState.RunTimeActions)
+            {
+                action.OnStopping();
+            }
+        
+            foreach (StateAction action in prevState.RunTimeActions)
+            {
+                action.OnStopped();
+            }
+
+            foreach (RuleGroup group in prevState.RuleGroups)
+            {
+                foreach (Rule rule in group.RuntimeRules)
+                {
+                    rule.OnDeactivate();
+                }
+
+                group.OnDeactivatie();
+            }
+
+            prevState.OnExit();
+
+            layerStack.Peek().currentState = newState;
+            TransitionDoneEvent?.Invoke(prevState, newState);
+        }
+
+
         private void TransitionToState(State prevState, State newState)
         {
-            Debug.LogFormat("Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE");
+            DebugLog(string.Format("Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE"));
 
             if (newState != null)
             {
@@ -115,7 +218,8 @@ namespace Utils.Core.Flow
                 prevState.OnExit();
             }
 
-            CurrentState = newState;
+            layerStack.Peek().currentState = newState;
+            TransitionDoneEvent?.Invoke(prevState, newState);
         }
 
         private bool EvaluateStatesForTransition(State currentState, out State newState, out RuleGroup validRuleGroup)
@@ -133,6 +237,16 @@ namespace Utils.Core.Flow
             newState = null;
             validRuleGroup = null;
             return false;
+        }
+
+        /// <summary>
+        /// Prints Debug.Log if DEBUG_FLOW is found in the projects Scripting Define Symbols
+        /// </summary>
+        /// <param name="log"></param>
+        [System.Diagnostics.Conditional("DEBUG_FLOW")]
+        public static void DebugLog(string log)
+        {
+            Debug.Log(log);
         }
     }
 }

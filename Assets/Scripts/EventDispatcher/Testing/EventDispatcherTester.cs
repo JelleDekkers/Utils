@@ -8,7 +8,7 @@ public class EventDispatcherTester : MonoBehaviour
 
     private void Start()
     {
-        eventDispatcher = ServiceLocator.Instance.Get<EventDispatcher>();
+        eventDispatcher = GlobalServiceLocator.Instance.Get<EventDispatcher>();
         eventDispatcher.Subscribe<TestEvent>(OnEventInvoked);
     }
 

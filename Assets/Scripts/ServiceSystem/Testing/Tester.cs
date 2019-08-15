@@ -7,7 +7,7 @@ public class Tester : MonoBehaviour
 {
     void Start()
     {
-        ITestServer server = ServiceLocator.Instance.Get<LoginService>().server;
+        ITestServer server = GlobalServiceLocator.Instance.Get<LoginService>().server;
         server.Login();
     }
 }

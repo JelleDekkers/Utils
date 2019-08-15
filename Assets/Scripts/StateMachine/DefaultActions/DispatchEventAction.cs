@@ -31,11 +31,20 @@ namespace Utils.Core.Flow.DefaultActions
             {
                 coroutineService.StartCoroutine(Timer());
             }
+            else
+            {
+                InvokeEvent();
+            }
         }
 
         private IEnumerator Timer()
         {
             yield return new WaitForSeconds(delayInSeconds);
+            InvokeEvent();
+        }
+
+        private void InvokeEvent()
+        {
             eventDispatcher.Invoke((IEvent)Activator.CreateInstance(eventType));
         }
     }

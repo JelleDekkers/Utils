@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -8,15 +9,48 @@ namespace Utils.Core.Injection
 {
     /// <summary>
     /// Class for handling dependency injection. 
-    /// Dependencies need to be of type <see cref="IService>"/> and are resolved by <see cref="ServiceLocator"/>
+    /// Dependencies need to be of type <see cref="IService>"/> and are resolved by <see cref="GlobalServiceLocator"/>
     /// </summary>
     public class DependencyInjector
     {
-        private readonly string injectionMethodName;
+        public const string DEFAULT_INJECTION_METHOD_NAME = "InjectDependencies";
 
-        public DependencyInjector(string injectionMethodName = "InjectDependencies")
+        private readonly string injectionMethodName;
+        private Dictionary<Type, object> typeInstancePairs = new Dictionary<Type, object>();
+
+        public DependencyInjector(string injectionMethodName = DEFAULT_INJECTION_METHOD_NAME)
         {
             this.injectionMethodName = injectionMethodName;
+
+            RegisterInstance<DependencyInjector>(this);
+        }
+
+        public void RegisterInstance<T>(object instance)
+        {
+            RegisterInstance(typeof(T), instance);
+        }
+
+        public void RegisterInstance(Type type, object instance)
+        {
+            if(typeInstancePairs.ContainsKey(type))
+            {
+                typeInstancePairs.Remove(type);
+            }
+
+            typeInstancePairs.Add(type, instance);
+        }
+
+        public void UnRegisterInstance<T>()
+        {
+            UnRegisterInstance(typeof(T));
+        }
+
+        public void UnRegisterInstance(Type type)
+        {
+            if(typeInstancePairs.ContainsKey(type))
+            {
+                typeInstancePairs.Remove(type);
+            }
         }
 
         public void InjectConstructor(object obj, int constructorIndex = 0)
@@ -68,20 +102,19 @@ namespace Utils.Core.Injection
                 ParameterInfo parameterInfo = parameters[i];
                 Type type = parameters[i].ParameterType;
 
-                if(type == typeof(DependencyInjector))
+                if (type.GetInterfaces().Contains(typeof(IService)))
                 {
-                    objects[i] = this;
+                    objects[i] = GlobalServiceLocator.Instance.Get(type);
                     continue;
                 }
 
-                // Currently only dependencies of type IService work
-                if (!type.GetInterfaces().Contains(typeof(IService)))
+                if(typeInstancePairs.ContainsKey(type))
                 {
-                    objects[i] = null;
+                    objects[i] = typeInstancePairs[type];
                     continue;
                 }
 
-                objects[i] = ServiceLocator.Instance.Get(type);
+                objects[i] = null;
             }
 
             return objects;

@@ -6,29 +6,29 @@ using UnityEngine;
 namespace Utils.Core.Services
 {
     /// <summary>
-    /// Keeps track of <see cref="IService"/>s. 
+    /// Keeps track of global <see cref="IService"/>s. 
     /// When requesting a service, <see cref="InstantiatedServices"/> is checked. If no instance is found a new instance is created. 
     /// If the service has a corresponding <see cref="IServiceFactory"/>, the factory will construct the instance.
     /// </summary>
-    public class ServiceLocator
+    public class GlobalServiceLocator
     {
-        public static ServiceLocator Instance
+        public static GlobalServiceLocator Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new ServiceLocator();
+                    instance = new GlobalServiceLocator();
                 }
                 return instance;
             }
         }
-        private static ServiceLocator instance;
+        private static GlobalServiceLocator instance;
 
         private Dictionary<Type, IService> InstantiatedServices = new Dictionary<Type, IService>();
         private Dictionary<Type, Type> serviceFactories = new Dictionary<Type, Type>();
 
-        public ServiceLocator()
+        public GlobalServiceLocator()
         {
             serviceFactories = GetAllServiceFactories();
         }
