@@ -10,28 +10,27 @@ public class StateMachineExecutor : MonoBehaviour
     public StateMachineData StateMachineData => stateMachineData;
     [SerializeField] protected StateMachineData stateMachineData;
 
-    public StateMachineLogic Logic { get; private set; }
+    public StateMachineManager Manager { get; private set; }
 
     private void Start()
     {
         DontDestroyOnLoad(this);
-        Logic = new StateMachineLogic(stateMachineData);
-
-        Logic.LayerChangedEvent += OnStateMachineChangedEvent;
+        Manager = new StateMachineManager(stateMachineData);
+        Manager.LayerChangedEvent += OnLayerChangedEvent;
     }
 
     private void OnDestroy()
     {
-        Logic.LayerChangedEvent -= OnStateMachineChangedEvent;
+        Manager.LayerChangedEvent -= OnLayerChangedEvent;
     }
 
-    private void OnStateMachineChangedEvent(StateMachineLayer from, StateMachineLayer to)
+    private void OnLayerChangedEvent(StateMachineLayer from, StateMachineLayer to)
     {
         stateMachineData = to.Data;
     }
 
     private void Update()
     {
-        Logic.Update();
+        Manager.Update();
     }
 }

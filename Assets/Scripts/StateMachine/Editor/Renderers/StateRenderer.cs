@@ -169,7 +169,7 @@ namespace Utils.Core.Flow
 
         public bool IsCurrentStateInRuntimeLogic()
         {
-            return Application.isPlaying && manager.Executor != null && manager.Executor.Logic != null && manager.Executor.Logic.CurrentState == Node;
+            return Application.isPlaying && manager.Executor != null && manager.Executor.Manager != null && manager.Executor.Manager.CurrentLayer.CurrentState == Node;
         }
 
         #region Drawing

@@ -187,9 +187,8 @@ MonoBehaviour:
   m_Name: State
   m_EditorClassIdentifier: 
   TemplateActions:
-  - {fileID: 114483180595674832}
-  RunTimeActions:
-  - {fileID: 0}
+  - {fileID: 114961083181729714}
+  RunTimeActions: []
   RuleGroups:
   - TemplateRules:
     - {fileID: 114025331296038836}
@@ -330,3 +329,16 @@ MonoBehaviour:
   m_Name: DelayRule
   m_EditorClassIdentifier: 
   delay: 2
+--- !u!114 &114961083181729714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f80fb49ddf3fac443bdb00b0c03c65a6, type: 3}
+  m_Name: StartStateMachineLayerAction
+  m_EditorClassIdentifier: 
+  stateMachine: {fileID: 11400000, guid: 96d3c7b5ee05d8040987195f1a9b06b4, type: 2}
