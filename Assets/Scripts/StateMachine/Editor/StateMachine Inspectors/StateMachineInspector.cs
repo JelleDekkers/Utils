@@ -9,12 +9,12 @@ namespace Utils.Core.Flow.Inspector
     /// </summary>
     public class StateMachineInspector : IDisposable
     {
-        protected StateMachineUIImplementation editorUI;
+        protected StateMachineLayerRenderer editorUI;
         protected IInspectorUIBehaviour uiBehaviour;
 
         private Action layoutEvent;
 
-        public StateMachineInspector(StateMachineUIImplementation editorUI)
+        public StateMachineInspector(StateMachineLayerRenderer editorUI)
         {
             this.editorUI = editorUI;
 

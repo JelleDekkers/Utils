@@ -9,11 +9,11 @@ namespace Utils.Core.Flow.Inspector
     {
         private const string PROPERTY_NAME = "TemplateActions";
 
-        private StateMachineUIImplementation editorUI;
+        private StateMachineLayerRenderer editorUI;
         private State state;
         private SerializedObject serializedState;
 
-        public StateInspectorUI(StateMachineUIImplementation editorUI, State state)
+        public StateInspectorUI(StateMachineLayerRenderer editorUI, State state)
         {
             this.editorUI = editorUI;
             this.state = state;

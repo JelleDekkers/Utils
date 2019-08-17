@@ -5,7 +5,7 @@ using Utils.Core.Flow.Inspector;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering <see cref="Flow.RuleGroup"/>s on <see cref="StateMachineUIImplementation"/>
+    /// Class for rendering <see cref="Flow.RuleGroup"/>s on <see cref="StateMachineLayerRenderer"/>
     /// </summary>
     public class RuleGroupRenderer : ISelectable, IDraggable
     {
@@ -21,12 +21,12 @@ namespace Utils.Core.Flow
         private Vector2 LinkSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         public StateRenderer stateRenderer;
-        private StateMachineUIImplementation editorUI;
+        private StateMachineLayerRenderer editorUI;
         private Rect fullRect;
         private bool isDraggingLink;
         private LinkRenderer linkRenderer;
 
-        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer stateRenderer, StateMachineUIImplementation editorUI)
+        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer stateRenderer, StateMachineLayerRenderer editorUI)
         {
             RuleGroup = ruleGroup;
             this.stateRenderer = stateRenderer;

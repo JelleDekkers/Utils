@@ -46,7 +46,7 @@ namespace Utils.Core.Flow
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(1f, 1f, 1f, 0.7f);
 
-        private StateMachineUIImplementation editorUI;
+        private StateMachineLayerRenderer editorUI;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private Rect fullRect;
         private bool isDragging;
@@ -55,7 +55,7 @@ namespace Utils.Core.Flow
         private Vector2 dragStartPos;
         private bool canDrag;
 
-        public StateRenderer(State state, StateMachineUIImplementation renderer)
+        public StateRenderer(State state, StateMachineLayerRenderer renderer)
         {
             Node = state;
             editorUI = renderer;
@@ -167,7 +167,7 @@ namespace Utils.Core.Flow
 
         public bool IsCurrentlyRunning()
         {
-            return editorUI.StateMachineManager != null && editorUI.StateMachineManager.CurrentLayer.CurrentState == Node;
+            return editorUI.stateMachine != null && editorUI.stateMachine.CurrentLayer.CurrentState == Node;
         }
 
         #region Drawing

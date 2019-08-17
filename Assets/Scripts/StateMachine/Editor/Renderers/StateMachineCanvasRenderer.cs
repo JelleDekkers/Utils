@@ -17,7 +17,7 @@ namespace Utils.Core.Flow
         private const float ZOOM_SCALE_MAX = 1.5f;
         private const float ZOOM_SCALE_MIN = 0.5f;
 
-        public StateMachineUIImplementation EditorUI { get; private set; }
+        public StateMachineLayerRenderer EditorUI { get; private set; }
         public Vector2 ScrollViewDrag { get; private set; }
         public Rect windowRect = new Rect(0, 0, 0, MIN_WINDOW_HEIGHT);
 
@@ -33,7 +33,7 @@ namespace Utils.Core.Flow
         private bool dragThresholdReached;
         private HorizontalResizeHandle resizeHandle;
 
-        public StateMachineCanvasRenderer(StateMachineUIImplementation editorUI)
+        public StateMachineCanvasRenderer(StateMachineLayerRenderer editorUI)
         {
             EditorUI = editorUI;
 

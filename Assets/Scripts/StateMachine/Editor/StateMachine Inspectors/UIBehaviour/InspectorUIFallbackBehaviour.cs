@@ -5,10 +5,10 @@ namespace Utils.Core.Flow.Inspector
 {
     public class InspectorUIFallbackBehaviour : IInspectorUIBehaviour
     {
-        protected StateMachineUIImplementation EditorUI { get; private set; }
+        protected StateMachineLayerRenderer EditorUI { get; private set; }
         protected SerializedObject Target { get; private set; }
 
-        public InspectorUIFallbackBehaviour(StateMachineUIImplementation editorUI, SerializedObject target)
+        public InspectorUIFallbackBehaviour(StateMachineLayerRenderer editorUI, SerializedObject target)
         {
             EditorUI = editorUI;
             Target = target;

@@ -7,13 +7,19 @@ namespace Utils.Core.Flow
     /// Editor class for <see cref="StateMachineData"/>
     /// </summary>
     [CustomEditor(typeof(StateMachineData))]
-    public class StateMachineEditor : Editor
+    public class StateMachineDataEditor : Editor
     {
         private StateMachineUIImplementation editorUI;
 
         protected void OnEnable()
         {
-            editorUI = new StateMachineUIImplementation((StateMachineData)target, Repaint);
+            editorUI = new StateMachineUIImplementation(target as StateMachineData, null, Repaint);
+            editorUI.OnEnable();
+        }
+
+        protected void OnDisable()
+        {
+            editorUI.OnDisable();
         }
 
         public override void OnInspectorGUI()
@@ -23,7 +29,7 @@ namespace Utils.Core.Flow
 
         private void OnDestroy()
         {
-            editorUI.Dispose();
+            editorUI?.Dispose();
         }
     }
 }

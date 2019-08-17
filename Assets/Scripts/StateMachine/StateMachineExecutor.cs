@@ -4,7 +4,7 @@ namespace Utils.Core.Flow
 {
     /// <summary>
     /// Monobehaviour for using a <see cref="Flow.StateMachineData"/> in the scene
-    /// <see cref="StateMachineData"/> will be used as the first <see cref="StateMachineLayer"/> on <see cref="Manager"/>
+    /// <see cref="StateMachineData"/> will be used as the first <see cref="StateMachineLayer"/> on <see cref="StateMachineLogic"/>
     /// Has DontDestroyOnLoad called on this gameObject
     /// </summary>
     public class StateMachineExecutor : MonoBehaviour
@@ -12,17 +12,17 @@ namespace Utils.Core.Flow
         public StateMachineData StateMachineData => stateMachineData;
         [SerializeField] protected StateMachineData stateMachineData;
 
-        public StateMachineManager Manager { get; private set; }
+        public Statemachine StateMachineLogic { get; private set; }
 
         private void Awake()
         {
             DontDestroyOnLoad(this);
-            Manager = new StateMachineManager(stateMachineData);
+            StateMachineLogic = new Statemachine(stateMachineData);
         }
 
         private void Update()
         {
-            Manager.Update();
+            StateMachineLogic.Update();
         }
     }
 }

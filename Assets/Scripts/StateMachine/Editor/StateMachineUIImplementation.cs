@@ -1,201 +1,154 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using Utils.Core.Flow.Inspector;
 
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering <see cref="Flow.StateMachineData"/> in an editor window.
+    /// Manager class for rendering a state machine in the editor
     /// </summary>
-    public class StateMachineUIImplementation
+    public class StateMachineUIImplementation : IDisposable
     {
-        public ISelectable Selection { get; private set; }
-        public StateMachineData StateMachineData { get; private set; }
-        public List<StateRenderer> NodeRenderers { get; private set; }
-        public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
-        public StateMachineManager StateMachineManager { get; private set; }
-        public StateMachineInspector Inspector { get; private set; }
-        public bool ContextMenuIsOpen { get; set; }
-        public bool ShowDebug { get; private set; }
+        private StateMachineLayerRenderer layerRenderer;
+        private StateMachineData stateMachineData;
+        private Statemachine statemachine;
 
-        private readonly Action repaintEvent;
+        private List<StateMachineData> linkedLayers = new List<StateMachineData>();
+        private string[] linkedLayerNames = new string[0];
+        private int linkedLayersToolbarIndex = 0;
 
-        public StateMachineUIImplementation(StateMachineData stateMachine, Action repaintEvent, StateMachineManager manager = null)
+        private GUIStyle linkedLayersToolbarStyle;
+        private readonly Action repaint;
+
+        public StateMachineUIImplementation(StateMachineData data, Statemachine statemachine, Action repaint)
         {
-            StateMachineData = stateMachine;
-            StateMachineManager = manager;
-            this.repaintEvent = repaintEvent;
+            stateMachineData = data;
+            this.statemachine = statemachine;
+            this.repaint = repaint;
+        }
 
-            Inspector = new StateMachineInspector(this);
-            CanvasRenderer = new StateMachineCanvasRenderer(this);
-            NodeRenderers = new List<StateRenderer>();
-
-            foreach (State state in stateMachine.States)
+        public void OnEnable() 
+        {
+            if (Application.isPlaying)
             {
-                CreateNewNodeRenderer(state);
+                if (statemachine != null)
+                {
+                    statemachine.LayerChangedEvent += OnLayerChanged;
+                }
             }
+ 
+            if (stateMachineData != null)
+            {
+                layerRenderer = new StateMachineLayerRenderer(stateMachineData, repaint, statemachine);
+            }
+        }
 
-            StateMachineEditorUtility.StateAddedEvent += OnStateAddedEvent;
-            StateMachineEditorUtility.StateRemovedEvent += OnStateRemovedEvent;
-            StateMachineEditorUtility.StateMachineClearedEvent += OnStateMachineClearedEvent;
+        public void OnDisable()
+        {
+            if (Application.isPlaying)
+            {
+                if (statemachine != null)
+                {
+                    statemachine.LayerChangedEvent -= OnLayerChanged;
+                }
+            }
         }
 
         public void OnInspectorGUI()
         {
-            Event e = Event.current;
-            CanvasRenderer.OnInspectorGUI(e);
-            Inspector.OnInspectorGUI(e);
-
-            if (ShowDebug)
+            if(linkedLayersToolbarStyle == null)
             {
-                DrawDebugInfo(e);
+                linkedLayersToolbarStyle = new GUIStyle("Button");
+                linkedLayersToolbarStyle.fixedHeight = 20;
             }
 
-            if (GUI.changed)
+            if (layerRenderer != null)
             {
-                repaintEvent();
+                EditorGUILayout.Space();
+                DrawLayersToolbar();
+                EditorGUILayout.Space();
+                layerRenderer.OnInspectorGUI();
             }
         }
 
-        public bool IsStateAtPosition(Vector2 position, out StateRenderer result)
+        public void OnStateMachineDataChanged(StateMachineData newData)
         {
-            foreach(StateRenderer renderer in NodeRenderers)
+            stateMachineData = newData;
+            layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(newData, repaint, statemachine) : null;
+        }
+
+        private void DrawLayersToolbar()
+        {
+            float toolbarButtonMaxWidth = 150;
+
+            EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
+
+            GUIContent buttonText = new GUIContent("Load linked layers");
+            float heightNeeded = linkedLayersToolbarStyle.CalcSize(buttonText).x + 10;
+
+            linkedLayersToolbarStyle.fontStyle = FontStyle.Bold;
+            if (GUILayout.Button(buttonText, linkedLayersToolbarStyle, GUILayout.Width(heightNeeded)))
             {
-                if(renderer.Rect.Contains(position))
+                LoadLinkedLayers();
+            }
+
+            linkedLayersToolbarStyle.fontStyle = FontStyle.Normal;
+            int prevSelectionIndex = linkedLayersToolbarIndex;
+            linkedLayersToolbarIndex = GUILayout.Toolbar(linkedLayersToolbarIndex, linkedLayerNames, linkedLayersToolbarStyle, GUILayout.Width(toolbarButtonMaxWidth * linkedLayers.Count), GUILayout.MinWidth(10));
+            if (linkedLayersToolbarIndex != prevSelectionIndex)
+            {
+                layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(linkedLayers[linkedLayersToolbarIndex], repaint, statemachine) : null;
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void LoadLinkedLayers()
+        {
+            linkedLayers.Clear();
+            linkedLayers.Add(stateMachineData);
+            GetLinkedLayers(stateMachineData);
+
+            linkedLayerNames = new string[linkedLayers.Count];
+            for (int i = 0; i < linkedLayers.Count; i++)
+            {
+                linkedLayerNames[i] = linkedLayers[i].name;
+            }
+        }
+
+        private void GetLinkedLayers(StateMachineData data)
+        {
+            foreach (State state in data.States)
+            {
+                foreach (StateAction action in state.TemplateActions)
                 {
-                    result = renderer;
-                    return true;
-                }
-            }
-
-            result = null;
-            return false;
-        }
-
-        private void DrawDebugInfo(Event e)
-        {
-            EditorGUILayout.BeginVertical("Box");
-
-            EditorGUILayout.LabelField("Drag " + CanvasRenderer.ScrollViewDrag);
-            EditorGUILayout.LabelField("window size " + CanvasRenderer.windowRect.size);
-
-            EditorGUILayout.LabelField("mouse pos " + e.mousePosition);
-            EditorGUILayout.LabelField("state count " + StateMachineData.States.Count);
-            EditorGUILayout.LabelField("entry state " + StateMachineData.EntryState.Title);
-            EditorGUILayout.LabelField("is inside canvas " + CanvasRenderer.Contains(e.mousePosition));
-
-            if (Selection != null)
-            {
-                EditorGUILayout.LabelField("selection " + Selection);
-
-                if (Selection is StateRenderer)
-                {
-                    EditorGUILayout.LabelField("selection pos " + (Selection as StateRenderer).Node.Position);
-                    EditorGUILayout.LabelField("selection rect " + (Selection as StateRenderer).Rect);
-                }
-            }
-            EditorGUILayout.EndVertical();
-        }
-
-        private void OnStateMachineClearedEvent(StateMachineData stateMachine)
-        {
-            if(StateMachineData == stateMachine)
-            {
-                NodeRenderers.Clear();
-            }
-        }
-
-        private void OnStateRemovedEvent(StateMachineData stateMachine, State state)
-        {
-           if(StateMachineData == stateMachine)
-            {
-                RemoveStateRenderer(state);
-            }
-        }
-
-        private void RemoveStateRenderer(State state)
-        {
-            foreach (StateRenderer renderer in NodeRenderers)
-            {
-                if (renderer.Node == state)
-                {
-                    NodeRenderers.Remove(renderer);
-
-                    if (Selection == renderer as ISelectable )
+                    FieldInfo[] fields = action.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    foreach (FieldInfo field in fields)
                     {
-                        Deselect(renderer as ISelectable);
+                        if (field.GetCustomAttributes(typeof(SerializeField), true).Length > 0 || field.IsPublic)
+                        {
+                            if (field.GetValue(action) != null && field.GetValue(action).GetType() == typeof(StateMachineData) && !linkedLayers.Contains(field.GetValue(action) as StateMachineData))
+                            {
+                                StateMachineData linkedLayer = field.GetValue(action) as StateMachineData;
+                                linkedLayers.Add(linkedLayer);
+                                GetLinkedLayers(linkedLayer);
+                            }
+                        }
                     }
-                    break;
                 }
             }
         }
 
-        private void OnStateAddedEvent(StateMachineData stateMachine, State state)
+        private void OnLayerChanged(StateMachineLayer from, StateMachineLayer to)
         {
-            if (StateMachineData == stateMachine)
-            {
-                CreateNewNodeRenderer(state);
-            }
-        }
-
-        private void CreateNewNodeRenderer(State state) 
-        {
-            StateRenderer stateRenderer = new StateRenderer(state, this);
-            NodeRenderers.Insert(0, stateRenderer);
-        }
-
-        public void Select(ISelectable selectable)
-        {
-            if (Selection != selectable)
-            {
-                Selection = selectable;
-            }
-        }
-
-        public void Deselect(ISelectable selectable)
-        {
-            if(Selection == selectable)
-            {
-                Selection = null;
-                Inspector.Clear();
-            }
-        }
-
-        public void Refresh(Action onDone = null)
-        {
-            Selection = null;
-
-            foreach (State state in StateMachineData.States)
-            {
-                CreateNewNodeRenderer(state);
-            }
-
-            onDone?.Invoke();
-        }
-
-        public void SetDebug(bool debug)
-        {
-            ShowDebug = debug;
-            Inspector.Refresh();
-        }
-
-        /// <summary>
-        /// Reorders renderer to the the bottom of the states list, this way <see cref="StateRenderer.ProcessEvents(Event)"/> is called first and the window will be drawn on top
-        /// </summary>
-        /// <param name="renderer"></param>
-        public void ReorderNodeRendererToBottom(StateRenderer renderer)
-        {
-            NodeRenderers.Remove(renderer);
-            NodeRenderers.Add(renderer);
+            layerRenderer = (to.Data != null) ? new StateMachineLayerRenderer(to.Data, repaint, statemachine) : null;
         }
 
         public void Dispose()
         {
-            StateMachineEditorUtility.StateAddedEvent -= OnStateAddedEvent;
-            StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
-            StateMachineEditorUtility.StateMachineClearedEvent -= OnStateMachineClearedEvent;
+            layerRenderer?.Dispose();
         }
     }
 }

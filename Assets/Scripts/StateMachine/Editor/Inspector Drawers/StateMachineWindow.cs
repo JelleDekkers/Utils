@@ -4,20 +4,31 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Editor class for viewing a <see cref="StateMachineUIImplementation"/> in an editor window
+    /// Editor class for viewing a <see cref="StateMachineLayerRenderer"/> in an editor window
     /// </summary>
     public class StateMachineWindow : EditorWindow
     {
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
+        private StateMachineData data;
         private StateMachineUIImplementation editorUI;
 
-        [MenuItem("Window/State Machine")]
+        [MenuItem("Window/State Machine Window")]
         public static StateMachineWindow Init()
         {
             StateMachineWindow window = GetWindow<StateMachineWindow>(false, "State Machine");
             SetupWindow(window);
             return window;
+        }
+
+        protected void OnEnable()
+        {
+            SetupWindow(this);
+        }
+
+        protected void OnDisable()
+        {
+            editorUI?.OnDisable();
         }
 
         private static void SetupWindow(StateMachineWindow window)
@@ -39,12 +50,19 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void SetTarget(StateMachineData stateMachine)
+        public void SetTarget(StateMachineData data)
         {
-            if(stateMachine != null)
+            if(data != null)
             {
-                editorUI = new StateMachineUIImplementation(stateMachine, Repaint);
+                this.data = data;
+                editorUI = new StateMachineUIImplementation(data, null, Repaint);
+                editorUI.OnEnable();
             }
+        }
+
+        private void Update()
+        {
+            Repaint();
         }
 
         private void OnGUI()
@@ -55,11 +73,7 @@ namespace Utils.Core.Flow
             }
             else
             {
-                GUIStyle centeredStyle = GUI.skin.GetStyle("Label");
-                centeredStyle.alignment = TextAnchor.UpperCenter;
-                GUIContent content = new GUIContent(string.Format("No {0} or {1} selected", typeof(StateMachineData).Name, typeof(StateMachineExecutor).Name));
-                Vector2 size = centeredStyle.CalcSize(content);
-                GUI.Label(new Rect(Screen.width / 2 - size.x / 2, Screen.height / 2 - size.y / 2, size.x, size.y), content, centeredStyle);
+                GUILayout.Label(string.Format("No {0} or {1} selected", typeof(StateMachineData).Name, typeof(StateMachineExecutor).Name));
             }
         }
 
@@ -70,7 +84,7 @@ namespace Utils.Core.Flow
 
         private void OnDestroy()
         {
-            editorUI.Dispose();
+            editorUI?.Dispose();
         }
     }
 }

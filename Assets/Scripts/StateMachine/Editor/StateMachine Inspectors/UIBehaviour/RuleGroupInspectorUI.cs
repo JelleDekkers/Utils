@@ -9,13 +9,13 @@ namespace Utils.Core.Flow.Inspector
     {
         private const string PROPERTY_NAME = "TemplateRules";
 
-        private StateMachineUIImplementation editorUI;
+        private StateMachineLayerRenderer editorUI;
         private SerializedObject serializedStateObject;
         private SerializedProperty ruleGroupProperty;
         private State state;
         private RuleGroup ruleGroup;
 
-        public RuleGroupInspector(StateMachineUIImplementation editorUI, State state, RuleGroup ruleGroup)
+        public RuleGroupInspector(StateMachineLayerRenderer editorUI, State state, RuleGroup ruleGroup)
         {
             this.editorUI = editorUI;
             this.state = state;

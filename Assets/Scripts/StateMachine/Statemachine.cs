@@ -5,18 +5,18 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Manager class for a StateMachine. Keeps track and updates all stacked <see cref="StateMachineLayer"/>s
+    /// Class for the actual runtime statemachine. Keeps track and updates all stacked <see cref="StateMachineLayer"/>s
     /// Use scripting define symbol "DEBUG_FLOW" to print StateMachine related debugs
     /// </summary>
     [Serializable]
-    public class StateMachineManager
+    public class Statemachine
     {
         public Action<StateMachineLayer, StateMachineLayer> LayerChangedEvent;
         public StateMachineLayer CurrentLayer { get { return layerStack.Peek(); } }
 
         private Stack<StateMachineLayer> layerStack = new Stack<StateMachineLayer>();
 
-        public StateMachineManager(StateMachineData data)
+        public Statemachine(StateMachineData data)
         {
             StateMachineLayer layer = new StateMachineLayer(this, data);
             layerStack.Push(layer);
@@ -54,7 +54,7 @@ namespace Utils.Core.Flow
         }
 
         /// <summary>
-        /// Prints Debug.Log if DEBUG_FLOW is found in the projects Scripting Define Symbols
+        /// Prints Debug.Log if DEBUG_FLOW is added to the projects Scripting Define Symbols
         /// </summary>
         /// <param name="log"></param>
         [System.Diagnostics.Conditional("DEBUG_FLOW")]
