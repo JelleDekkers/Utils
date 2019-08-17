@@ -5,12 +5,12 @@ namespace Utils.Core.Flow.Inspector
 {
     public class InspectorUIFallbackBehaviour : IInspectorUIBehaviour
     {
-        protected StateMachineEditorManager Manager { get; private set; }
+        protected StateMachineUIImplementation EditorUI { get; private set; }
         protected SerializedObject Target { get; private set; }
 
-        public InspectorUIFallbackBehaviour(StateMachineEditorManager manager, SerializedObject target)
+        public InspectorUIFallbackBehaviour(StateMachineUIImplementation editorUI, SerializedObject target)
         {
-            Manager = manager;
+            EditorUI = editorUI;
             Target = target;
         }
 

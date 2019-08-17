@@ -9,15 +9,15 @@ namespace Utils.Core.Flow.Inspector
     {
         private const string PROPERTY_NAME = "TemplateRules";
 
-        private StateMachineEditorManager manager;
+        private StateMachineUIImplementation editorUI;
         private SerializedObject serializedStateObject;
         private SerializedProperty ruleGroupProperty;
         private State state;
         private RuleGroup ruleGroup;
 
-        public RuleGroupInspector(StateMachineEditorManager manager, State state, RuleGroup ruleGroup)
+        public RuleGroupInspector(StateMachineUIImplementation editorUI, State state, RuleGroup ruleGroup)
         {
-            this.manager = manager;
+            this.editorUI = editorUI;
             this.state = state;
             this.ruleGroup = ruleGroup;
 
@@ -60,7 +60,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            ruleGroup.AddNewRule(manager.StateMachineData, type);
+            ruleGroup.AddNewRule(editorUI.StateMachineData, type);
             Refresh();
         }
 

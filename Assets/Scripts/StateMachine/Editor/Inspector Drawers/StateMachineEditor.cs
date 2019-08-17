@@ -9,21 +9,21 @@ namespace Utils.Core.Flow
     [CustomEditor(typeof(StateMachineData))]
     public class StateMachineEditor : Editor
     {
-        private StateMachineEditorManager manager;
+        private StateMachineUIImplementation editorUI;
 
         protected void OnEnable()
         {
-            manager = new StateMachineEditorManager((StateMachineData)target, Repaint);
+            editorUI = new StateMachineUIImplementation((StateMachineData)target, Repaint);
         }
 
         public override void OnInspectorGUI()
         {
-            manager.OnInspectorGUI();
+            editorUI.OnInspectorGUI();
         }
 
         private void OnDestroy()
         {
-            manager.Dispose();
+            editorUI.Dispose();
         }
     }
 }

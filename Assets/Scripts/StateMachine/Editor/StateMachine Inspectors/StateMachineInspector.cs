@@ -9,14 +9,14 @@ namespace Utils.Core.Flow.Inspector
     /// </summary>
     public class StateMachineInspector : IDisposable
     {
-        protected StateMachineEditorManager manager;
+        protected StateMachineUIImplementation editorUI;
         protected IInspectorUIBehaviour uiBehaviour;
 
         private Action layoutEvent;
 
-        public StateMachineInspector(StateMachineEditorManager manager)
+        public StateMachineInspector(StateMachineUIImplementation editorUI)
         {
-            this.manager = manager;
+            this.editorUI = editorUI;
 
             Undo.undoRedoPerformed += Refresh;
             StateMachineEditorUtility.ObjectResetEvent += OnObjectResetEvent;
@@ -35,21 +35,21 @@ namespace Utils.Core.Flow.Inspector
         public void Inspect(IInspectorUIBehaviour uiBehaviour)
         {
             // This is needed to prevent UI errors 
-            void inspectOnLayoutEvent()
+            void InspectOnLayoutEvent()
             {
-                if (manager.ShowDebug)
+                if (editorUI.ShowDebug)
                 {
-                    this.uiBehaviour = new InspectorUIFallbackBehaviour(manager, new SerializedObject(manager.StateMachineData));
+                    this.uiBehaviour = new InspectorUIFallbackBehaviour(editorUI, new SerializedObject(editorUI.StateMachineData));
                 }
                 else
                 {
                     this.uiBehaviour = uiBehaviour;
                 }
 
-                layoutEvent -= inspectOnLayoutEvent;
+                layoutEvent -= InspectOnLayoutEvent;
             }
 
-            layoutEvent += inspectOnLayoutEvent;
+            layoutEvent += InspectOnLayoutEvent;
         }
 
         //public void Inspect(Type type, UnityEngine.Object parentObject, string propertyName)

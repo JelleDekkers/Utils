@@ -4,13 +4,13 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Editor class for viewing a <see cref="StateMachineEditorManager"/> in an editor window
+    /// Editor class for viewing a <see cref="StateMachineUIImplementation"/> in an editor window
     /// </summary>
     public class StateMachineWindow : EditorWindow
     {
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
-        private StateMachineEditorManager manager;
+        private StateMachineUIImplementation editorUI;
 
         [MenuItem("Window/State Machine")]
         public static StateMachineWindow Init()
@@ -43,15 +43,15 @@ namespace Utils.Core.Flow
         {
             if(stateMachine != null)
             {
-                manager = new StateMachineEditorManager(stateMachine, Repaint);
+                editorUI = new StateMachineUIImplementation(stateMachine, Repaint);
             }
         }
 
         private void OnGUI()
         {
-            if (manager != null)
+            if (editorUI != null)
             {
-                manager.OnInspectorGUI();
+                editorUI.OnInspectorGUI();
             }
             else
             {
@@ -70,7 +70,7 @@ namespace Utils.Core.Flow
 
         private void OnDestroy()
         {
-            manager.Dispose();
+            editorUI.Dispose();
         }
     }
 }

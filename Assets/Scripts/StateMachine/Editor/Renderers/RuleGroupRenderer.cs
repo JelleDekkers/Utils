@@ -5,7 +5,7 @@ using Utils.Core.Flow.Inspector;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering <see cref="Flow.RuleGroup"/>s on <see cref="StateMachineEditorManager"/>
+    /// Class for rendering <see cref="Flow.RuleGroup"/>s on <see cref="StateMachineUIImplementation"/>
     /// </summary>
     public class RuleGroupRenderer : ISelectable, IDraggable
     {
@@ -21,16 +21,16 @@ namespace Utils.Core.Flow
         private Vector2 LinkSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
         
         public StateRenderer stateRenderer;
-        private StateMachineEditorManager manager;
+        private StateMachineUIImplementation editorUI;
         private Rect fullRect;
         private bool isDraggingLink;
         private LinkRenderer linkRenderer;
 
-        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer stateRenderer, StateMachineEditorManager stateMachineManager)
+        public RuleGroupRenderer(RuleGroup ruleGroup, StateRenderer stateRenderer, StateMachineUIImplementation editorUI)
         {
             RuleGroup = ruleGroup;
             this.stateRenderer = stateRenderer;
-            manager = stateMachineManager;
+            this.editorUI = editorUI;
 
             Rect = new Rect();
             linkRenderer = new LinkRenderer(RuleGroup.linkData);
@@ -138,16 +138,16 @@ namespace Utils.Core.Flow
             stateRenderer.OnSelect(e);
 
             IsSelected = true;
-            manager.Select(this);
+            editorUI.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            manager.Inspector.Inspect(new RuleGroupInspector(manager, stateRenderer.Node, RuleGroup));
+            editorUI.Inspector.Inspect(new RuleGroupInspector(editorUI, stateRenderer.Node, RuleGroup));
             GUI.changed = true;
         }
 
         public void OnDeselect(Event e)
         {
             IsSelected = false;
-            manager.Deselect(this);
+            editorUI.Deselect(this);
             isDraggingLink = false;
 
             if(stateRenderer.SelectedRuleGroup == this)
@@ -171,7 +171,7 @@ namespace Utils.Core.Flow
 
         public void OnDragEnd(Event e)
         {
-            if (manager.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
+            if (editorUI.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
             {
                 RuleGroup.SetDestination(stateRenderer.Node as State);   
             }
@@ -265,7 +265,7 @@ namespace Utils.Core.Flow
             }
             else
             {
-                if (Application.isPlaying && stateRenderer.IsCurrentStateInRuntimeLogic())
+                if (Application.isPlaying && stateRenderer.IsCurrentlyRunning())
                 {
                     for (int i = 0; i < RuleGroup.RuntimeRules.Count; i++)
                     {
@@ -295,7 +295,7 @@ namespace Utils.Core.Flow
             ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, (int)heightNeeded);
 
             style.normal.textColor = Color.black;
-            if (Application.isPlaying && stateRenderer.IsCurrentStateInRuntimeLogic()) 
+            if (Application.isPlaying && stateRenderer.IsCurrentlyRunning()) 
             {
                 if (rule == null || rule.IsValid)
                 {

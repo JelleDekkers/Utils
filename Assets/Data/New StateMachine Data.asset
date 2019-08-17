@@ -278,7 +278,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
   m_Name: State
   m_EditorClassIdentifier: 
-  TemplateActions: []
+  TemplateActions:
+  - {fileID: 114868510796226022}
   RunTimeActions:
   - {fileID: 0}
   RuleGroups:
@@ -303,6 +304,19 @@ MonoBehaviour:
         offset: {x: -40, y: 0}
   Title: Menu
   position: {x: 520, y: 180}
+--- !u!114 &114868510796226022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f80fb49ddf3fac443bdb00b0c03c65a6, type: 3}
+  m_Name: StartStateMachineLayerAction
+  m_EditorClassIdentifier: 
+  stateMachine: {fileID: 11400000, guid: faaac18ea966c9e47a94a90748149f2e, type: 2}
 --- !u!114 &114910455612837438
 MonoBehaviour:
   m_ObjectHideFlags: 0

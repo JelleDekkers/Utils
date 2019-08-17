@@ -13,7 +13,7 @@ namespace Utils.Core.Services
 
         private void Awake()
         {
-            gameObject.name = OBJECT_NAME;
+            name = OBJECT_NAME;
             DontDestroyOnLoad(this);
         }
 

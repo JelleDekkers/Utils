@@ -9,13 +9,13 @@ namespace Utils.Core.Flow.Inspector
     {
         private const string PROPERTY_NAME = "TemplateActions";
 
-        private StateMachineEditorManager manager;
+        private StateMachineUIImplementation editorUI;
         private State state;
         private SerializedObject serializedState;
 
-        public StateInspectorUI(StateMachineEditorManager manager, State state)
+        public StateInspectorUI(StateMachineUIImplementation editorUI, State state)
         {
-            this.manager = manager;
+            this.editorUI = editorUI;
             this.state = state;
 
             serializedState = new SerializedObject(state);
@@ -45,12 +45,12 @@ namespace Utils.Core.Flow.Inspector
 
             if (newName != state.Title)
             {
-                Undo.RecordObject(manager.StateMachineData, "Change State Name");
+                Undo.RecordObject(editorUI.StateMachineData, "Change State Name");
                 state.Title = newName;
                 EditorUtility.SetDirty(serializedState.targetObject);
             }
 
-            GUI.enabled = manager.StateMachineData.EntryState != state;
+            GUI.enabled = editorUI.StateMachineData.EntryState != state;
             if (GUILayout.Button("Entry State", buttonStyle, GUILayout.Width(90)))
             {
                 OnSetEntryStateButtonPressedEvent();
@@ -63,7 +63,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnSetEntryStateButtonPressedEvent()
         {
-            manager.StateMachineData.SetEntryState(state);
+            editorUI.StateMachineData.SetEntryState(state);
         }
 
         private void OnAddNewButtonPressedEvent()
@@ -104,7 +104,7 @@ namespace Utils.Core.Flow.Inspector
         private void OnEditScriptButtonPressed(ContextMenu.Result result)
         {
             InspectorUIUtility.OpenScript(result.Obj);
-            manager.Inspector.Refresh();
+            editorUI.Inspector.Refresh();
         }
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)

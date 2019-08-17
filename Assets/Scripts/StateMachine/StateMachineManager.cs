@@ -8,6 +8,7 @@ namespace Utils.Core.Flow
     /// Manager class for a StateMachine. Keeps track and updates all stacked <see cref="StateMachineLayer"/>s
     /// Use scripting define symbol "DEBUG_FLOW" to print StateMachine related debugs
     /// </summary>
+    [Serializable]
     public class StateMachineManager
     {
         public Action<StateMachineLayer, StateMachineLayer> LayerChangedEvent;
@@ -36,24 +37,20 @@ namespace Utils.Core.Flow
             StateMachineLayer newLayer = new StateMachineLayer(this, data);
             layerStack.Push(newLayer);
             newLayer.Start(prevLayer.CurrentState);
-            LayerChangedEvent?.Invoke(prevLayer, newLayer);
 
             PrintDebug(string.Format("ADDING NEW LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.name, prevLayer.CurrentState.Title, CurrentLayer.Data.name, CurrentLayer.CurrentState.Title));
+            LayerChangedEvent?.Invoke(prevLayer, newLayer);
 
             return newLayer;
         }
 
         public void PopCurrentLayer()
         {
-            Debug.Log(CurrentLayer.Data);
             StateMachineLayer prevLayer = layerStack.Pop();
-            Debug.Log(CurrentLayer.Data);
             prevLayer.OnClose(CurrentLayer.CurrentState);
-            Debug.Log(CurrentLayer.Data);
-
-            LayerChangedEvent?.Invoke(prevLayer, layerStack.Peek());
 
             PrintDebug(string.Format("POPPING LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.name, prevLayer.CurrentState.Title, CurrentLayer.Data.name, CurrentLayer.CurrentState.Title));
+            LayerChangedEvent?.Invoke(prevLayer, layerStack.Peek());
         }
 
         /// <summary>

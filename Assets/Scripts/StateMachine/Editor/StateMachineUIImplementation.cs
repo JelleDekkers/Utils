@@ -9,30 +9,29 @@ namespace Utils.Core.Flow
     /// <summary>
     /// Class for rendering <see cref="Flow.StateMachineData"/> in an editor window.
     /// </summary>
-    public class StateMachineEditorManager
+    public class StateMachineUIImplementation
     {
         public ISelectable Selection { get; private set; }
         public StateMachineData StateMachineData { get; private set; }
         public List<StateRenderer> NodeRenderers { get; private set; }
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
+        public StateMachineManager StateMachineManager { get; private set; }
         public StateMachineInspector Inspector { get; private set; }
         public bool ContextMenuIsOpen { get; set; }
         public bool ShowDebug { get; private set; }
-        public StateMachineExecutor Executor { get; private set; }
-
-        public Action OnDisposeEvent;
 
         private readonly Action repaintEvent;
 
-        public StateMachineEditorManager(StateMachineData stateMachine, Action repaintEvent, StateMachineExecutor executor = null)
+        public StateMachineUIImplementation(StateMachineData stateMachine, Action repaintEvent, StateMachineManager manager = null)
         {
             StateMachineData = stateMachine;
+            StateMachineManager = manager;
+            this.repaintEvent = repaintEvent;
+
             Inspector = new StateMachineInspector(this);
             CanvasRenderer = new StateMachineCanvasRenderer(this);
-            this.repaintEvent = repaintEvent;
-            Executor = executor;
-
             NodeRenderers = new List<StateRenderer>();
+
             foreach (State state in stateMachine.States)
             {
                 CreateNewNodeRenderer(state);
@@ -197,8 +196,6 @@ namespace Utils.Core.Flow
             StateMachineEditorUtility.StateAddedEvent -= OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
             StateMachineEditorUtility.StateMachineClearedEvent -= OnStateMachineClearedEvent;
-
-            OnDisposeEvent?.Invoke();
         }
     }
 }

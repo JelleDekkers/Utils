@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Utils.Core.Flow
@@ -16,7 +17,7 @@ namespace Utils.Core.Flow
         private const float ZOOM_SCALE_MAX = 1.5f;
         private const float ZOOM_SCALE_MIN = 0.5f;
 
-        public StateMachineEditorManager Manager { get; private set; }
+        public StateMachineUIImplementation EditorUI { get; private set; }
         public Vector2 ScrollViewDrag { get; private set; }
         public Rect windowRect = new Rect(0, 0, 0, MIN_WINDOW_HEIGHT);
 
@@ -32,9 +33,9 @@ namespace Utils.Core.Flow
         private bool dragThresholdReached;
         private HorizontalResizeHandle resizeHandle;
 
-        public StateMachineCanvasRenderer(StateMachineEditorManager manager)
+        public StateMachineCanvasRenderer(StateMachineUIImplementation editorUI)
         {
-            Manager = manager;
+            EditorUI = editorUI;
 
             scrollView = new Rect(Vector2.zero, new Vector2(SCROLL_VIEW_WIDTH, SCROLL_VIEW_HEIGHT));
             resizeHandle = new HorizontalResizeHandle(MIN_WINDOW_HEIGHT, float.MaxValue);
@@ -107,12 +108,12 @@ namespace Utils.Core.Flow
                         }
                     }
 
-                    Manager.ContextMenuIsOpen = false;
+                    EditorUI.ContextMenuIsOpen = false;
                     break;
 
                 case EventType.MouseDrag:
 
-                    if (!Manager.ContextMenuIsOpen && e.button == 0)
+                    if (!EditorUI.ContextMenuIsOpen && e.button == 0)
                     {
                         if (windowRect.Contains(e.mousePosition))
                         {
@@ -144,22 +145,22 @@ namespace Utils.Core.Flow
 
         private void ProcessNodeRendererEvents(Event e)
         {
-            for (int i = Manager.NodeRenderers.Count - 1; i >= 0; i--)
+            for (int i = EditorUI.NodeRenderers.Count - 1; i >= 0; i--)
             {
-                Manager.NodeRenderers[i].ProcessEvents(e);
+                EditorUI.NodeRenderers[i].ProcessEvents(e);
             }
         }
 
         private void ShowContextMenu(Vector2 mousePosition)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add New State"), false, () => Manager.StateMachineData.CreateNewState(mousePosition));
+            menu.AddItem(new GUIContent("Add New State"), false, () => EditorUI.StateMachineData.CreateNewState(mousePosition));
 
             // if clipboard is of type State
             //menu.AddItem(new GUIContent("Paste State"), false, () => throw new NotImplementedException());
 
             menu.ShowAsContext();
-            Manager.ContextMenuIsOpen = true;
+            EditorUI.ContextMenuIsOpen = true;
             GUI.changed = true;
         }
 
@@ -207,9 +208,9 @@ namespace Utils.Core.Flow
 
         private void DrawNodes()
         {
-            for (int i = 0; i < Manager.NodeRenderers.Count; i++)
+            for (int i = 0; i < EditorUI.NodeRenderers.Count; i++)
             {
-                Manager.NodeRenderers[i].Draw();
+                EditorUI.NodeRenderers[i].Draw();
             }
         }
 
@@ -227,18 +228,18 @@ namespace Utils.Core.Flow
                 Vector2 centre = GetWindowCentre();
                 centre.x -= StateRenderer.WIDTH / 2;
                 centre.y -= StateRenderer.HEADER_HEIGHT / 2;
-                Manager.StateMachineData.CreateNewState(centre);
+                EditorUI.StateMachineData.CreateNewState(centre);
             }
 
-            GUI.enabled = Manager.Selection != null && Manager.Selection is StateRenderer;
+            GUI.enabled = EditorUI.Selection != null && EditorUI.Selection is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.StateMachineData.RemoveState((Manager.Selection as StateRenderer).Node);
+                EditorUI.StateMachineData.RemoveState((EditorUI.Selection as StateRenderer).Node);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                (Manager.Selection as StateRenderer).Node.ClearActions();
+                (EditorUI.Selection as StateRenderer).Node.ClearActions();
             }
             GUI.enabled = true;
 
@@ -246,7 +247,7 @@ namespace Utils.Core.Flow
 
             if (GUILayout.Button("Clear Machine", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                Manager.StateMachineData.ClearStateMachine();
+                EditorUI.StateMachineData.ClearStateMachine();
             }
 
             EditorGUILayout.EndHorizontal();
@@ -273,16 +274,16 @@ namespace Utils.Core.Flow
             GUIStyle style = new GUIStyle("Toolbar");
             style.alignment = TextAnchor.MiddleRight;
             style.normal.background = null;
-            string stateMachineName = AssetDatabase.GetAssetPath(Manager.StateMachineData);
+            string stateMachineName = AssetDatabase.GetAssetPath(EditorUI.StateMachineData);
             EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), style);
 
             GUILayout.Space(10);
 
-            bool debug = Manager.ShowDebug;
-            debug = GUILayout.Toggle(Manager.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
-            if (debug != Manager.ShowDebug)
+            bool debug = EditorUI.ShowDebug;
+            debug = GUILayout.Toggle(EditorUI.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
+            if (debug != EditorUI.ShowDebug)
             {
-                Manager.SetDebug(debug);
+                EditorUI.SetDebug(debug);
             }
 
             EditorGUILayout.EndHorizontal();
@@ -297,6 +298,11 @@ namespace Utils.Core.Flow
         {
             ScrollViewDrag = Vector2.zero;
             zoomScale = 1f;
+        }
+
+        public void FocusWindow(Vector2 position)
+        {
+            ScrollViewDrag = new Vector2(position.x - windowRect.width / 2, position.y - windowRect.height / 2);
         }
     }
 }

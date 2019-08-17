@@ -37,7 +37,7 @@ namespace Utils.Core.Flow
         }
         private Vector2 size;
 
-        public bool IsEntryState { get { return manager.StateMachineData.EntryState == Node; } }
+        public bool IsEntryState { get { return editorUI.StateMachineData.EntryState == Node; } }
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
@@ -46,7 +46,7 @@ namespace Utils.Core.Flow
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(1f, 1f, 1f, 0.7f);
 
-        private StateMachineEditorManager manager;
+        private StateMachineUIImplementation editorUI;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private Rect fullRect;
         private bool isDragging;
@@ -55,17 +55,15 @@ namespace Utils.Core.Flow
         private Vector2 dragStartPos;
         private bool canDrag;
 
-        public StateRenderer(State state, StateMachineEditorManager renderer)
+        public StateRenderer(State state, StateMachineUIImplementation renderer)
         {
             Node = state;
-            manager = renderer;
+            editorUI = renderer;
 
             InitializeRuleRenderers();
 
             StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent += OnRuleGroupRemovedEvent;
-
-            manager.OnDisposeEvent += Dispose;
         }
 
         public void InitializeRuleRenderers()
@@ -74,13 +72,13 @@ namespace Utils.Core.Flow
 
             for (int i = 0; i < Node.RuleGroups.Count; i++) 
             {
-                ruleGroupRenderers.Add(new RuleGroupRenderer(Node.RuleGroups[i], this, manager));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(Node.RuleGroups[i], this, editorUI));
             }
         }
 
         public void ProcessEvents(Event e)
         {
-            bool isInsideCanvasWindow = manager.CanvasRenderer.Contains(e.mousePosition);
+            bool isInsideCanvasWindow = editorUI.CanvasRenderer.Contains(e.mousePosition);
 
             ProcessRuleGroupEvents(e);
 
@@ -89,7 +87,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.Delete)
                     {
-                        manager.StateMachineData.RemoveState(Node);
+                        editorUI.StateMachineData.RemoveState(Node);
                         e.Use();
                     }
                     else if(IsSelected && e.keyCode == KeyCode.LeftControl)
@@ -167,9 +165,9 @@ namespace Utils.Core.Flow
             ruleGroupRenderers.ReorderItem(currentIndex, newIndex);
         }
 
-        public bool IsCurrentStateInRuntimeLogic()
+        public bool IsCurrentlyRunning()
         {
-            return Application.isPlaying && manager.Executor != null && manager.Executor.Manager != null && manager.Executor.Manager.CurrentLayer.CurrentState == Node;
+            return editorUI.StateMachineManager != null && editorUI.StateMachineManager.CurrentLayer.CurrentState == Node;
         }
 
         #region Drawing
@@ -213,7 +211,7 @@ namespace Utils.Core.Flow
             Rect = new Rect(Rect.x, Rect.y, Rect.width, (int)heightNeeded);
 
             Color prevColor = GUI.backgroundColor;
-            GUI.backgroundColor = (IsCurrentStateInRuntimeLogic()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
+            GUI.backgroundColor = (Application.isPlaying && IsCurrentlyRunning()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
             GUI.Box(Rect, Node.Title, GUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
         }
@@ -301,7 +299,7 @@ namespace Utils.Core.Flow
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => manager.StateMachineData.RemoveState(Node));
+            menu.AddItem(new GUIContent("Delete"), false, () => editorUI.StateMachineData.RemoveState(Node));
 
             if (Node.TemplateActions.Count > 0)
             {
@@ -320,7 +318,7 @@ namespace Utils.Core.Flow
 
             menu.ShowAsContext();
 
-            manager.ContextMenuIsOpen = true;
+            editorUI.ContextMenuIsOpen = true;
             e.Use();
         }
         #endregion
@@ -331,9 +329,9 @@ namespace Utils.Core.Flow
             GUI.changed = true;
             IsSelected = true;
 
-            manager.Select(this);
-            manager.Inspector.Inspect(new StateInspectorUI(manager, Node));
-            manager.ReorderNodeRendererToBottom(this);
+            editorUI.Select(this);
+            editorUI.Inspector.Inspect(new StateInspectorUI(editorUI, Node));
+            editorUI.ReorderNodeRendererToBottom(this);
         }
 
         public void OnDeselect(Event e)
@@ -346,7 +344,7 @@ namespace Utils.Core.Flow
                 renderer.OnDeselect(e);
             }
 
-            manager.Deselect(this);
+            editorUI.Deselect(this);
         }
 
         public void OnDrag(Event e)
@@ -391,7 +389,7 @@ namespace Utils.Core.Flow
         {
             if(state != Node) { return; }
 
-            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, manager);
+            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, editorUI);
             ruleGroupRenderers.Add(renderer);
 
             if (SelectedRuleGroup != null)
@@ -416,9 +414,9 @@ namespace Utils.Core.Flow
 
         public void OnStateResetEvent(State state)
         {
-            if (manager.Selection == state as ISelectable)
+            if (editorUI.Selection == state as ISelectable)
             {
-                manager.Inspector.Refresh();
+                editorUI.Inspector.Refresh();
             }
         }
         #endregion
@@ -427,8 +425,6 @@ namespace Utils.Core.Flow
         {
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent -= OnRuleGroupRemovedEvent;
-
-            manager.OnDisposeEvent -= Dispose;
         }
     }
 }

@@ -1,36 +1,28 @@
 ﻿using UnityEngine;
-using Utils.Core.Flow;
 
-/// <summary>
-/// Monobehaviour for using a <see cref="Flow.StateMachineData"/> in the scene. 
-/// Has DontDestroyOnLoad called on this gameObject.
-/// </summary>
-public class StateMachineExecutor : MonoBehaviour
+namespace Utils.Core.Flow
 {
-    public StateMachineData StateMachineData => stateMachineData;
-    [SerializeField] protected StateMachineData stateMachineData;
-
-    public StateMachineManager Manager { get; private set; }
-
-    private void Start()
+    /// <summary>
+    /// Monobehaviour for using a <see cref="Flow.StateMachineData"/> in the scene
+    /// <see cref="StateMachineData"/> will be used as the first <see cref="StateMachineLayer"/> on <see cref="Manager"/>
+    /// Has DontDestroyOnLoad called on this gameObject
+    /// </summary>
+    public class StateMachineExecutor : MonoBehaviour
     {
-        DontDestroyOnLoad(this);
-        Manager = new StateMachineManager(stateMachineData);
-        Manager.LayerChangedEvent += OnLayerChangedEvent;
-    }
+        public StateMachineData StateMachineData => stateMachineData;
+        [SerializeField] protected StateMachineData stateMachineData;
 
-    private void OnDestroy()
-    {
-        Manager.LayerChangedEvent -= OnLayerChangedEvent;
-    }
+        public StateMachineManager Manager { get; private set; }
 
-    private void OnLayerChangedEvent(StateMachineLayer from, StateMachineLayer to)
-    {
-        stateMachineData = to.Data;
-    }
+        private void Awake()
+        {
+            DontDestroyOnLoad(this);
+            Manager = new StateMachineManager(stateMachineData);
+        }
 
-    private void Update()
-    {
-        Manager.Update();
+        private void Update()
+        {
+            Manager.Update();
+        }
     }
 }
