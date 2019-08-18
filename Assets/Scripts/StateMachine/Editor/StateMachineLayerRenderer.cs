@@ -7,12 +7,12 @@ using Utils.Core.Flow.Inspector;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering a single <see cref="Flow.StateMachineData"/>.
+    /// Class for rendering a single <see cref="Flow.StateMachineScriptableObjectData"/>.
     /// </summary>
     public class StateMachineLayerRenderer
     {
         public ISelectable Selection { get; private set; }
-        public StateMachineData StateMachineData { get; private set; }
+        public IStateMachineData StateMachineData { get; private set; }
         public Statemachine stateMachine { get; private set; }
         public List<StateRenderer> NodeRenderers { get; private set; }
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
@@ -22,7 +22,7 @@ namespace Utils.Core.Flow
 
         private readonly Action repaintEvent;
 
-        public StateMachineLayerRenderer(StateMachineData data, Action repaintEvent, Statemachine stateMachine = null)
+        public StateMachineLayerRenderer(IStateMachineData data, Action repaintEvent, Statemachine stateMachine = null)
         {
             StateMachineData = data;
             this.stateMachine = stateMachine;
@@ -99,7 +99,7 @@ namespace Utils.Core.Flow
             EditorGUILayout.EndVertical();
         }
 
-        private void OnStateMachineClearedEvent(StateMachineData stateMachine)
+        private void OnStateMachineClearedEvent(IStateMachineData stateMachine)
         {
             if(StateMachineData == stateMachine)
             {
@@ -107,7 +107,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        private void OnStateRemovedEvent(StateMachineData stateMachine, State state)
+        private void OnStateRemovedEvent(IStateMachineData stateMachine, State state)
         {
            if(StateMachineData == stateMachine)
             {
@@ -132,7 +132,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        private void OnStateAddedEvent(StateMachineData stateMachine, State state)
+        private void OnStateAddedEvent(IStateMachineData stateMachine, State state)
         {
             if (StateMachineData == stateMachine)
             {

@@ -4,7 +4,7 @@ namespace Utils.Core.Flow.DefaultActions
 {
     public class StartStateMachineLayerAction : StateAction
     {
-        [SerializeField] private StateMachineData stateMachine = null;
+        [SerializeField] private StateMachineScriptableObjectData stateMachine = null;
 
         private StateMachineLayer layer;
 

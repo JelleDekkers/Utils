@@ -4,20 +4,20 @@ using Utils.Core.Injection;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for handling <see cref="StateMachineData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s
+    /// Class for handling <see cref="StateMachineScriptableObjectData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s
     /// Layers can be stacked on top of eachother to handle different flows and to prevent merge conflicts with version control
     /// </summary>
     public class StateMachineLayer
     {
         public Action<State, State> TransitionDoneEvent;
 
-        public StateMachineData Data { get; private set; }
+        public IStateMachineData Data { get; private set; }
         public State CurrentState { get; private set; }
 
         private readonly Statemachine manager;
         private readonly DependencyInjector dependencyInjector;
 
-        public StateMachineLayer(Statemachine manager, StateMachineData data)
+        public StateMachineLayer(Statemachine manager, IStateMachineData data)
         {
             Data = data;
             CurrentState = data.EntryState;
@@ -76,7 +76,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void AddNewLayer(StateMachineData data)
+        public void AddNewLayer(StateMachineScriptableObjectData data)
         {
             WaitUntillTransitionDone(() => manager.AddNewLayerToStack(data));
         }

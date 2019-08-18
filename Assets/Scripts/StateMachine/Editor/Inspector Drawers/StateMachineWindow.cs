@@ -10,7 +10,7 @@ namespace Utils.Core.Flow
     {
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
-        private StateMachineData data;
+        private StateMachineScriptableObjectData data;
         private StateMachineUIImplementation editorUI;
 
         [MenuItem("Window/State Machine Window")]
@@ -35,9 +35,9 @@ namespace Utils.Core.Flow
         {
             window.minSize = windowMinSize;
 
-            if (Selection.activeObject is StateMachineData)
+            if (Selection.activeObject is StateMachineScriptableObjectData)
             {
-                window.SetTarget(Selection.activeObject as StateMachineData);
+                window.SetTarget(Selection.activeObject as StateMachineScriptableObjectData);
             }
             if (Selection.activeObject is GameObject)
             {
@@ -50,7 +50,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void SetTarget(StateMachineData data)
+        public void SetTarget(StateMachineScriptableObjectData data)
         {
             if(data != null)
             {
@@ -73,7 +73,7 @@ namespace Utils.Core.Flow
             }
             else
             {
-                GUILayout.Label(string.Format("No {0} or {1} selected", typeof(StateMachineData).Name, typeof(StateMachineExecutor).Name));
+                GUILayout.Label(string.Format("No {0} or {1} selected", typeof(StateMachineScriptableObjectData).Name, typeof(StateMachineExecutor).Name));
             }
         }
 

@@ -6,7 +6,7 @@ using Utils.Core.Flow.Inspector;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Renders the <see cref="State"/> node on the <see cref="StateMachineData"/> window
+    /// Renders the <see cref="State"/> node on the <see cref="StateMachineScriptableObjectData"/> window
     /// </summary>
     public class StateRenderer : INodeRenderer<State>
     {

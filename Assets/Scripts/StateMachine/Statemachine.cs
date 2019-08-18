@@ -16,7 +16,7 @@ namespace Utils.Core.Flow
 
         private Stack<StateMachineLayer> layerStack = new Stack<StateMachineLayer>();
 
-        public Statemachine(StateMachineData data)
+        public Statemachine(IStateMachineData data)
         {
             StateMachineLayer layer = new StateMachineLayer(this, data);
             layerStack.Push(layer);
@@ -31,14 +31,14 @@ namespace Utils.Core.Flow
             }
         }
 
-        public StateMachineLayer AddNewLayerToStack(StateMachineData data)
+        public StateMachineLayer AddNewLayerToStack(StateMachineScriptableObjectData data)
         {
             StateMachineLayer prevLayer = layerStack.Peek();
             StateMachineLayer newLayer = new StateMachineLayer(this, data);
             layerStack.Push(newLayer);
             newLayer.Start(prevLayer.CurrentState);
 
-            PrintDebug(string.Format("ADDING NEW LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.name, prevLayer.CurrentState.Title, CurrentLayer.Data.name, CurrentLayer.CurrentState.Title));
+            PrintDebug(string.Format("ADDING NEW LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.Name, prevLayer.CurrentState.Title, CurrentLayer.Data.Name, CurrentLayer.CurrentState.Title));
             LayerChangedEvent?.Invoke(prevLayer, newLayer);
 
             return newLayer;
@@ -49,7 +49,7 @@ namespace Utils.Core.Flow
             StateMachineLayer prevLayer = layerStack.Pop();
             prevLayer.OnClose(CurrentLayer.CurrentState);
 
-            PrintDebug(string.Format("POPPING LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.name, prevLayer.CurrentState.Title, CurrentLayer.Data.name, CurrentLayer.CurrentState.Title));
+            PrintDebug(string.Format("POPPING LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.Name, prevLayer.CurrentState.Title, CurrentLayer.Data.Name, CurrentLayer.CurrentState.Title));
             LayerChangedEvent?.Invoke(prevLayer, layerStack.Peek());
         }
 

@@ -12,17 +12,17 @@ namespace Utils.Core.Flow
     public class StateMachineUIImplementation : IDisposable
     {
         private StateMachineLayerRenderer layerRenderer;
-        private StateMachineData stateMachineData;
+        private StateMachineScriptableObjectData stateMachineData;
         private Statemachine statemachine;
 
-        private List<StateMachineData> linkedLayers = new List<StateMachineData>();
+        private List<StateMachineScriptableObjectData> linkedLayers = new List<StateMachineScriptableObjectData>();
         private string[] linkedLayerNames = new string[0];
         private int linkedLayersToolbarIndex = 0;
 
         private GUIStyle linkedLayersToolbarStyle;
         private readonly Action repaint;
 
-        public StateMachineUIImplementation(StateMachineData data, Statemachine statemachine, Action repaint)
+        public StateMachineUIImplementation(StateMachineScriptableObjectData data, Statemachine statemachine, Action repaint)
         {
             stateMachineData = data;
             this.statemachine = statemachine;
@@ -73,7 +73,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void OnStateMachineDataChanged(StateMachineData newData)
+        public void OnStateMachineDataChanged(StateMachineScriptableObjectData newData)
         {
             stateMachineData = newData;
             layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(newData, repaint, statemachine) : null;
@@ -118,7 +118,7 @@ namespace Utils.Core.Flow
             }
         }
 
-        private void GetLinkedLayers(StateMachineData data)
+        private void GetLinkedLayers(StateMachineScriptableObjectData data)
         {
             foreach (State state in data.States)
             {
@@ -129,9 +129,9 @@ namespace Utils.Core.Flow
                     {
                         if (field.GetCustomAttributes(typeof(SerializeField), true).Length > 0 || field.IsPublic)
                         {
-                            if (field.GetValue(action) != null && field.GetValue(action).GetType() == typeof(StateMachineData) && !linkedLayers.Contains(field.GetValue(action) as StateMachineData))
+                            if (field.GetValue(action) != null && field.GetValue(action).GetType() == typeof(StateMachineScriptableObjectData) && !linkedLayers.Contains(field.GetValue(action) as StateMachineScriptableObjectData))
                             {
-                                StateMachineData linkedLayer = field.GetValue(action) as StateMachineData;
+                                StateMachineScriptableObjectData linkedLayer = field.GetValue(action) as StateMachineScriptableObjectData;
                                 linkedLayers.Add(linkedLayer);
                                 GetLinkedLayers(linkedLayer);
                             }

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for rendering the canvas window for a <see cref="StateMachineData"/>
+    /// Class for rendering the canvas window for a <see cref="StateMachineScriptableObjectData"/>
     /// </summary>
     public class StateMachineCanvasRenderer
     {
@@ -271,13 +271,15 @@ namespace Utils.Core.Flow
                 windowRect.height = MIN_WINDOW_HEIGHT;
             }
 
-            GUIStyle style = new GUIStyle("Toolbar");
-            style.alignment = TextAnchor.MiddleRight;
-            style.normal.background = null;
-            string stateMachineName = AssetDatabase.GetAssetPath(EditorUI.StateMachineData);
-            EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), style);
-
-            GUILayout.Space(10);
+            if (EditorUI.StateMachineData is ScriptableObject)
+            {
+                GUIStyle style = new GUIStyle("Toolbar");
+                style.alignment = TextAnchor.MiddleRight;
+                style.normal.background = null;
+                string stateMachineName = AssetDatabase.GetAssetPath(EditorUI.StateMachineData as ScriptableObject);
+                EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), style);
+                GUILayout.Space(10);
+            }
 
             bool debug = EditorUI.ShowDebug;
             debug = GUILayout.Toggle(EditorUI.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));

@@ -37,14 +37,15 @@ namespace Utils.Core.Flow.Inspector
             // This is needed to prevent UI errors 
             void InspectOnLayoutEvent()
             {
-                if (editorUI.ShowDebug)
-                {
-                    this.uiBehaviour = new InspectorUIFallbackBehaviour(editorUI, new SerializedObject(editorUI.StateMachineData));
-                }
-                else
-                {
+                //if (editorUI.ShowDebug)
+                //{
+                    // TODO: fix to work with monoBehaviour:
+                    //this.uiBehaviour = new InspectorUIFallbackBehaviour(editorUI, new SerializedObject(editorUI.StateMachineData));
+                //}
+                //else
+                //{
                     this.uiBehaviour = uiBehaviour;
-                }
+                //}
 
                 layoutEvent -= InspectOnLayoutEvent;
             }

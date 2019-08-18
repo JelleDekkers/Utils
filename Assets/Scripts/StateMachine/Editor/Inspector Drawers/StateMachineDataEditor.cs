@@ -4,16 +4,16 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Editor class for <see cref="StateMachineData"/>
+    /// Editor class for <see cref="StateMachineScriptableObjectData"/>
     /// </summary>
-    [CustomEditor(typeof(StateMachineData))]
+    [CustomEditor(typeof(StateMachineScriptableObjectData))]
     public class StateMachineDataEditor : Editor
     {
         private StateMachineUIImplementation editorUI;
 
         protected void OnEnable()
         {
-            editorUI = new StateMachineUIImplementation(target as StateMachineData, null, Repaint);
+            editorUI = new StateMachineUIImplementation(target as StateMachineScriptableObjectData, null, Repaint);
             editorUI.OnEnable();
         }
 

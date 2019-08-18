@@ -11,7 +11,7 @@ namespace Utils.Core.Flow
         private StateMachineExecutor executor;
         private StateMachineUIImplementation editorUI;
 
-        private StateMachineData initialData;
+        private StateMachineScriptableObjectData initialData;
 
         private void Awake()
         {
@@ -21,7 +21,7 @@ namespace Utils.Core.Flow
 
         protected void OnEnable()
         {
-            editorUI = new StateMachineUIImplementation(initialData, executor.StateMachineLogic, Repaint);
+            editorUI = new StateMachineUIImplementation(initialData, executor.StateMachine, Repaint);
             editorUI.OnEnable();
         }
 

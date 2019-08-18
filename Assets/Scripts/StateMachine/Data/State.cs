@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Abstract class for states, used in <see cref="StateMachineData"/>
+    /// Abstract class for states, used in <see cref="StateMachineScriptableObjectData"/>
     /// </summary>
     [Serializable]
     public class State : ScriptableObject, INode

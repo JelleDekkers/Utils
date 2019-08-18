@@ -45,7 +45,8 @@ namespace Utils.Core.Flow.Inspector
 
             if (newName != state.Title)
             {
-                Undo.RecordObject(editorUI.StateMachineData, "Change State Name");
+                //Undo.RecordObject(editorUI.StateMachineData, "Change State Name");
+                Undo.RecordObject(state, "Change State Name");
                 state.Title = newName;
                 EditorUtility.SetDirty(serializedState.targetObject);
             }
@@ -73,7 +74,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            state.AddStateAction(type);
+            state.AddStateAction(type, editorUI.StateMachineData is ScriptableObject);
             Refresh();
         }
 
