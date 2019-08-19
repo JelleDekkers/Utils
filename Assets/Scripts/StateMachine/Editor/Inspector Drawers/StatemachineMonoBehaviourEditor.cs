@@ -5,13 +5,22 @@ namespace Utils.Core.Flow
     [CustomEditor(typeof(StateMachineMonoBehaviour))]
     public class StatemachineMonoBehaviourEditor : Editor
     {
+        private StateMachineMonoBehaviour stateMachine;
         private StateMachineLayerRenderer layerRenderer;
-        private StateMachineMonoBehaviour component;
 
         private void Awake()
         {
-            component = target as StateMachineMonoBehaviour;
-            layerRenderer = new StateMachineLayerRenderer(component.Data, Repaint, component.StateMachine);
+            stateMachine = target as StateMachineMonoBehaviour;
+
+            if(stateMachine.Data == null)
+            {
+                stateMachine.Data = new StateMachineMonoBehaviourData(stateMachine);
+            }
+        }
+
+        private void OnEnable()
+        {
+            layerRenderer = new StateMachineLayerRenderer(stateMachine.Data, Repaint, stateMachine.StateMachine);
         }
 
         public override void OnInspectorGUI()
@@ -22,7 +31,7 @@ namespace Utils.Core.Flow
             layerRenderer.OnInspectorGUI();
         }
 
-        public void OnDestroy()
+        public void OnDisable()
         {
             layerRenderer?.Dispose();
         }

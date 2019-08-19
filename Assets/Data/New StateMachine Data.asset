@@ -9,73 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6977acd9219d9241a1e410995c82e31, type: 3}
+  m_Script: {fileID: 11500000, guid: f6eb2317c042afa45ba93d993d4e4862, type: 3}
   m_Name: New StateMachine Data
   m_EditorClassIdentifier: 
-  EntryState: {fileID: 114776482596434484}
-  States:
-  - {fileID: 114217467383767934}
-  - {fileID: 114484004396870992}
-  - {fileID: 114791374537843954}
-  - {fileID: 114776482596434484}
-  - {fileID: 114591499487659862}
---- !u!114 &114022404930906694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 32
---- !u!114 &114025331296038836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 971c2d2ebe9bbf240bed0cc35f0f31e4, type: 3}
-  m_Name: EventRule
-  m_EditorClassIdentifier: 
-  eventType:
-    classRef: Utils.Core.Events.BackEvent, Assembly-CSharp
---- !u!114 &114169400641757948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 27
---- !u!114 &114211708944461616
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
-  m_Name: SpawnPrefabAction
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 2376965535278278977, guid: a3a535f9f173b1d408fda5ffc5dde8fa, type: 3}
-  position: {x: 0, y: 0, z: 0}
-  instanceName: 
-  cleanUpOnStop: 1
---- !u!114 &114217467383767934
+  entryState: {fileID: 114212632679386184}
+  states:
+  - {fileID: 114212632679386184}
+  - {fileID: 114200945293950402}
+--- !u!114 &114200945293950402
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -87,146 +28,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
   m_Name: State
   m_EditorClassIdentifier: 
-  TemplateActions:
-  - {fileID: 114220974935498632}
-  - {fileID: 114788888542784838}
+  TemplateActions: []
   RunTimeActions: []
-  RuleGroups:
-  - TemplateRules:
-    - {fileID: 114418661089536288}
-    - {fileID: 114936907437367504}
-    RuntimeRules: []
-    Destination: {fileID: 114484004396870992}
-    linkData:
-      sourceHandleData:
-        offset: {x: 40, y: 0}
-      destinationHandleData:
-        offset: {x: -32, y: 4}
-  Title: Splash
-  position: {x: 81, y: 180}
---- !u!114 &114220974935498632
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
-  m_Name: SpawnPrefabAction
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 7792867791196201259, guid: 5976a890574cc2f4bab22de820a43148, type: 3}
-  position: {x: 0, y: 0, z: 0}
-  instanceName: 
-  cleanUpOnStop: 1
---- !u!114 &114418661089536288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
-  m_Name: KeyPressedRule
-  m_EditorClassIdentifier: 
-  key: 32
---- !u!114 &114483180595674832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e06c591e3510bcb4e8cfbd081e03c088, type: 3}
-  m_Name: StartStateMachineAction
-  m_EditorClassIdentifier: 
-  stateMachine: {fileID: 11400000, guid: 96d3c7b5ee05d8040987195f1a9b06b4, type: 2}
---- !u!114 &114484004396870992
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  TemplateActions:
-  - {fileID: 114211708944461616}
-  - {fileID: 114657457123389782}
-  RunTimeActions: []
-  RuleGroups:
-  - TemplateRules:
-    - {fileID: 114695021070330666}
-    RuntimeRules: []
-    Destination: {fileID: 114791374537843954}
-    linkData:
-      sourceHandleData:
-        offset: {x: 40, y: 0}
-      destinationHandleData:
-        offset: {x: -40, y: 0}
-  Title: Login
-  position: {x: 300, y: 180}
---- !u!114 &114591499487659862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  TemplateActions:
-  - {fileID: 114961083181729714}
-  RunTimeActions: []
-  RuleGroups:
-  - TemplateRules:
-    - {fileID: 114025331296038836}
-    RuntimeRules: []
-    Destination: {fileID: 114776482596434484}
-    linkData:
-      sourceHandleData:
-        offset: {x: 133, y: 112}
-      destinationHandleData:
-        offset: {x: -155, y: 142}
-  Title: Load Test SM
-  position: {x: 411, y: 360}
---- !u!114 &114657457123389782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5855653ac3eda7a46a6ea6c3cc2b0613, type: 3}
-  m_Name: SpawnScopedPrefabAction
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
---- !u!114 &114695021070330666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 076dcd209dc787e4388be3929fc0a44d, type: 3}
-  m_Name: LoggedInRule
-  m_EditorClassIdentifier: 
---- !u!114 &114776482596434484
+  RuleGroups: []
+  Title: New State
+  position: {x: 416.5, y: 120}
+--- !u!114 &114212632679386184
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -242,82 +49,17 @@ MonoBehaviour:
   RunTimeActions: []
   RuleGroups:
   - TemplateRules:
-    - {fileID: 114022404930906694}
-    RuntimeRules:
-    - {fileID: 0}
-    Destination: {fileID: 114591499487659862}
+    - {fileID: 114561513328084062}
+    RuntimeRules: []
+    Destination: {fileID: 114200945293950402}
     linkData:
       sourceHandleData:
         offset: {x: 40, y: 0}
       destinationHandleData:
         offset: {x: -40, y: 0}
   Title: Init
-  position: {x: 82, y: 351}
---- !u!114 &114788888542784838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5855653ac3eda7a46a6ea6c3cc2b0613, type: 3}
-  m_Name: SpawnScopedPrefabAction
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
---- !u!114 &114791374537843954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
-  m_Name: State
-  m_EditorClassIdentifier: 
-  TemplateActions:
-  - {fileID: 114868510796226022}
-  RunTimeActions:
-  - {fileID: 0}
-  RuleGroups:
-  - TemplateRules:
-    - {fileID: 114169400641757948}
-    RuntimeRules:
-    - {fileID: 0}
-    Destination: {fileID: 114217467383767934}
-    linkData:
-      sourceHandleData:
-        offset: {x: 75, y: -151}
-      destinationHandleData:
-        offset: {x: -163, y: -85}
-  - TemplateRules:
-    - {fileID: 114910455612837438}
-    RuntimeRules: []
-    Destination: {fileID: 0}
-    linkData:
-      sourceHandleData:
-        offset: {x: 40, y: 0}
-      destinationHandleData:
-        offset: {x: -40, y: 0}
-  Title: Menu
-  position: {x: 520, y: 180}
---- !u!114 &114868510796226022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f80fb49ddf3fac443bdb00b0c03c65a6, type: 3}
-  m_Name: StartStateMachineLayerAction
-  m_EditorClassIdentifier: 
-  stateMachine: {fileID: 11400000, guid: faaac18ea966c9e47a94a90748149f2e, type: 2}
---- !u!114 &114910455612837438
+  position: {x: 58.5, y: 108}
+--- !u!114 &114561513328084062
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -330,29 +72,3 @@ MonoBehaviour:
   m_Name: KeyPressedRule
   m_EditorClassIdentifier: 
   key: 32
---- !u!114 &114936907437367504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0558a1af5fc41ea4ab0a151e4af0c095, type: 3}
-  m_Name: DelayRule
-  m_EditorClassIdentifier: 
-  delay: 2
---- !u!114 &114961083181729714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f80fb49ddf3fac443bdb00b0c03c65a6, type: 3}
-  m_Name: StartStateMachineLayerAction
-  m_EditorClassIdentifier: 
-  stateMachine: {fileID: 11400000, guid: 96d3c7b5ee05d8040987195f1a9b06b4, type: 2}

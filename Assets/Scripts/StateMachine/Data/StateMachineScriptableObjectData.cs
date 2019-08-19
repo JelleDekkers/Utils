@@ -26,6 +26,7 @@ namespace Utils.Core.Flow
         }
 
         public string Name => name;
+        public UnityEngine.Object SerializedObject => this;
 
         public void AddNewState(State state)
         {

@@ -17,21 +17,7 @@ namespace Utils.Core.Flow
 
         public static void ClearStateMachine(this IStateMachineData data)
         {
-            if (data is StateMachineScriptableObjectData)
-            {
-                ClearStateMachine(data);
-            }
-            else if (data is StateMachineMonoBehaviourData)
-            {
-                ClearStateMachine(data as StateMachineMonoBehaviourData);
-            }
-
-            Debug.LogWarning("Type not found");
-        }
-
-        public static void ClearStateMachine(this StateMachineScriptableObjectData data)
-        {
-            Undo.RecordObject(data, "Clear Machine");
+            Undo.RecordObject(data.SerializedObject, "Clear Machine");
 
             for (int i = 0; i < data.States.Count; i++)
             {
@@ -54,95 +40,47 @@ namespace Utils.Core.Flow
 
             data.States.Clear();
             StateMachineClearedEvent?.Invoke(data);
-            EditorUtility.SetDirty(data);
-        }
-
-        public static void ClearStateMachine(this StateMachineMonoBehaviourData data)
-        {
-            //Undo.RecordObject(data, "Clear Machine");
-
-            for (int i = 0; i < data.States.Count; i++)
-            {
-                State state = data.States[i];
-                foreach (StateAction action in state.TemplateActions)
-                {
-                    Object.DestroyImmediate(action, true);
-                }
-
-                foreach (RuleGroup ruleGroup in state.RuleGroups)
-                {
-                    foreach (Rule rule in ruleGroup.TemplateRules)
-                    {
-                        Object.DestroyImmediate(rule, true);
-                    }
-
-                }
-                Object.DestroyImmediate(state, true);
-            }
-
-            data.States.Clear();
-            StateMachineClearedEvent?.Invoke(data);
-            //EditorUtility.SetDirty(data);
+            EditorUtility.SetDirty(data.SerializedObject);
         }
 
         public static State CreateNewState(this IStateMachineData data, Vector2 position)
         {
-            if(data is StateMachineScriptableObjectData)
+            Undo.RecordObject(data.SerializedObject, "Add State");
+
+            State state;
+            if (data.SerializedObject is ScriptableObject)
             {
-                return CreateNewState(data as StateMachineScriptableObjectData, position);
+                string assetFilePath = AssetDatabase.GetAssetPath(data.SerializedObject);
+                state = StateMachineEditorUtilityHelper.CreateObjectInstance<State>(assetFilePath);
             }
-            else if(data is StateMachineMonoBehaviourData)
+            else
             {
-                return CreateNewState(data as StateMachineMonoBehaviourData, position);
+                state = ScriptableObject.CreateInstance<State>();
             }
 
-            Debug.LogWarning("Type not found");
-            return null;
-        }
-
-        public static State CreateNewState(this StateMachineScriptableObjectData data, Vector2 position)
-        {
-            Undo.RecordObject(data, "Add State");
-
-            string assetFilePath = AssetDatabase.GetAssetPath(data);
-            State state = StateMachineEditorUtilityHelper.CreateObjectInstance<State>(assetFilePath);
             state.Position = position;
             data.AddNewState(state);
 
             StateAddedEvent?.Invoke(data, state);
-            EditorUtility.SetDirty(data);
+            EditorUtility.SetDirty(data.SerializedObject);
 
             return state;
         }
 
-        public static State CreateNewState(this StateMachineMonoBehaviourData data, Vector2 position)
+        public static void RemoveState(this IStateMachineData data, State state)
         {
-            //Undo.RecordObject(stateMachine, "Add State");
+            StateRemovedEvent?.Invoke(data, state);
 
-            State state = ScriptableObject.CreateInstance<State>();
-            state.Position = position;
-            data.AddNewState(state);
+            Undo.RecordObject(data.SerializedObject, "Remove State");
 
-            StateAddedEvent?.Invoke(data, state);
-            //EditorUtility.SetDirty(stateMachine);
+            bool isEntryState = data.EntryState == state;
 
-            return state;
-        }
-
-        public static void RemoveState(this IStateMachineData stateMachine, State state)
-        {
-            StateRemovedEvent?.Invoke(stateMachine, state);
-
-            //Undo.RecordObject(stateMachine, "Remove State");
-
-            bool isEntryState = stateMachine.EntryState == state;
-
-            stateMachine.States.Remove(state);
+            data.States.Remove(state);
             Object.DestroyImmediate(state, true);
 
-            if (isEntryState && stateMachine.States.Count > 0)
+            if (isEntryState && data.States.Count > 0)
             {
-                SetEntryState(stateMachine, stateMachine.States[0]);
+                SetEntryState(data, data.States[0]);
             }
 
             foreach(StateAction action in state.TemplateActions)
@@ -158,16 +96,14 @@ namespace Utils.Core.Flow
                 }
             }
 
-            //EditorUtility.SetDirty(stateMachine);
+            EditorUtility.SetDirty(data.SerializedObject);
         }
 
-        public static void SetEntryState(this IStateMachineData stateMachine, State state)
+        public static void SetEntryState(this IStateMachineData data, State state)
         {
-            //Undo.RecordObject(stateMachine, "Set Entry State");
-            Undo.RecordObject(state, "Set Entry State");
-            stateMachine.EntryState = state;
-            EditorUtility.SetDirty(state);
-            //EditorUtility.SetDirty(stateMachine);
+            Undo.RecordObject(data.SerializedObject, "Set Entry State");
+            data.EntryState = state;
+            EditorUtility.SetDirty(data.SerializedObject);
         }
 
         public static void ClearActions(this State state)
@@ -201,19 +137,19 @@ namespace Utils.Core.Flow
             EditorUtility.SetDirty(state);
         }
 
-        public static void AddStateAction(this State state, Type type, bool createAsset)
+        public static void AddStateAction(this State state, Type actionType, IStateMachineData data)
         {
             Undo.RecordObject(state, "Add Action");
 
             StateAction stateAction = null;
-            if (createAsset)
+            if (data is ScriptableObject)
             {
                 string assetFilePath = AssetDatabase.GetAssetPath(state);
-                stateAction = StateMachineEditorUtilityHelper.CreateObjectInstance(type, assetFilePath) as StateAction;
+                stateAction = StateMachineEditorUtilityHelper.CreateObjectInstance(actionType, assetFilePath) as StateAction;
             }
             else
             {
-                stateAction = ScriptableObject.CreateInstance(type) as StateAction;
+                stateAction = ScriptableObject.CreateInstance(actionType) as StateAction;
             }
 
             state.TemplateActions.Add(stateAction);
@@ -270,73 +206,69 @@ namespace Utils.Core.Flow
             EditorUtility.SetDirty(state);
         }
 
-        public static void Clear(this RuleGroup ruleGroup)
+        public static void Clear(this RuleGroup ruleGroup, State state)
         {
-            // TODO: needs reference to the statemachine?
-            //Undo.RecordObject(ruleGroup, "Clear RuleGroup");
+            Undo.RecordObject(state, "Clear RuleGroup");
 
-            foreach(Rule rule in ruleGroup.TemplateRules)
+            foreach (Rule rule in ruleGroup.TemplateRules)
             {
                 Object.DestroyImmediate(rule, true);
             }
             ruleGroup.TemplateRules.Clear();
 
-            //EditorUtility.SetDirty(ruleGroup);
+            EditorUtility.SetDirty(state);
         }
 
-        public static void Reset(this Rule rule, RuleGroup ruleGroup)
+        public static void Reset(this Rule rule, RuleGroup ruleGroup, IStateMachineData data)
         {
-            // TODO: needs reference to the statemachine?
-            //Undo.RecordObject(ruleGroup, "Reset Action");
+            Undo.RecordObject(data.SerializedObject, "Reset Rule");
 
-            string assetFilePath = AssetDatabase.GetAssetPath(rule);
-            Rule newRule = StateMachineEditorUtilityHelper.CreateObjectInstance(rule.GetType(), assetFilePath) as Rule;
-            int index = ruleGroup.TemplateRules.IndexOf(rule);
+            Rule newRule;
+            if (data is ScriptableObject)
+            {
+                string assetFilePath = AssetDatabase.GetAssetPath(rule);
+                newRule = StateMachineEditorUtilityHelper.CreateObjectInstance(rule.GetType(), assetFilePath) as Rule;
+            }
+            else
+            {
+                newRule = ScriptableObject.CreateInstance(rule.GetType()) as Rule;
+            }
+
             Object.DestroyImmediate(rule, true);
+            int index = ruleGroup.TemplateRules.IndexOf(rule);
             ruleGroup.TemplateRules[index] = newRule;
 
             ObjectResetEvent?.Invoke(rule);
-            //EditorUtility.SetDirty(ruleGroup);
+            EditorUtility.SetDirty(data.SerializedObject);
         }
 
         public static void AddNewRule(this RuleGroup group, IStateMachineData data, Type ruleType)
         {
-            if (data is StateMachineScriptableObjectData)
+            // TODO: needs to be state, not the statemachine?
+            Undo.RecordObject(data.SerializedObject, "Add Rule");
+
+            Rule rule;
+            if (data.SerializedObject is ScriptableObject)
             {
-                AddNewRule(group, data as StateMachineScriptableObjectData, ruleType);
+                string assetFilePath = AssetDatabase.GetAssetPath(data.SerializedObject);
+                rule = StateMachineEditorUtilityHelper.CreateObjectInstance(ruleType, assetFilePath) as Rule;
             }
-            else if (data is StateMachineMonoBehaviourData)
+            else
             {
-                AddNewRule(group, data as StateMachineMonoBehaviourData, ruleType);
+                rule = ScriptableObject.CreateInstance(ruleType) as Rule;
             }
-
-            Debug.LogWarning("Type not found");
-        }
-
-        public static void AddNewRule(this RuleGroup group, StateMachineMonoBehaviourData stateMachine, Type ruleType)
-        {
-            Rule rule = ScriptableObject.CreateInstance(ruleType) as Rule;
-            group.TemplateRules.Add(rule);
-        }
-
-        public static void AddNewRule(this RuleGroup group, StateMachineScriptableObjectData stateMachine, Type ruleType)
-        {
-            // TODO: needs reference to the statemachine?
-            //Undo.RecordObject(group, "Add Rule");
-            string assetFilePath = AssetDatabase.GetAssetPath(stateMachine);
-            Rule rule = StateMachineEditorUtilityHelper.CreateObjectInstance(ruleType, assetFilePath) as Rule;
             group.TemplateRules.Add(rule);
 
-            //EditorUtility.SetDirty(group);
+            EditorUtility.SetDirty(data.SerializedObject);
         }
 
-        public static void RemoveRule(this RuleGroup group, Rule rule)
+        public static void RemoveRule(this RuleGroup group, Rule rule, IStateMachineData data)
         {
-            // TODO: needs reference to the statemachine?
-            //Undo.RecordObject(group, "Remove rule");
+            // TODO: needs to be state, not the statemachine?
+            Undo.RecordObject(data.SerializedObject, "Remove rule");
             group.TemplateRules.Remove(rule);
             Object.DestroyImmediate(rule, true);
-            //EditorUtility.SetDirty(group);
+            EditorUtility.SetDirty(data.SerializedObject);
         }
     }
 }

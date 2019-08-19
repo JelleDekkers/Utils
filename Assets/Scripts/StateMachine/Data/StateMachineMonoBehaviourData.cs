@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Object = UnityEngine.Object;
+
 namespace Utils.Core.Flow
 {
     /// <summary>
@@ -10,14 +12,14 @@ namespace Utils.Core.Flow
     [Serializable]
     public class StateMachineMonoBehaviourData : IStateMachineData
     { 
-        [SerializeField] public State entryState;
+        [SerializeField] private State entryState;
         public State EntryState
         {
             get { return entryState; }
             set { entryState = value; }
         }
 
-        [SerializeField] public List<State> states = new List<State>();
+        [SerializeField] private List<State> states = new List<State>();
         public List<State> States
         {
             get { return states; }
@@ -25,6 +27,14 @@ namespace Utils.Core.Flow
         }
 
         public string Name => GetType().Name;
+
+        [SerializeField] private Object obj; 
+        public Object SerializedObject => obj;
+
+        public StateMachineMonoBehaviourData(StateMachineMonoBehaviour gameObject)
+        {
+            obj = gameObject;
+        }
 
         public void AddNewState(State state)
         {

@@ -95,13 +95,13 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index]);
+            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], editorUI.StateMachineData);
             Refresh();
         }
 
         private void OnResetButtonPressed(ContextMenu.Result result)
         {
-            ruleGroup.TemplateRules[result.Index].Reset(ruleGroup);
+            ruleGroup.TemplateRules[result.Index].Reset(ruleGroup, editorUI.StateMachineData);
             Refresh();
         }
 

@@ -74,7 +74,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            state.AddStateAction(type, editorUI.StateMachineData is ScriptableObject);
+            state.AddStateAction(type, editorUI.StateMachineData);
             Refresh();
         }
 

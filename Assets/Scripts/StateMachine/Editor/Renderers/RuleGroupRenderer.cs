@@ -202,7 +202,7 @@ namespace Utils.Core.Flow
 
             if (RuleGroup.TemplateRules.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear());
+                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear(stateRenderer.Node));
             }
             else
             {
