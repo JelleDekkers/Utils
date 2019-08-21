@@ -24,11 +24,13 @@ namespace Utils.Core.Flow
         protected void OnEnable()
         {
             SetupWindow(this);
+            Undo.undoRedoPerformed += Refresh;
         }
 
         protected void OnDisable()
         {
             editorUI?.OnDisable();
+            Undo.undoRedoPerformed -= Refresh;
         }
 
         private static void SetupWindow(StateMachineWindow window)
@@ -58,6 +60,11 @@ namespace Utils.Core.Flow
                 editorUI = new StateMachineUIImplementation(data, null, Repaint);
                 editorUI.OnEnable();
             }
+        }
+
+        private void Refresh()
+        {
+            editorUI.Refresh();
         }
 
         private void Update()

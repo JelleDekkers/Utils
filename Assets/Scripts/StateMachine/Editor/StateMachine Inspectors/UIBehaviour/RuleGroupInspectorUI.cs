@@ -60,7 +60,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            ruleGroup.AddNewRule(editorUI.StateMachineData, type);
+            ruleGroup.AddNewRule(type, editorUI.StateMachineData, serializedStateObject.targetObject as State);
             Refresh();
         }
 
@@ -95,7 +95,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], editorUI.StateMachineData);
+            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], serializedStateObject.targetObject as State);
             Refresh();
         }
 

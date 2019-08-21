@@ -14,14 +14,18 @@ namespace Utils.Core.Flow
         public IStateMachineData Data { get; private set; }
         public State CurrentState { get; private set; }
 
-        private readonly Statemachine manager;
+        private readonly StateMachine manager;
         private readonly DependencyInjector dependencyInjector;
 
-        public StateMachineLayer(Statemachine manager, IStateMachineData data)
+        public StateMachineLayer(StateMachine manager, IStateMachineData data)
         {
             Data = data;
-            CurrentState = data.EntryState;
             this.manager = manager;
+
+            if (data.EntryState != null)
+            {
+                CurrentState = data.EntryState;
+            }
 
             dependencyInjector = new DependencyInjector();
             dependencyInjector.RegisterInstance<StateMachineLayer>(this);
@@ -71,7 +75,7 @@ namespace Utils.Core.Flow
 
                 if (newState == null)
                 {
-                    Statemachine.PrintDebug(string.Format("{0} Has no destination state!", CurrentState));
+                    StateMachine.PrintDebug(string.Format("{0} Has no destination state!", CurrentState));
                 }
             }
         }
@@ -116,7 +120,7 @@ namespace Utils.Core.Flow
 
         private void TransitionToState(State prevState, State newState)
         {
-            Statemachine.PrintDebug(string.Format("Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE"));
+            StateMachine.PrintDebug(string.Format("Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE"));
 
             if (newState != null)
             {

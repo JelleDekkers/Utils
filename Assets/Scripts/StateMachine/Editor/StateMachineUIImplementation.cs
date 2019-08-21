@@ -13,7 +13,7 @@ namespace Utils.Core.Flow
     {
         private StateMachineLayerRenderer layerRenderer;
         private StateMachineScriptableObjectData stateMachineData;
-        private Statemachine statemachine;
+        private StateMachine statemachine;
 
         private List<StateMachineScriptableObjectData> linkedLayers = new List<StateMachineScriptableObjectData>();
         private string[] linkedLayerNames = new string[0];
@@ -22,7 +22,7 @@ namespace Utils.Core.Flow
         private GUIStyle linkedLayersToolbarStyle;
         private readonly Action repaint;
 
-        public StateMachineUIImplementation(StateMachineScriptableObjectData data, Statemachine statemachine, Action repaint)
+        public StateMachineUIImplementation(StateMachineScriptableObjectData data, StateMachine statemachine, Action repaint)
         {
             stateMachineData = data;
             this.statemachine = statemachine;
@@ -54,6 +54,11 @@ namespace Utils.Core.Flow
                     statemachine.LayerChangedEvent -= OnLayerChanged;
                 }
             }
+        }
+
+        public void Refresh()
+        {
+            layerRenderer?.Refresh();
         }
 
         public void OnInspectorGUI()
@@ -148,7 +153,7 @@ namespace Utils.Core.Flow
 
         public void Dispose()
         {
-            layerRenderer?.Dispose();
+            layerRenderer?.OnDestroy();
         }
     }
 }

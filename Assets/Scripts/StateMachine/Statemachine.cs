@@ -5,22 +5,26 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for the actual runtime statemachine. Keeps track and updates all stacked <see cref="StateMachineLayer"/>s
+    /// Class for the actual runtime statemachine. Keeps track and updates all stacked <see cref="StateMachineLayer"/>s.
     /// Use scripting define symbol "DEBUG_FLOW" to print StateMachine related debugs
     /// </summary>
     [Serializable]
-    public class Statemachine
+    public class StateMachine
     {
         public Action<StateMachineLayer, StateMachineLayer> LayerChangedEvent;
         public StateMachineLayer CurrentLayer { get { return layerStack.Peek(); } }
 
         private Stack<StateMachineLayer> layerStack = new Stack<StateMachineLayer>();
 
-        public Statemachine(IStateMachineData data)
+        public StateMachine(IStateMachineData data)
         {
             StateMachineLayer layer = new StateMachineLayer(this, data);
             layerStack.Push(layer);
-            layer.Start();
+
+            if (layer.Data.EntryState != null)
+            {
+                layer.Start();
+            }
         }
 
         public void Update()

@@ -1,5 +1,4 @@
 ﻿using UnityEditor;
-using UnityEngine;
 
 namespace Utils.Core.Flow
 {
@@ -15,11 +14,20 @@ namespace Utils.Core.Flow
         {
             editorUI = new StateMachineUIImplementation(target as StateMachineScriptableObjectData, null, Repaint);
             editorUI.OnEnable();
+
+            Undo.undoRedoPerformed += Refresh;
         }
 
         protected void OnDisable()
         {
             editorUI.OnDisable();
+
+            Undo.undoRedoPerformed -= Refresh;
+        }
+
+        private void Refresh()
+        {
+            editorUI.Refresh();
         }
 
         public override void OnInspectorGUI()

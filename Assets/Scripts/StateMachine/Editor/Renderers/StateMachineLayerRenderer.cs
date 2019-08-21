@@ -13,8 +13,8 @@ namespace Utils.Core.Flow
     {
         public ISelectable Selection { get; private set; }
         public IStateMachineData StateMachineData { get; private set; }
-        public Statemachine stateMachine { get; private set; }
-        public List<StateRenderer> NodeRenderers { get; private set; }
+        public StateMachine StateMachine { get; private set; }
+        public List<INodeRenderer<State>> NodeRenderers { get; private set; }
         public StateMachineCanvasRenderer CanvasRenderer { get; private set; }
         public StateMachineInspector Inspector { get; private set; }
         public bool ContextMenuIsOpen { get; set; }
@@ -22,15 +22,15 @@ namespace Utils.Core.Flow
 
         private readonly Action repaintEvent;
 
-        public StateMachineLayerRenderer(IStateMachineData data, Action repaintEvent, Statemachine stateMachine = null)
+        public StateMachineLayerRenderer(IStateMachineData data, Action repaintEvent, StateMachine stateMachine = null)
         {
             StateMachineData = data;
-            this.stateMachine = stateMachine;
+            this.StateMachine = stateMachine;
             this.repaintEvent = repaintEvent;
 
             Inspector = new StateMachineInspector(this);
             CanvasRenderer = new StateMachineCanvasRenderer(this);
-            NodeRenderers = new List<StateRenderer>();
+            NodeRenderers = new List<INodeRenderer<State>>();
 
             foreach (State state in data.States)
             {
@@ -80,11 +80,13 @@ namespace Utils.Core.Flow
 
             EditorGUILayout.LabelField("Drag " + CanvasRenderer.ScrollViewDrag);
             EditorGUILayout.LabelField("window size " + CanvasRenderer.windowRect.size);
-
             EditorGUILayout.LabelField("mouse pos " + e.mousePosition);
             EditorGUILayout.LabelField("state count " + StateMachineData.States.Count);
-            EditorGUILayout.LabelField("entry state " + StateMachineData.EntryState.Title);
-            EditorGUILayout.LabelField("is inside canvas " + CanvasRenderer.Contains(e.mousePosition));
+
+            if (StateMachineData.EntryState != null)
+            {
+                EditorGUILayout.LabelField("entry state " + StateMachineData.EntryState.Title);
+            }
 
             if (Selection != null)
             {
@@ -103,6 +105,11 @@ namespace Utils.Core.Flow
         {
             if(StateMachineData == stateMachine)
             {
+                foreach(StateRenderer renderer in NodeRenderers)
+                {
+                    renderer.OnDestroy();
+                }
+
                 NodeRenderers.Clear();
             }
         }
@@ -122,6 +129,7 @@ namespace Utils.Core.Flow
                 if (renderer.Node == state)
                 {
                     NodeRenderers.Remove(renderer);
+                    renderer.OnDestroy();
 
                     if (Selection == renderer as ISelectable )
                     {
@@ -163,16 +171,15 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void Refresh(Action onDone = null)
+        public void Refresh()
         {
             Selection = null;
+            NodeRenderers.Clear();
 
             foreach (State state in StateMachineData.States)
             {
                 CreateNewNodeRenderer(state);
             }
-
-            onDone?.Invoke();
         }
 
         public void SetDebug(bool debug)
@@ -191,8 +198,13 @@ namespace Utils.Core.Flow
             NodeRenderers.Add(renderer);
         }
 
-        public void Dispose()
+        public void OnDestroy()
         {
+            foreach(StateRenderer renderer in NodeRenderers)
+            {
+                renderer.OnDestroy();
+            }
+
             StateMachineEditorUtility.StateAddedEvent -= OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
             StateMachineEditorUtility.StateMachineClearedEvent -= OnStateMachineClearedEvent;

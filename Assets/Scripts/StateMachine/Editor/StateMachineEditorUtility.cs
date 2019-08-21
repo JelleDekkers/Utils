@@ -76,7 +76,8 @@ namespace Utils.Core.Flow
             bool isEntryState = data.EntryState == state;
 
             data.States.Remove(state);
-            Object.DestroyImmediate(state, true);
+            //Object.DestroyImmediate(state, true);
+            Undo.DestroyObjectImmediate(state);
 
             if (isEntryState && data.States.Count > 0)
             {
@@ -195,6 +196,8 @@ namespace Utils.Core.Flow
 
         public static void RemoveRuleGroup(this State state, RuleGroup group)
         {
+            Undo.RecordObject(state, "Remove RuleGroup");
+
             foreach(Rule rule in group.TemplateRules)
             {
                 Object.DestroyImmediate(rule, true);
@@ -242,10 +245,9 @@ namespace Utils.Core.Flow
             EditorUtility.SetDirty(data.SerializedObject);
         }
 
-        public static void AddNewRule(this RuleGroup group, IStateMachineData data, Type ruleType)
+        public static void AddNewRule(this RuleGroup group, Type ruleType, IStateMachineData data, State state)
         {
-            // TODO: needs to be state, not the statemachine?
-            Undo.RecordObject(data.SerializedObject, "Add Rule");
+            Undo.RecordObject(state, "Add Rule");
 
             Rule rule;
             if (data.SerializedObject is ScriptableObject)
@@ -259,16 +261,15 @@ namespace Utils.Core.Flow
             }
             group.TemplateRules.Add(rule);
 
-            EditorUtility.SetDirty(data.SerializedObject);
+            EditorUtility.SetDirty(state);
         }
 
-        public static void RemoveRule(this RuleGroup group, Rule rule, IStateMachineData data)
+        public static void RemoveRule(this RuleGroup group, Rule rule, State state)
         {
-            // TODO: needs to be state, not the statemachine?
-            Undo.RecordObject(data.SerializedObject, "Remove rule");
+            Undo.RecordObject(state, "Remove rule");
             group.TemplateRules.Remove(rule);
             Object.DestroyImmediate(rule, true);
-            EditorUtility.SetDirty(data.SerializedObject);
+            EditorUtility.SetDirty(state);
         }
     }
 }

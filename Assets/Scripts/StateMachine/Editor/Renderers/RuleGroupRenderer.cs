@@ -135,12 +135,10 @@ namespace Utils.Core.Flow
         #region Events
         public void OnSelect(Event e)
         {
-            stateRenderer.OnSelect(e);
-
             IsSelected = true;
             editorUI.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            editorUI.Inspector.Inspect(new RuleGroupInspector(editorUI, stateRenderer.Node, RuleGroup));
+            editorUI.Inspector.Inspect(RuleGroup, new RuleGroupInspector(editorUI, stateRenderer.Node, RuleGroup));
             GUI.changed = true;
         }
 

@@ -7,13 +7,13 @@ namespace Utils.Core.Flow
     /// </summary>
     public class StateMachineMonoBehaviour : MonoBehaviour
     {
-        public Statemachine StateMachine { get; private set; }
+        public StateMachine StateMachine { get; private set; }
 
         [HideInInspector] public StateMachineMonoBehaviourData Data;
 
         private void Awake()
         {
-            StateMachine = new Statemachine(Data);
+            StateMachine = new StateMachine(Data);
         }
 
         private void Update()

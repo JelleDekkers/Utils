@@ -41,6 +41,7 @@ namespace Utils.Core.Flow
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
+
         private readonly Color HeaderBackgroundColor = new Color(0.7529413f, 0.7529413f, 0.7529413f, 0.9f);
         private readonly Color RuntimeCurrentStateHeaderBackgroundColor = new Color(0f, 1f, 0f);
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
@@ -167,7 +168,7 @@ namespace Utils.Core.Flow
 
         public bool IsCurrentlyRunning()
         {
-            return editorUI.stateMachine != null && editorUI.stateMachine.CurrentLayer.CurrentState == Node;
+            return editorUI.StateMachine != null && editorUI.StateMachine.CurrentLayer.CurrentState == Node;
         }
 
         #region Drawing
@@ -330,7 +331,7 @@ namespace Utils.Core.Flow
             IsSelected = true;
 
             editorUI.Select(this);
-            editorUI.Inspector.Inspect(new StateInspectorUI(editorUI, Node));
+            editorUI.Inspector.Inspect(Node, new StateInspectorUI(editorUI, Node));
             editorUI.ReorderNodeRendererToBottom(this);
         }
 
@@ -421,7 +422,7 @@ namespace Utils.Core.Flow
         }
         #endregion
 
-        public void Dispose()
+        public void OnDestroy()
         {
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent -= OnRuleGroupRemovedEvent;

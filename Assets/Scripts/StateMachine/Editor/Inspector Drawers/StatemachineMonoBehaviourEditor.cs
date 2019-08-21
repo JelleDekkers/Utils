@@ -21,6 +21,18 @@ namespace Utils.Core.Flow
         private void OnEnable()
         {
             layerRenderer = new StateMachineLayerRenderer(stateMachine.Data, Repaint, stateMachine.StateMachine);
+            Undo.undoRedoPerformed += Refresh;
+        }
+
+        public void OnDisable()
+        {
+            layerRenderer?.OnDestroy();
+            Undo.undoRedoPerformed -= Refresh;
+        }
+
+        private void Refresh()
+        {
+            layerRenderer.Refresh();
         }
 
         public override void OnInspectorGUI()
@@ -29,11 +41,6 @@ namespace Utils.Core.Flow
 
             EditorGUILayout.Space();
             layerRenderer.OnInspectorGUI();
-        }
-
-        public void OnDisable()
-        {
-            layerRenderer?.Dispose();
         }
     }
 }

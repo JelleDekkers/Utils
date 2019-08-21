@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Utils.Core.Flow
 {
+    /// <summary>
+    /// Helper class for all GUIStyles used by <see cref="StateMachine"/> related editor scripts
+    /// </summary>
     public static class GUIStyles
     {
         public const float KNOB_SIZE = 10;
@@ -171,6 +174,23 @@ namespace Utils.Core.Flow
                 }
 
                 return bezierLineHandleStyle;
+            }
+        }
+
+        private static GUIStyle canvasBottomToolbarStyle;
+        public static GUIStyle CanvasBottomToolbarStyle
+        {
+            get
+            {
+                if (canvasBottomToolbarStyle == null)
+                {
+                    canvasBottomToolbarStyle = new GUIStyle("Toolbar");
+                    canvasBottomToolbarStyle.alignment = TextAnchor.MiddleRight;
+                    canvasBottomToolbarStyle.normal.background = null;
+                    canvasBottomToolbarStyle.padding = new RectOffset(0, 5, 0, 1);
+                }
+
+                return canvasBottomToolbarStyle;
             }
         }
     }

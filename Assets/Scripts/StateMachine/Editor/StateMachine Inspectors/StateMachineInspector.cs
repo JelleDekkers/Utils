@@ -9,9 +9,10 @@ namespace Utils.Core.Flow.Inspector
     /// </summary>
     public class StateMachineInspector : IDisposable
     {
+        public object CurrentInspectedObject { get; private set; }
+
         protected StateMachineLayerRenderer editorUI;
         protected IInspectorUIBehaviour uiBehaviour;
-
         private Action layoutEvent;
 
         public StateMachineInspector(StateMachineLayerRenderer editorUI)
@@ -32,7 +33,7 @@ namespace Utils.Core.Flow.Inspector
             uiBehaviour?.OnInspectorGUI(e);
         }
 
-        public void Inspect(IInspectorUIBehaviour uiBehaviour)
+        public void Inspect(object target, IInspectorUIBehaviour uiBehaviour)
         {
             // This is needed to prevent UI errors 
             void InspectOnLayoutEvent()
@@ -99,9 +100,13 @@ namespace Utils.Core.Flow.Inspector
         /// </summary>
         public void Refresh()
         {
-            if (uiBehaviour != null)
+            if (uiBehaviour != null && CurrentInspectedObject != null)
             {
                 uiBehaviour.Refresh();
+            }
+            else
+            {
+                Clear();
             }
         }
 

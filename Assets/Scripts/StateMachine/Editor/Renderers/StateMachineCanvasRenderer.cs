@@ -271,16 +271,10 @@ namespace Utils.Core.Flow
                 windowRect.height = MIN_WINDOW_HEIGHT;
             }
 
-            if (EditorUI.StateMachineData is ScriptableObject)
-            {
-                GUIStyle style = new GUIStyle("Toolbar");
-                style.alignment = TextAnchor.MiddleRight;
-                style.normal.background = null;
-                string stateMachineName = AssetDatabase.GetAssetPath(EditorUI.StateMachineData as ScriptableObject);
-                EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), style);
-                GUILayout.Space(10);
-            }
-
+          
+            string stateMachineName = (EditorUI.StateMachineData is ScriptableObject) ? AssetDatabase.GetAssetPath(EditorUI.StateMachineData.SerializedObject) : string.Empty;
+            EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), GUIStyles.CanvasBottomToolbarStyle);
+            
             bool debug = EditorUI.ShowDebug;
             debug = GUILayout.Toggle(EditorUI.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
             if (debug != EditorUI.ShowDebug)

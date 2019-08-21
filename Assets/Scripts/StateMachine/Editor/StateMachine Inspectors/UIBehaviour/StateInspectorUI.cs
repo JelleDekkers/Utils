@@ -18,12 +18,17 @@ namespace Utils.Core.Flow.Inspector
             this.editorUI = editorUI;
             this.state = state;
 
+            Init();
+        }
+
+        private void Init()
+        {
             serializedState = new SerializedObject(state);
         }
 
         public void Refresh()
         {
-            serializedState = new SerializedObject(state);
+            Init();
         }
 
         public void OnInspectorGUI(Event e)
