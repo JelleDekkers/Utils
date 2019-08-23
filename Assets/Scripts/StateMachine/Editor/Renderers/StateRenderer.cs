@@ -213,7 +213,7 @@ namespace Utils.Core.Flow
 
             Color prevColor = GUI.backgroundColor;
             GUI.backgroundColor = (Application.isPlaying && IsCurrentlyRunning()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
-            GUI.Box(Rect, Node.Title, GUIStyles.StateHeaderStyle);
+            GUI.Box(Rect, label, GUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
         }
 
@@ -374,6 +374,9 @@ namespace Utils.Core.Flow
 
         public void OnDragStart(Event e)
         {
+            Undo.RegisterCompleteObjectUndo(Node, "State Dragged");
+            EditorUtility.SetDirty(Node);
+
             isDragging = true;
             dragStartPos = e.mousePosition;
             dragStartSelectionDif = dragStartPos - Node.Position;

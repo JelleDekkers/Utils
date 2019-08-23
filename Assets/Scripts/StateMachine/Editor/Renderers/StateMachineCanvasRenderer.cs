@@ -248,6 +248,7 @@ namespace Utils.Core.Flow
             if (GUILayout.Button("Clear Machine", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
                 EditorUI.StateMachineData.ClearStateMachine();
+                EditorUI.Refresh();
             }
 
             EditorGUILayout.EndHorizontal();

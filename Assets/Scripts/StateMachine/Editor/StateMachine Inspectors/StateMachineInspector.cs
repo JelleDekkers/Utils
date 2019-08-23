@@ -7,10 +7,8 @@ namespace Utils.Core.Flow.Inspector
     /// <summary>
     /// Abstract class for inspecting serialized properties of a ScriptableObject
     /// </summary>
-    public class StateMachineInspector : IDisposable
+    public class StateMachineInspector
     {
-        public object CurrentInspectedObject { get; private set; }
-
         protected StateMachineLayerRenderer editorUI;
         protected IInspectorUIBehaviour uiBehaviour;
         private Action layoutEvent;
@@ -95,24 +93,16 @@ namespace Utils.Core.Flow.Inspector
         //    return new InspectorUIFallbackBehaviour(manager, parentObject, targetProperty);
         //}
 
-        /// <summary>
-        /// Reinitializes UI
-        /// </summary>
         public void Refresh()
         {
-            if (uiBehaviour != null && CurrentInspectedObject != null)
-            {
-                uiBehaviour.Refresh();
-            }
-            else
-            {
-                Clear();
-            }
+            uiBehaviour?.Refresh();
         }
 
         public void Clear()
         {
             uiBehaviour = null;
+            Undo.undoRedoPerformed -= Refresh;
+            StateMachineEditorUtility.ObjectResetEvent -= OnObjectResetEvent;
         }
 
         private void OnObjectResetEvent(ScriptableObject obj)
@@ -121,12 +111,6 @@ namespace Utils.Core.Flow.Inspector
             {
                 Refresh();
             }
-        }
-
-        public void Dispose()
-        {
-            Undo.undoRedoPerformed -= Refresh;
-            StateMachineEditorUtility.ObjectResetEvent -= OnObjectResetEvent;
         }
     }
 }

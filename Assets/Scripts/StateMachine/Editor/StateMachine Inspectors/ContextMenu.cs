@@ -10,7 +10,6 @@ namespace Utils.Core.Flow
             public int Index { get; private set; }
             public ScriptableObject Obj { get; private set; }
 
-
             public Result(ScriptableObject obj, Command command, int index)
             {
                 Command = command;
@@ -26,8 +25,8 @@ namespace Utils.Core.Flow
             MoveDown,
             Copy,
             Paste,
-            Delete,
-            Reset
+            Delete
+            //Reset
         }
         
         public enum ReorderDirection

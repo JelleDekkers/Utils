@@ -43,6 +43,8 @@ namespace Utils.Core.Flow
             {
                 layerRenderer = new StateMachineLayerRenderer(stateMachineData, repaint, statemachine);
             }
+
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
         }
 
         public void OnDisable()
@@ -53,6 +55,16 @@ namespace Utils.Core.Flow
                 {
                     statemachine.LayerChangedEvent -= OnLayerChanged;
                 }
+            }
+
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+        }
+
+        private void OnUndoRedoPerformed()
+        {
+            if(Undo.GetCurrentGroupName() != StateMachineEditorUtility.UNDO_INSPECTOR_COMMAND_NAME)
+            {
+                Refresh();
             }
         }
 

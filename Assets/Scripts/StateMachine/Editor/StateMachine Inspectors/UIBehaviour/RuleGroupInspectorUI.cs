@@ -79,9 +79,9 @@ namespace Utils.Core.Flow.Inspector
                 case ContextMenu.Command.MoveDown:
                     OnReorderButtonPressed(result, ContextMenu.ReorderDirection.Down);
                     break;
-                case ContextMenu.Command.Reset:
-                    OnResetButtonPressed(result);
-                    break;
+                //case ContextMenu.Command.Reset:
+                //    OnResetButtonPressed(result);
+                //    break;
                 case ContextMenu.Command.Delete:
                     OnDeleteButtonPressed(result);
                     break;
@@ -99,11 +99,11 @@ namespace Utils.Core.Flow.Inspector
             Refresh();
         }
 
-        private void OnResetButtonPressed(ContextMenu.Result result)
-        {
-            ruleGroup.TemplateRules[result.Index].Reset(ruleGroup, editorUI.StateMachineData);
-            Refresh();
-        }
+        //private void OnResetButtonPressed(ContextMenu.Result result)
+        //{
+        //    ruleGroup.TemplateRules[result.Index].Reset(ruleGroup, editorUI.StateMachineData);
+        //    Refresh();
+        //}
 
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {

@@ -21,18 +21,26 @@ namespace Utils.Core.Flow
         private void OnEnable()
         {
             layerRenderer = new StateMachineLayerRenderer(stateMachine.Data, Repaint, stateMachine.StateMachine);
-            Undo.undoRedoPerformed += Refresh;
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
         }
 
         public void OnDisable()
         {
             layerRenderer?.OnDestroy();
-            Undo.undoRedoPerformed -= Refresh;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
         }
 
         private void Refresh()
         {
             layerRenderer.Refresh();
+        }
+
+        private void OnUndoRedoPerformed()
+        {
+            if (Undo.GetCurrentGroupName() != StateMachineEditorUtility.UNDO_INSPECTOR_COMMAND_NAME)
+            {
+                Refresh();
+            }
         }
 
         public override void OnInspectorGUI()

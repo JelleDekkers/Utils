@@ -1,5 +1,31 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2425304591506373218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: State
+  m_EditorClassIdentifier: 
+  TemplateActions: []
+  RunTimeActions: []
+  RuleGroups:
+  - TemplateRules:
+    - {fileID: 6472157314649293569}
+    RuntimeRules: []
+    Destination: {fileID: 9042196359202704063}
+    linkData:
+      sourceHandleData:
+        offset: {x: 40, y: 0}
+      destinationHandleData:
+        offset: {x: -40, y: 0}
+  Title: New State
+  position: {x: 70, y: 130}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,5 +38,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb2317c042afa45ba93d993d4e4862, type: 3}
   m_Name: New StateMachine Data
   m_EditorClassIdentifier: 
-  entryState: {fileID: 0}
-  states: []
+  entryState: {fileID: -2425304591506373218}
+  states:
+  - {fileID: -2425304591506373218}
+  - {fileID: 9042196359202704063}
+--- !u!114 &6472157314649293569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 971c2d2ebe9bbf240bed0cc35f0f31e4, type: 3}
+  m_Name: EventRule
+  m_EditorClassIdentifier: 
+  eventType:
+    classRef: 
+--- !u!114 &9042196359202704063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: State
+  m_EditorClassIdentifier: 
+  TemplateActions: []
+  RunTimeActions: []
+  RuleGroups: []
+  Title: New State
+  position: {x: 388, y: 136}

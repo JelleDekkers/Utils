@@ -17,26 +17,17 @@ namespace Utils.Core.Flow
         {
             executor = (StateMachineExecutor)target;
             initialData = executor.StateMachineData; 
-
-            Undo.undoRedoPerformed += Refresh;
         }
 
         protected void OnEnable()
         {
             editorUI = new StateMachineUIImplementation(initialData, executor.StateMachine, Repaint);
             editorUI.OnEnable();
-
-            Undo.undoRedoPerformed -= Refresh;
         }
 
         protected void OnDisable()
         {
             editorUI.OnDisable();
-        }
-
-        private void Refresh()
-        {
-            editorUI.Refresh();
         }
 
         public override void OnInspectorGUI()

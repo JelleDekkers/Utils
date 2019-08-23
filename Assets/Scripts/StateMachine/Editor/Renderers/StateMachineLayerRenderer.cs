@@ -175,6 +175,7 @@ namespace Utils.Core.Flow
         {
             Selection = null;
             NodeRenderers.Clear();
+            Inspector.Refresh();
 
             foreach (State state in StateMachineData.States)
             {
@@ -204,6 +205,8 @@ namespace Utils.Core.Flow
             {
                 renderer.OnDestroy();
             }
+
+            Inspector.Clear();
 
             StateMachineEditorUtility.StateAddedEvent -= OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent -= OnStateRemovedEvent;
