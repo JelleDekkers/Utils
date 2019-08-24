@@ -6,7 +6,7 @@ namespace Utils.Core.Flow
     {
         public static void DrawBoxOutline(Rect rect, Color color)
         {
-            GUIStyle borderStyle = GUIStyles.RuleGroupOutlineStyle;
+            GUIStyle borderStyle = NodeGUIStyles.RuleGroupOutlineStyle;
 
             Color previousColor = GUI.color;
             GUI.color = color;
@@ -52,12 +52,12 @@ namespace Utils.Core.Flow
             return boxTexture;
         }
 
-        public static void DrawRuleHandleKnob(Rect ruleRect, System.Action onKnobPressed, Color color, float handleSize = GUIStyles.KNOB_SIZE)
+        public static void DrawRuleHandleKnob(Rect ruleRect, System.Action onKnobPressed, Color color, float handleSize = NodeGUIStyles.KNOB_SIZE)
         {
             Rect rect = new Rect(ruleRect.x - handleSize / 2, ruleRect.position.y - handleSize / 2, handleSize, handleSize);
             Color prevColor = GUI.color;
             GUI.color = color;
-            if (GUI.Button(rect, "", GUIStyles.RuleGroupKnobStyle))
+            if (GUI.Button(rect, "", NodeGUIStyles.RuleGroupKnobStyle))
             {
                 onKnobPressed?.Invoke();
             }

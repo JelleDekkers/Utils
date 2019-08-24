@@ -163,18 +163,28 @@ namespace Utils.Core.Flow
 
         public void OnDrag(Event e)
         {
-            DrawLink(e.mousePosition, GUIStyles.LINK_COLOR_SELECTED);
+            DrawLink(e.mousePosition, NodeGUIStyles.LINK_COLOR_SELECTED);
             GUI.changed = true;
         }
 
         public void OnDragEnd(Event e)
         {
-            if (editorUI.IsStateAtPosition(e.mousePosition, out StateRenderer stateRenderer))
+            if (editorUI.IsStateAtPosition(e.mousePosition, out StateRenderer hoveredStateRenderer))
             {
-                RuleGroup.SetDestination(stateRenderer.Node as State);   
+                if (hoveredStateRenderer.Node != RuleGroup.Destination)
+                {
+                    Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
+                }
+
+                RuleGroup.SetDestination(hoveredStateRenderer.Node);   
             }
             else
             {
+                if (RuleGroup.Destination != null)
+                {
+                    Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
+                }
+
                 RuleGroup.SetDestination(null);
             }
 
@@ -235,7 +245,7 @@ namespace Utils.Core.Flow
 
             if (IsSelected)
             {
-                DrawHelper.DrawBoxOutline(Rect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                DrawHelper.DrawBoxOutline(Rect, NodeGUIStyles.HIGHLIGHT_OUTLINE_COLOR);
             }
 
             DrawNodeKnob();
@@ -248,7 +258,7 @@ namespace Utils.Core.Flow
             if (RuleGroup.Destination != null && !isDraggingLink)
             {
                 Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Position.x, RuleGroup.Destination.Position.y + StateRenderer.HEADER_HEIGHT / 2);
-                Color color = (IsSelected) ? GUIStyles.LINK_COLOR_SELECTED : GUIStyles.LINK_COLOR;
+                Color color = (IsSelected) ? NodeGUIStyles.LINK_COLOR_SELECTED : NodeGUIStyles.LINK_COLOR;
                 DrawLink(LinkSourcePoint, destinationPoint, color);
             }
         }
@@ -259,7 +269,7 @@ namespace Utils.Core.Flow
             if (RuleGroup.TemplateRules.Count == 0)
             {
                 DrawRule(Rect, out Rect ruleRect);
-                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+                Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
             }
             else
             {
@@ -268,7 +278,7 @@ namespace Utils.Core.Flow
                     for (int i = 0; i < RuleGroup.RuntimeRules.Count; i++)
                     {
                         DrawRule(Rect, out Rect ruleRect, RuleGroup.RuntimeRules[i]);
-                        Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+                        Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
                     }
                 }
                 else
@@ -276,7 +286,7 @@ namespace Utils.Core.Flow
                     for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
                     {
                         DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
-                        Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+                        Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
                     }
                 }
             }
@@ -286,7 +296,7 @@ namespace Utils.Core.Flow
 
         private void DrawRule(Rect groupRect, out Rect ruleRect, Rule rule = null)
         {
-            GUIStyle style = GUIStyles.RuleGroupStyle;
+            GUIStyle style = NodeGUIStyles.RuleGroupStyle;
             string label = (rule != null) ? rule.DisplayName : EMPTY_RULE_DISPLAY_LABEL;
 
             float heightNeeded = Mathf.CeilToInt(style.CalcHeight(new GUIContent(label), groupRect.width));
@@ -306,7 +316,7 @@ namespace Utils.Core.Flow
 
         private void DrawNodeKnob()
         {
-            Color knobColor = (RuleGroup.Destination != null) ? GUIStyles.KNOB_COLOR_LINKED : GUIStyles.KNOB_COLOR_EMPTY;
+            Color knobColor = (RuleGroup.Destination != null) ? NodeGUIStyles.KNOB_COLOR_LINKED : NodeGUIStyles.KNOB_COLOR_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
                 new Rect(Rect.x + Rect.width - 0.5f, Rect.y + Rect.height / 2, Rect.width, Rect.height),

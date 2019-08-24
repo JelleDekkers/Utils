@@ -188,7 +188,7 @@ namespace Utils.Core.Flow
             {
                 if (SelectedRuleGroup == null)
                 {
-                    DrawHelper.DrawBoxOutline(Rect, GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                    DrawHelper.DrawBoxOutline(Rect, NodeGUIStyles.HIGHLIGHT_OUTLINE_COLOR);
                 }
 
                 DrawToolbar(SelectedRuleGroup == null);
@@ -208,12 +208,12 @@ namespace Utils.Core.Flow
             Rect = new Rect(Rect.position.x, Rect.position.y, WIDTH, HEADER_HEIGHT);
 
             string label = Node.Title;
-            float heightNeeded = Mathf.CeilToInt(GUIStyles.StateHeaderStyle.CalcHeight(new GUIContent(label), Rect.width));
+            float heightNeeded = Mathf.CeilToInt(NodeGUIStyles.StateHeaderStyle.CalcHeight(new GUIContent(label), Rect.width));
             Rect = new Rect(Rect.x, Rect.y, Rect.width, (int)heightNeeded);
 
             Color prevColor = GUI.backgroundColor;
             GUI.backgroundColor = (Application.isPlaying && IsCurrentlyRunning()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
-            GUI.Box(Rect, label, GUIStyles.StateHeaderStyle);
+            GUI.Box(Rect, label, NodeGUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
         }
 
@@ -238,7 +238,7 @@ namespace Utils.Core.Flow
                     DrawDividerLine(ruleRect);
                 }
 
-                Rect = new Rect(Rect.x, Rect.y, Rect.width, Rect.height + ruleRect.height);
+                Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
             }
 
             fullRect = Rect;
@@ -262,7 +262,7 @@ namespace Utils.Core.Flow
             if (showOutline)
             {
                 float padding = 2;
-                DrawHelper.DrawBoxOutline(new Rect(rect.x - padding, rect.y, rect.width + padding, rect.height), GUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+                DrawHelper.DrawBoxOutline(new Rect(rect.x - padding, rect.y, rect.width + padding, rect.height), NodeGUIStyles.HIGHLIGHT_OUTLINE_COLOR);
             }
 
             GUILayout.BeginArea(rect);
@@ -270,13 +270,13 @@ namespace Utils.Core.Flow
             Color prevColor = GUI.color;
             GUI.color = StateBackgroundColor;
 
-            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
+            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), NodeGUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             { 
                 Node.AddNewRuleGroup();
             }
 
             GUI.enabled = SelectedRuleGroup != null;
-            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), GUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
+            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), NodeGUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             {
                 Node.RemoveRuleGroup(SelectedRuleGroup.RuleGroup);
             }

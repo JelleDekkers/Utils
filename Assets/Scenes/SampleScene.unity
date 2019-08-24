@@ -215,7 +215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87999326fd8a3ce4ba4a4013c68c5e58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stateMachineData: {fileID: 0}
+  stateMachineData: {fileID: 11400000, guid: f3c4b4fe6dc8d73429e9918a56d57290, type: 2}
 --- !u!4 &530080966
 Transform:
   m_ObjectHideFlags: 0
@@ -313,6 +313,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &647053906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TemplateActions: []
+  RunTimeActions: []
+  RuleGroups: []
+  Title: New State
+  position: {x: 373, y: 231}
 --- !u!114 &911461343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,9 +345,17 @@ MonoBehaviour:
   TemplateActions:
   - {fileID: 1175100115}
   RunTimeActions: []
-  RuleGroups: []
+  RuleGroups:
+  - TemplateRules: []
+    RuntimeRules: []
+    Destination: {fileID: 647053906}
+    linkData:
+      sourceHandleData:
+        offset: {x: 40, y: 0}
+      destinationHandleData:
+        offset: {x: -40, y: 0}
   Title: New State
-  position: {x: 286, y: 190}
+  position: {x: 112, y: 134}
 --- !u!114 &1175100115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,6 +404,7 @@ MonoBehaviour:
     entryState: {fileID: 911461343}
     states:
     - {fileID: 911461343}
+    - {fileID: 647053906}
     obj: {fileID: 1469901933}
 --- !u!4 &1469901934
 Transform:

@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3393648328326853380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f1cd6e64b26f94a94834e0190383c3, type: 3}
+  m_Name: SpawnPrefabAction
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 4857210701612990568, guid: aa746607826cc114a85e0eba0dfb1fb8, type: 3}
+  position: {x: 0, y: 0, z: 0}
+  instanceName: 
+  cleanUpOnStop: 0
 --- !u!114 &-2425304591506373218
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,8 +31,7 @@ MonoBehaviour:
   TemplateActions: []
   RunTimeActions: []
   RuleGroups:
-  - TemplateRules:
-    - {fileID: 6472157314649293569}
+  - TemplateRules: []
     RuntimeRules: []
     Destination: {fileID: 9042196359202704063}
     linkData:
@@ -25,7 +40,7 @@ MonoBehaviour:
       destinationHandleData:
         offset: {x: -40, y: 0}
   Title: New State
-  position: {x: 70, y: 130}
+  position: {x: 116, y: 198}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42,20 +57,6 @@ MonoBehaviour:
   states:
   - {fileID: -2425304591506373218}
   - {fileID: 9042196359202704063}
---- !u!114 &6472157314649293569
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 971c2d2ebe9bbf240bed0cc35f0f31e4, type: 3}
-  m_Name: EventRule
-  m_EditorClassIdentifier: 
-  eventType:
-    classRef: 
 --- !u!114 &9042196359202704063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68,8 +69,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a0b12fe5ed01542a30efc26b309e6b, type: 3}
   m_Name: State
   m_EditorClassIdentifier: 
-  TemplateActions: []
-  RunTimeActions: []
+  TemplateActions:
+  - {fileID: -3393648328326853380}
+  RunTimeActions:
+  - {fileID: 0}
   RuleGroups: []
   Title: New State
-  position: {x: 388, y: 136}
+  position: {x: 391, y: 198}

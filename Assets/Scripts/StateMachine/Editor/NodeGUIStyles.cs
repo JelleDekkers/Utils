@@ -6,7 +6,7 @@ namespace Utils.Core.Flow
     /// <summary>
     /// Helper class for all GUIStyles used by <see cref="StateMachine"/> related editor scripts
     /// </summary>
-    public static class GUIStyles
+    public static class NodeGUIStyles
     {
         public const float KNOB_SIZE = 10;
 
@@ -16,6 +16,15 @@ namespace Utils.Core.Flow
         public static readonly Color LINK_COLOR = Color.red;
         public static readonly Color LINK_COLOR_SELECTED = Color.yellow;
         public static readonly Color CURRENT_ACTIVE_STATE_OUTLINE = Color.green;
+
+        public static GUIStyle GetScaledFont(GUIStyle style, float scale)
+        {
+            GUIStyle newStyle = new GUIStyle(style)
+            {
+                fontSize = (int)(style.fontSize * scale)
+            };
+            return newStyle;
+        }
 
         private static GUIStyle canvasWindowStyle;
         public static GUIStyle CanvasWindowStyle

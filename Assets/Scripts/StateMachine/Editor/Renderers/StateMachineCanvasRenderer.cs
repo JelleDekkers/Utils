@@ -43,32 +43,33 @@ namespace Utils.Core.Flow
 
         public void OnInspectorGUI(Event e)
         {
+            DrawTopToolbar();
             DrawCanvasWindow(e);
+            DrawBottomToolbar();
 
-            resizeHandle.Draw();
+            EditorGUILayout.Space();
             resizeHandle.ProcessEvents(e, ref windowRect);
+            resizeHandle.Draw();
         }
 
         private void DrawCanvasWindow(Event e)
         {
-            DrawTopToolbar();
-
             Color oldColor = GUI.backgroundColor;
             GUI.backgroundColor = backgroundColor;
-            Rect rect = EditorGUILayout.BeginVertical(GUIStyles.CanvasWindowStyle, GUILayout.Height(windowRect.height));
+            Rect canvasArea = EditorGUILayout.BeginVertical(NodeGUIStyles.CanvasWindowStyle, GUILayout.Height(windowRect.height));
             GUI.backgroundColor = oldColor;
 
-            Vector2 windowPos = EditorGUILayout.BeginScrollView(ScrollViewDrag, false, false, GUIStyle.none, GUIStyle.none, new GUIStyle(), GUILayout.Height(rect.height));
+            Vector2 scrollViewPos = EditorGUILayout.BeginScrollView(ScrollViewDrag, false, false, GUIStyle.none, GUIStyle.none, new GUIStyle(), GUILayout.Height(canvasArea.height));
 
-            // For some reason rect is 0 every other frame, this if statement is needed to prevent incorrect positioning
-            if (rect.size != Vector2.zero)
-            { 
-                windowRect = new Rect(windowPos, new Vector2(rect.width, windowRect.height));
+            // For some reason rect is 0 every other frame, this prevents that
+            if (canvasArea.size != Vector2.zero)
+            {
+                windowRect = new Rect(scrollViewPos, new Vector2(canvasArea.width, windowRect.height));
             }
 
-            // This box functions as the internal view area of the scrollview it is required for the scroll area to work, since everything is drawn without GUILayout
             oldColor = GUI.backgroundColor;
             GUI.backgroundColor = Color.clear;
+            // This box functions as the internal view area of the scrollview, this is required for the scroll area to work, since nodes are drawn without GUILayout
             GUILayout.Box(GUIContent.none, GUILayout.Width(SCROLL_VIEW_WIDTH), GUILayout.Height(SCROLL_VIEW_HEIGHT));
             GUI.backgroundColor = oldColor;
 
@@ -81,10 +82,6 @@ namespace Utils.Core.Flow
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
-
-            DrawBottomToolbar();
-
-            EditorGUILayout.Space();
         }
 
         private void ProcessEvents(Event e)
@@ -123,14 +120,6 @@ namespace Utils.Core.Flow
                     }
                     break;
             }
-
-
-            // TODO: werkend krijgen met scrollwheel
-            //if (currentEvent.isMouse)
-            //{
-            //    //Debug.Log(currentEvent.delta);
-            //    zoomScale += currentEvent.delta.y;
-            //}
         }
 
         public bool Contains(Vector2 pos)
@@ -176,8 +165,8 @@ namespace Utils.Core.Flow
             {
                 Vector2 drag = ScrollViewDrag;
                 drag -= e.delta;
-                drag.x = Mathf.Clamp(drag.x, 0, scrollView.width - windowRect.width + 5);
-                drag.y = Mathf.Clamp(drag.y, 0, scrollView.height - windowRect.height + 5);
+                drag.x = Mathf.Clamp(drag.x, 0, scrollView.width - windowRect.width);
+                drag.y = Mathf.Clamp(drag.y, 0, scrollView.height - windowRect.height);
 
                 ScrollViewDrag = drag;
                 GUI.changed = true;
@@ -186,6 +175,8 @@ namespace Utils.Core.Flow
 
         private void DrawGrid(float gridSpacing, Color gridColor)
         {
+            float zoomScale = 1;
+
             int widthDivs = Mathf.CeilToInt(SCROLL_VIEW_WIDTH / gridSpacing);
             int heightDivs = Mathf.CeilToInt(SCROLL_VIEW_HEIGHT / gridSpacing);
 
@@ -194,12 +185,12 @@ namespace Utils.Core.Flow
 
             for (int i = 0; i < widthDivs; i++)
             {
-                Handles.DrawLine(new Vector3(gridSpacing * i, -gridSpacing, 0), new Vector3(gridSpacing * i, SCROLL_VIEW_HEIGHT, 0f));
+                Handles.DrawLine(new Vector3(gridSpacing * i * zoomScale, -gridSpacing * zoomScale, 0), new Vector3(gridSpacing * i * zoomScale, SCROLL_VIEW_HEIGHT * zoomScale, 0f));
             }
 
             for (int i = 0; i < heightDivs; i++)
             {
-                Handles.DrawLine(new Vector3(-gridSpacing, gridSpacing * i, 0), new Vector3(SCROLL_VIEW_WIDTH, gridSpacing * i, 0f));
+                Handles.DrawLine(new Vector3(-gridSpacing * zoomScale, gridSpacing * i * zoomScale, 0), new Vector3(SCROLL_VIEW_WIDTH * zoomScale, gridSpacing * i * zoomScale, 0f));
             }
 
             Handles.color = Color.white;
@@ -274,7 +265,7 @@ namespace Utils.Core.Flow
 
           
             string stateMachineName = (EditorUI.StateMachineData is ScriptableObject) ? AssetDatabase.GetAssetPath(EditorUI.StateMachineData.SerializedObject) : string.Empty;
-            EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), GUIStyles.CanvasBottomToolbarStyle);
+            EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), NodeGUIStyles.CanvasBottomToolbarStyle);
             
             bool debug = EditorUI.ShowDebug;
             debug = GUILayout.Toggle(EditorUI.ShowDebug, "Debug", EditorStyles.toolbarButton, GUILayout.MaxWidth(50));
@@ -284,11 +275,6 @@ namespace Utils.Core.Flow
             }
 
             EditorGUILayout.EndHorizontal();
-        }
-
-        private void SetCanvasZoomScale(float newScale)
-        {
-            zoomScale = Mathf.Clamp(newScale, ZOOM_SCALE_MIN, ZOOM_SCALE_MAX);
         }
 
         private void ResetView()

@@ -38,11 +38,11 @@ namespace Utils.Core.Flow.Inspector
             property = property.GetArrayElementAtIndex(index);
             if (property.objectReferenceValue == null) { return; }
 
-            Rect header = EditorGUILayout.BeginHorizontal(GUIStyles.InspectorStyle);
+            Rect header = EditorGUILayout.BeginHorizontal(NodeGUIStyles.InspectorStyle);
             header.x += 3;
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, GUIContent.none, true);
 
-            EditorGUI.LabelField(header, NicifyPropertyName(property), GUIStyles.FieldNameLabelStyle);
+            EditorGUI.LabelField(header, NicifyPropertyName(property), NodeGUIStyles.FieldNameLabelStyle);
             if (contextMenuPressedCallback != null)
             {
                 DrawContextMenuDropdown(index, property.objectReferenceValue as ScriptableObject, contextMenuPressedCallback);
@@ -95,7 +95,7 @@ namespace Utils.Core.Flow.Inspector
             {
                 do
                 {
-                    Rect header = EditorGUILayout.BeginHorizontal(GUIStyles.InspectorStyle);
+                    Rect header = EditorGUILayout.BeginHorizontal(NodeGUIStyles.InspectorStyle);
                     EditorGUIUtility.labelWidth = header.width / 2.5f;
                     EditorGUILayout.PropertyField(targetObject.FindProperty(property.name), true);
                     EditorGUILayout.EndHorizontal();

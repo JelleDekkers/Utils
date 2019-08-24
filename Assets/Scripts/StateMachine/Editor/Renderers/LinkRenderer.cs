@@ -29,7 +29,7 @@ namespace Utils.Core.Flow
             destinationHandle = new Handle(data.destinationHandleData);
 
             arrowTexture = DrawHelper.CreateArrowTexture(ArrowColor);
-            selectedArrowTexture = DrawHelper.CreateArrowTexture(GUIStyles.LINK_COLOR_SELECTED);
+            selectedArrowTexture = DrawHelper.CreateArrowTexture(NodeGUIStyles.LINK_COLOR_SELECTED);
         }
 
         public void Draw(Vector2 source, Vector2 destination, Color color, float thickness, bool isSelected)
@@ -159,7 +159,7 @@ namespace Utils.Core.Flow
 
                 Color previousColor = GUI.color;
                 GUI.color = knobColor;
-                GUI.Box(Rect, "", GUIStyles.BezierLineHandleStyle);
+                GUI.Box(Rect, "", NodeGUIStyles.BezierLineHandleStyle);
                 GUI.color = previousColor;
             }
 
