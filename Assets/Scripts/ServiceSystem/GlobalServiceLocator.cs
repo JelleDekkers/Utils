@@ -99,7 +99,7 @@ namespace Utils.Core.Services
         {
             Dictionary<Type, Type> typeFactoryPair = new Dictionary<Type, Type>();
 
-            IEnumerable<Type> factories = ReflectionUtility.GetAllTypes(typeof(IServiceFactory));
+            IEnumerable<Type> factories = ReflectionUtility.GetAllTypes(typeof(IServiceFactory), true);
 
             foreach (var factoryType in factories)
             {

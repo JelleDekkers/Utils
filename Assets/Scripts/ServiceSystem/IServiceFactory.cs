@@ -6,7 +6,7 @@
     /// <typeparam name="T"></typeparam>
     public interface IServiceFactory<T> : IServiceFactory where T : IService
     {
-        T Construct();// (IDependencyInjector serviceLocator);
+        T Construct();
     }
 
     public interface IServiceFactory { }

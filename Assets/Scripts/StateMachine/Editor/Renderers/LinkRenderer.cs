@@ -113,9 +113,10 @@ namespace Utils.Core.Flow
             float height = ARROW_HEIGHT * .5f;
             float width = ARROW_WIDTH * .5f;
 
+            Matrix4x4 prevMatrix = GUI.matrix;
             GUIUtility.RotateAroundPivot(angle, pointB);
             GUI.DrawTexture(new Rect(pointB.x - width * .5f, pointB.y - height * .5f, width, height), arrow);
-            GUI.matrix = Matrix4x4.identity;
+            GUI.matrix = prevMatrix;
         }
 
         /// <summary>
