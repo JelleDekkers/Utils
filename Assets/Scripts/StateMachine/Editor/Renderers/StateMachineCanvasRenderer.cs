@@ -252,17 +252,18 @@ namespace Utils.Core.Flow
 
             EditorGUILayout.BeginHorizontal(toolbarStyle, GUILayout.Height(EditorStyles.toolbar.fixedHeight), GUILayout.ExpandWidth(true));
 
+            GUI.enabled = false;
             EditorGUIUtility.labelWidth = 40;
             EditorGUILayout.PrefixLabel((zoomScale * 100).ToString("#") + "%", EditorStyles.toolbarTextField);
 
             zoomScale = GUILayout.HorizontalSlider(zoomScale, ZOOM_SCALE_MIN, ZOOM_SCALE_MAX, GUILayout.MaxWidth(100));
+            GUI.enabled = true;
 
             if (GUILayout.Button("Reset View", EditorStyles.toolbarButton, GUILayout.MaxWidth(80)))
             {
                 ResetView();
                 windowRect.height = MIN_WINDOW_HEIGHT;
             }
-
           
             string stateMachineName = (EditorUI.StateMachineData is ScriptableObject) ? AssetDatabase.GetAssetPath(EditorUI.StateMachineData.SerializedObject) : string.Empty;
             EditorGUILayout.LabelField(stateMachineName.Replace(".asset", ""), NodeGUIStyles.CanvasBottomToolbarStyle);

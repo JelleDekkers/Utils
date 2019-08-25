@@ -23,8 +23,8 @@ namespace Utils.Core.Flow
             EditScript,
             MoveUp,
             MoveDown,
-            Copy,
-            Paste,
+            //Copy,
+            //Paste,
             Delete
             //Reset
         }
