@@ -19,7 +19,7 @@ namespace Utils.Core.Flow
 
         public static void ClearStateMachine(this IStateMachineData data)
         {
-            Undo.RecordObject(data.SerializedObject, "Clear StateMachine");
+            Undo.RegisterCompleteObjectUndo(data.SerializedObject, "Clear StateMachine"); 
 
             for (int i = data.States.Count - 1; i >= 0; i--)
             {

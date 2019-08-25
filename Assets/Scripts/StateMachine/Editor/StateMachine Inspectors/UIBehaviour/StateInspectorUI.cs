@@ -127,6 +127,8 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {
+            Undo.RegisterCompleteObjectUndo(state, "Reorder Actions");
+
             int newIndex = result.Index + (int)direction;
             if (newIndex >= 0 && newIndex < state.TemplateActions.Count)
             {
