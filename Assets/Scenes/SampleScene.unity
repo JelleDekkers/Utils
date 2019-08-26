@@ -343,12 +343,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TemplateActions:
-  - {fileID: 1175100115}
+  - {fileID: 0}
   RunTimeActions: []
   RuleGroups:
   - TemplateRules: []
     RuntimeRules: []
-    Destination: {fileID: 647053906}
+    Destination: {fileID: 0}
+    linkData:
+      sourceHandleData:
+        offset: {x: 40, y: 0}
+      destinationHandleData:
+        offset: {x: -40, y: 0}
+  - TemplateRules:
+    - {fileID: 1762078977}
+    RuntimeRules: []
+    Destination: {fileID: 0}
     linkData:
       sourceHandleData:
         offset: {x: 40, y: 0}
@@ -356,21 +365,6 @@ MonoBehaviour:
         offset: {x: -40, y: 0}
   Title: New State
   position: {x: 112, y: 134}
---- !u!114 &1175100115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a180e967ecef5b4da437a4b11e915c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testValue: 0
-  testGameObject: {fileID: 0}
-  testList: []
 --- !u!1 &1469901932
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,3 +414,16 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1762078977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc947cfa2f037414dac48332ae82acaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: 0
