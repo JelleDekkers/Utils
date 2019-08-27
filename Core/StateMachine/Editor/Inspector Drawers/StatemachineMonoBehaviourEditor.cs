@@ -8,6 +8,8 @@ namespace Utils.Core.Flow
         private StateMachineMonoBehaviour stateMachine;
         private StateMachineLayerRenderer layerRenderer;
 
+        public override bool RequiresConstantRepaint() { return EditorApplication.isPlaying; }
+
         private void Awake()
         {
             stateMachine = target as StateMachineMonoBehaviour;

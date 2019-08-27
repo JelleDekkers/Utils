@@ -13,6 +13,8 @@ namespace Utils.Core.Flow
 
         private StateMachineScriptableObjectData initialData;
 
+        public override bool RequiresConstantRepaint() { return EditorApplication.isPlaying; }
+
         private void Awake()
         {
             executor = (StateMachineExecutor)target;
