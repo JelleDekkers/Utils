@@ -152,5 +152,32 @@ namespace Utils.Core.Injection.Testing
             Assert.IsInstanceOf<TestService>(test.testService);
             Assert.IsInstanceOf<NonServiceTest>(test.nonServiceTest);
         }
+
+        public interface ITest { }
+        public class TestImplementationOne : ITest { }
+        public class TestImplementationTwo : ITest { }
+
+        public class DependencyTestClass
+        {
+            public ITest dependency;
+
+            public void InjectDependencies(ITest testClass)
+            {
+                dependency = testClass;
+            }
+        }
+
+        [Test]
+        public void Registered_Interface_Implementation()
+        {
+            ITest test = new TestImplementationOne();
+            injector.RegisterInstance<ITest>(test);
+
+            DependencyTestClass classWithDependency = new DependencyTestClass();
+            injector.InjectMethod(classWithDependency);
+
+            Assert.IsNotNull(classWithDependency.dependency);
+            Assert.IsInstanceOf<TestImplementationOne>(classWithDependency.dependency);
+        }
     }
 }
