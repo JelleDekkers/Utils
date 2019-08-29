@@ -11,7 +11,7 @@ namespace Utils.Core.Attributes
         {
             var typeAttr = attribute as BitMaskAttribute;
             label.text = label.text + "(" + prop.intValue + ")";
-            prop.intValue = BitMaskExtension.DrawBitMaskField(position, prop.intValue, typeAttr.propType, label);
+            prop.intValue = BitMaskEditorExtension.DrawBitMaskField(position, prop.intValue, typeAttr.propType, label);
         }
     }
 }

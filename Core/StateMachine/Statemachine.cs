@@ -12,14 +12,15 @@ namespace Utils.Core.Flow
     public class StateMachine
     {
         public Action<StateMachineLayer, StateMachineLayer> LayerChangedEvent;
-        public StateMachineLayer CurrentLayer { get { return layerStack.Peek(); } }
+        public StateMachineLayer CurrentLayer { get { return LayerStack.Peek(); } }
 
-        private Stack<StateMachineLayer> layerStack = new Stack<StateMachineLayer>();
+        public Stack<StateMachineLayer> LayerStack { get; private set; } 
 
         public StateMachine(IStateMachineData data)
         {
             StateMachineLayer layer = new StateMachineLayer(this, data);
-            layerStack.Push(layer);
+            LayerStack = new Stack<StateMachineLayer>();
+            LayerStack.Push(layer);
 
             if (layer.Data.EntryState != null)
             {
@@ -37,9 +38,9 @@ namespace Utils.Core.Flow
 
         public StateMachineLayer AddNewLayerToStack(StateMachineScriptableObjectData data)
         {
-            StateMachineLayer prevLayer = layerStack.Peek();
+            StateMachineLayer prevLayer = LayerStack.Peek();
             StateMachineLayer newLayer = new StateMachineLayer(this, data);
-            layerStack.Push(newLayer);
+            LayerStack.Push(newLayer);
             newLayer.Start(prevLayer.CurrentState);
 
             PrintDebug(string.Format("ADDING NEW LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.Name, prevLayer.CurrentState.Title, CurrentLayer.Data.Name, CurrentLayer.CurrentState.Title));
@@ -50,11 +51,11 @@ namespace Utils.Core.Flow
 
         public void PopCurrentLayer()
         {
-            StateMachineLayer prevLayer = layerStack.Pop();
+            StateMachineLayer prevLayer = LayerStack.Pop();
             prevLayer.OnClose(CurrentLayer.CurrentState);
 
             PrintDebug(string.Format("POPPING LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.Name, prevLayer.CurrentState.Title, CurrentLayer.Data.Name, CurrentLayer.CurrentState.Title));
-            LayerChangedEvent?.Invoke(prevLayer, layerStack.Peek());
+            LayerChangedEvent?.Invoke(prevLayer, LayerStack.Peek());
         }
 
         /// <summary>

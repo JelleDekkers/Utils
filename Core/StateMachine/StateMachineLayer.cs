@@ -9,7 +9,7 @@ namespace Utils.Core.Flow
     /// </summary>
     public class StateMachineLayer
     {
-        public Action<State, State> TransitionDoneEvent;
+        public Action<State, State> StateChangedEvent;
 
         public IStateMachineData Data { get; private set; }
         public State CurrentState { get; private set; }
@@ -57,7 +57,7 @@ namespace Utils.Core.Flow
                 }
             }
 
-            TransitionDoneEvent?.Invoke(prevCurrentState, CurrentState);
+            StateChangedEvent?.Invoke(prevCurrentState, CurrentState);
         }
 
         public void Update()
@@ -94,11 +94,11 @@ namespace Utils.Core.Flow
         {
             void OnTransitionDoneEvent(State from, State to)
             {
-                TransitionDoneEvent -= OnTransitionDoneEvent;
+                StateChangedEvent -= OnTransitionDoneEvent;
                 onDone.Invoke();
             };
 
-            TransitionDoneEvent += OnTransitionDoneEvent;
+            StateChangedEvent += OnTransitionDoneEvent;
         }
 
         private bool EvaluateStatesForTransition(State currentState, out State newState, out RuleGroup validRuleGroup)
@@ -187,7 +187,7 @@ namespace Utils.Core.Flow
             }
 
             CurrentState = newState;
-            TransitionDoneEvent?.Invoke(prevState, newState);
+            StateChangedEvent?.Invoke(prevState, newState);
         }
 
         public void OnClose(State newState = null)
@@ -213,7 +213,7 @@ namespace Utils.Core.Flow
             }
 
             CurrentState.OnExit();
-            TransitionDoneEvent?.Invoke(CurrentState, newState);
+            StateChangedEvent?.Invoke(CurrentState, newState);
         }
     }
 }

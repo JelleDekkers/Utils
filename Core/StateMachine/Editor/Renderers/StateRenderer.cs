@@ -42,7 +42,6 @@ namespace Utils.Core.Flow
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
-
         private readonly Color HeaderBackgroundColor = new Color(0.7529413f, 0.7529413f, 0.7529413f, 0.9f);
         private readonly Color RuntimeCurrentStateHeaderBackgroundColor = new Color(0f, 1f, 0f);
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
@@ -63,6 +62,11 @@ namespace Utils.Core.Flow
             editorUI = renderer;
 
             InitializeRuleRenderers();
+
+            if (Application.isPlaying && editorUI.StateMachine != null && editorUI.StateMachine.LayerStack != null)
+            {
+                editorUI.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
+            }
 
             StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent += OnRuleGroupRemovedEvent;
@@ -424,10 +428,27 @@ namespace Utils.Core.Flow
                 editorUI.Inspector.Refresh();
             }
         }
+
+        private void OnRunTimeStateChangedEvent(State from, State to)
+        {
+            if (to == Node)
+            {
+                Vector2 pos = new Vector2(to.Position.x + WIDTH / 2, to.Position.y);
+                if (!editorUI.CanvasRenderer.windowRect.Contains(pos))
+                {
+                    editorUI.CanvasRenderer.FocusWindow(pos);
+                }
+            }
+        }
         #endregion
 
         public void OnDestroy()
         {
+            if (Application.isPlaying && editorUI.StateMachine != null && editorUI.StateMachine.LayerStack != null)
+            { 
+                editorUI.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
+            }
+
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent -= OnRuleGroupRemovedEvent;
         }

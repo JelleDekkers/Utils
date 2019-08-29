@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Utils.Core.Extensions
 {
-    public static class BitMaskExtension
+    public static class BitMaskEditorExtension
     {
         public static int DrawBitMaskField(Rect aPosition, int aMask, System.Type aType, GUIContent aLabel)
         {
