@@ -21,7 +21,7 @@ namespace Utils.Core
 
         public virtual void OpenFilterWindow<T>() where T : ScriptableObject
         {
-            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "ScriptableObject");
+            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "ScriptableObjectCreator");
             window.RetrieveTypes<T>(OnTypeSelectedEvent);
         }
 
