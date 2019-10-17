@@ -81,9 +81,7 @@ namespace Utils.Core
 
         public void RetrieveTypes(Type type, SelectHandler onSelection)
         {
-            allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
-            filteredTypes = allTypes;
-
+            filteredTypes = ReflectionUtility.GetAllTypes(type).ToArray();
             selectionCallback = onSelection;
         }
 
@@ -92,6 +90,28 @@ namespace Utils.Core
             RetrieveTypes(typeof(T), onSelection);
         }
 
+		public void RetrieveTypesWithDefaultConstructors(Type type, SelectHandler onSelection)
+		{
+			allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
+			List<Type> temp = new List<Type>();
+
+			foreach (Type t in allTypes)
+			{
+				if (t.HasDefaultConstructor())
+				{
+					temp.Add(t);
+				}
+			}
+
+			filteredTypes = temp.ToArray();
+			selectionCallback = onSelection;
+		}
+
+		public void RetrieveTypesWithDefaultConstructors<T>(SelectHandler onSelection)
+		{
+			RetrieveTypesWithDefaultConstructors(typeof(T), onSelection);
+		}
+		
         private void DrawHeader()
         {
             GUILayout.BeginHorizontal();

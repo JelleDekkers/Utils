@@ -27,8 +27,8 @@ namespace Utils.Core
 
         public virtual void OpenFilterWindow<T>() where T : IEvent
         {
-            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "EventInvokeWindow - Select an event to manually invoke");
-            window.RetrieveTypes<T>(OnTypeSelectedEvent);
+            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "EventInvokeWindow - Select an event to manually invoke (only types with default donstructors are supported)");
+            window.RetrieveTypesWithDefaultConstructors<T>(OnTypeSelectedEvent);
         }
 
         private static void OnTypeSelectedEvent(Type type)
