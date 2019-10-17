@@ -11,10 +11,10 @@ namespace Utils.Core.Flow.DefaultActions
     {
         [SerializeField] private GameObject prefab = null;
 
+		protected GameObject instance;
+
         private DependencyInjector injector;
         private ScopedGameObjectManager scopedGameObjectManager;
-
-        private GameObject instance;
 
         public void InjectDependencies(DependencyInjector injector, ScopedGameObjectManager scopedGameObjectManager)
         {
@@ -24,13 +24,18 @@ namespace Utils.Core.Flow.DefaultActions
 
         public override void OnStarting()
         {
-            GameObject instance = scopedGameObjectManager.AddScope(prefab, this, out bool isNew);
-
-            if (isNew)
-            {
-                injector.InjectGameObject(instance);
-            }
+			SpawnScopedPrefab();
         }
+
+		protected void SpawnScopedPrefab()
+		{
+			instance = scopedGameObjectManager.AddScope(prefab, this, out bool isNew);
+
+			if (isNew)
+			{
+				injector.InjectGameObject(instance);
+			}
+		}
 
         public override void OnStopping()
         {
