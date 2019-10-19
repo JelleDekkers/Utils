@@ -50,15 +50,19 @@ namespace Utils.Core.Services
             }
         }
 
-        public void Remove<T>() where T : IService
+		public void Remove<T>() where T : IService
+		{
+            Remove(typeof(T));
+		}
+
+		public void Remove(Type type)
         {
-            Type serviceType = typeof(T);
-            if(!InstantiatedServices.ContainsKey(serviceType))
+            if(!InstantiatedServices.ContainsKey(type))
             {
-                Debug.LogWarningFormat("No service of type {0} found ", serviceType);
+                Debug.LogWarningFormat("No service of type {0} found ", type);
             }
 
-            InstantiatedServices.Remove(serviceType);
+            InstantiatedServices.Remove(type);
         }
 
         private IService CreateNewServiceInstance(Type serviceType)
