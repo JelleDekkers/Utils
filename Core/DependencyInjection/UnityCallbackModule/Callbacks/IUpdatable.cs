@@ -1,4 +1,4 @@
-﻿namespace Utils.Core.Flow
+﻿namespace Utils.Core.Injection.UnityCallbacks
 {
     public interface IUpdatable 
     {

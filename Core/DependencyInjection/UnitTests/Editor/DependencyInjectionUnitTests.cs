@@ -88,16 +88,6 @@ namespace Utils.Core.Injection.Testing
         }
 
         [Test]
-        public void Injected_Service_Via_Constructor()
-        {
-            InjectionTestWithConstructor test = new InjectionTestWithConstructor(null);
-            injector.InjectConstructor(test);
-
-            Assert.IsNotNull(test.dependency);
-            Assert.IsInstanceOf<TestService>(test.dependency);
-        }
-
-        [Test]
         public void Injected_Service_Via_GameObject()
         {
             GameObject instance = new GameObject();

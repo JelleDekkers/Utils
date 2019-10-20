@@ -5,6 +5,7 @@ namespace Utils.Core.Services
 {
     /// <summary>
     /// Service for subscribing to MonoBehaviour calls such as Update()
+	/// Creates a <see cref="GameObject"/> to which certain MonoBehaviour events can be subscribed to
     /// </summary>
     public class UnityCallbackService : MonoBehaviour, IService, IDisposable
     {

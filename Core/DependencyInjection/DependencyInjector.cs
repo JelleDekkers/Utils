@@ -53,13 +53,6 @@ namespace Utils.Core.Injection
             }
         }
 
-        public void InjectConstructor(object obj, int constructorIndex = 0)
-        {
-            Type type = obj.GetType();
-            ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            Inject(constructors[constructorIndex], obj);
-        }
-
         public void InjectMethod(object obj)
         {
             InjectMethod(obj, injectionMethodName);
@@ -93,7 +86,7 @@ namespace Utils.Core.Injection
             return method.Invoke(obj, ResolveParameters(method, obj.GetType()));
         }
 
-        private object[] ResolveParameters(MethodBase info, Type objType)
+        public object[] ResolveParameters(MethodBase info, Type objType)
         {
             ParameterInfo[] parameters = info.GetParameters();
             object[] objects = new object[parameters.Length];

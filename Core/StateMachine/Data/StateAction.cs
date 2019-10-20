@@ -7,7 +7,7 @@ namespace Utils.Core.Flow
     /// Abstract class for actions on a <see cref="State"/>, inherits from <see cref=" ScriptableObject"/> to allow for abstract inspector editing
     /// </summary>
     [Serializable]
-    public abstract class StateAction : ScriptableObject, IUpdatable
+    public abstract class StateAction : ScriptableObject
     {
         /// <summary>
         /// Called when the state will be starting, is called before <see cref="OnStopped"/> on the previous state

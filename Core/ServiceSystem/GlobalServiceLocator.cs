@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using Utils.Core.Injection;
+using Utils.Core.Injection.UnityCallbacks;
 
 namespace Utils.Core.Services
 {
@@ -28,10 +30,16 @@ namespace Utils.Core.Services
         private Dictionary<Type, IService> InstantiatedServices = new Dictionary<Type, IService>();
         private Dictionary<Type, Type> serviceFactories = new Dictionary<Type, Type>();
 
+		private UnityCallbackModule callbackModule;
+		private DependencyInjector dependencyInjector;
+
         public GlobalServiceLocator()
         {
             serviceFactories = GetAllServiceFactories();
-        }
+
+			callbackModule = new UnityCallbackModule(this);
+			dependencyInjector = new DependencyInjector();
+		}
 
         public T Get<T>() where T : IService
         {
@@ -62,6 +70,7 @@ namespace Utils.Core.Services
                 Debug.LogWarningFormat("No service of type {0} found ", type);
             }
 
+			callbackModule.Remove(InstantiatedServices[type]);
             InstantiatedServices.Remove(type);
         }
 
@@ -76,17 +85,27 @@ namespace Utils.Core.Services
             }
             else
             {
-                if (serviceType.IsSubclassOf(typeof(MonoBehaviour)))
-                {
-                    service = new GameObject().AddComponent(serviceType) as IService;
-                }
-                else
-                {
-                    service = (IService)Activator.CreateInstance(serviceType);
-                }
+				if (serviceType.IsSubclassOf(typeof(MonoBehaviour)))
+				{
+					service = new GameObject().AddComponent(serviceType) as IService;
+				}
+				else
+				{
+					ConstructorInfo[] constructors = serviceType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+					if (constructors.Length == 0)
+					{
+						service = (IService)Activator.CreateInstance(serviceType);
+					}
+					else
+					{
+						service = (IService)Activator.CreateInstance(serviceType, dependencyInjector.ResolveParameters(constructors[0], serviceType));
+					}
+				}
             }
 
             InstantiatedServices.Add(service.GetType(), service);
+			callbackModule.Add(service);
 
             return service;
         }
@@ -105,7 +124,7 @@ namespace Utils.Core.Services
 
             IEnumerable<Type> factories = ReflectionUtility.GetAllTypes(typeof(IServiceFactory), true);
 
-            foreach (var factoryType in factories)
+            foreach (Type factoryType in factories)
             {
                 foreach (Type interfaceType in factoryType.GetInterfaces())
                 {
