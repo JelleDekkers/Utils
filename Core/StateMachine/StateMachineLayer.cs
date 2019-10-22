@@ -118,6 +118,11 @@ namespace Utils.Core.Flow
             return false;
         }
 
+		public void TransitionToState(State newState)
+		{
+			TransitionToState(CurrentState, newState);
+		}
+
         private void TransitionToState(State prevState, State newState)
         {
             StateMachine.PrintDebug(string.Format("Transitioning from {0} to {1}", (prevState != null) ? prevState.ToString() : "NONE", (newState != null) ? newState.ToString() : "NONE"));

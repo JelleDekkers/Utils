@@ -38,7 +38,7 @@ namespace Utils.Core.Flow
         }
         private Vector2 size;
 
-        public bool IsEntryState { get { return editorUI.StateMachineData.EntryState == Node; } }
+        public bool IsEntryState { get { return layerRenderer.StateMachineData.EntryState == Node; } }
         public bool IsSelected { get; private set; }
         public RuleGroupRenderer SelectedRuleGroup { get; set; }
 
@@ -47,7 +47,7 @@ namespace Utils.Core.Flow
         private readonly Color StateBackgroundColor = new Color(1f, 1f, 1f, 1f);
         private readonly Color EntryPanelBackgroundColor = new Color(1f, 1f, 1f, 0.7f);
 
-        private StateMachineLayerRenderer editorUI;
+        private StateMachineLayerRenderer layerRenderer;
         private List<RuleGroupRenderer> ruleGroupRenderers = new List<RuleGroupRenderer>();
         private Rect fullRect;
         private bool isDragging;
@@ -59,13 +59,13 @@ namespace Utils.Core.Flow
         public StateRenderer(State state, StateMachineLayerRenderer renderer)
         {
             Node = state;
-            editorUI = renderer;
+            layerRenderer = renderer;
 
             InitializeRuleRenderers();
 
-            if (Application.isPlaying && editorUI.StateMachine != null && editorUI.StateMachine.LayerStack != null)
+            if (Application.isPlaying && layerRenderer.StateMachine != null && layerRenderer.StateMachine.LayerStack != null)
             {
-                editorUI.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
+                layerRenderer.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
             }
 
             StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
@@ -78,13 +78,13 @@ namespace Utils.Core.Flow
 
             for (int i = 0; i < Node.RuleGroups.Count; i++) 
             {
-                ruleGroupRenderers.Add(new RuleGroupRenderer(Node.RuleGroups[i], this, editorUI));
+                ruleGroupRenderers.Add(new RuleGroupRenderer(Node.RuleGroups[i], this, layerRenderer));
             }
         }
 
         public void ProcessEvents(Event e)
         {
-            bool isInsideCanvasWindow = editorUI.CanvasRenderer.Contains(e.mousePosition);
+            bool isInsideCanvasWindow = layerRenderer.CanvasRenderer.Contains(e.mousePosition);
 
             ProcessRuleGroupEvents(e);
 
@@ -93,7 +93,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.Delete)
                     {
-                        editorUI.StateMachineData.RemoveState(Node);
+                        layerRenderer.StateMachineData.RemoveState(Node);
                         e.Use();
                     }
                     else if(IsSelected && e.keyCode == KeyCode.LeftControl)
@@ -173,7 +173,7 @@ namespace Utils.Core.Flow
 
         public bool IsCurrentlyRunning()
         {
-            return editorUI.StateMachine != null && editorUI.StateMachine.CurrentLayer.CurrentState == Node;
+            return layerRenderer.StateMachine != null && layerRenderer.StateMachine.CurrentLayer.CurrentState == Node;
         }
 
         #region Drawing
@@ -305,7 +305,18 @@ namespace Utils.Core.Flow
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete"), false, () => editorUI.StateMachineData.RemoveState(Node));
+
+			if (!Application.isPlaying)
+			{
+				menu.AddDisabledItem(new GUIContent("Force as Active"), false);
+			}
+			else
+			{
+				menu.AddItem(new GUIContent("Force as Active"), false, () => layerRenderer.StateMachine.CurrentLayer.TransitionToState(Node));
+			}
+
+			menu.AddSeparator("");
+			menu.AddItem(new GUIContent("Delete"), false, () => layerRenderer.StateMachineData.RemoveState(Node));
 
             if (Node.TemplateActions.Count > 0)
             {
@@ -324,7 +335,7 @@ namespace Utils.Core.Flow
 
             menu.ShowAsContext();
 
-            editorUI.ContextMenuIsOpen = true;
+            layerRenderer.ContextMenuIsOpen = true;
             e.Use();
         }
         #endregion
@@ -335,9 +346,9 @@ namespace Utils.Core.Flow
             GUI.changed = true;
             IsSelected = true;
 
-            editorUI.Select(this);
-            editorUI.Inspector.Inspect(Node, new StateInspectorUI(editorUI, Node));
-            editorUI.ReorderNodeRendererToBottom(this);
+            layerRenderer.Select(this);
+            layerRenderer.Inspector.Inspect(Node, new StateInspectorUI(layerRenderer, Node));
+            layerRenderer.ReorderNodeRendererToBottom(this);
         }
 
         public void OnDeselect(Event e)
@@ -350,7 +361,7 @@ namespace Utils.Core.Flow
                 renderer.OnDeselect(e);
             }
 
-            editorUI.Deselect(this);
+            layerRenderer.Deselect(this);
         }
 
         public void OnDrag(Event e)
@@ -398,7 +409,7 @@ namespace Utils.Core.Flow
         {
             if(state != Node) { return; }
 
-            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, editorUI);
+            RuleGroupRenderer renderer = new RuleGroupRenderer(group, this, layerRenderer);
             ruleGroupRenderers.Add(renderer);
 
             if (SelectedRuleGroup != null)
@@ -423,9 +434,9 @@ namespace Utils.Core.Flow
 
         public void OnStateResetEvent(State state)
         {
-            if (editorUI.Selection == state as ISelectable)
+            if (layerRenderer.Selection == state as ISelectable)
             {
-                editorUI.Inspector.Refresh();
+                layerRenderer.Inspector.Refresh();
             }
         }
 
@@ -434,9 +445,9 @@ namespace Utils.Core.Flow
             if (to == Node)
             {
                 Vector2 pos = new Vector2(to.Position.x + WIDTH / 2, to.Position.y);
-                if (!editorUI.CanvasRenderer.windowRect.Contains(pos))
+                if (!layerRenderer.CanvasRenderer.windowRect.Contains(pos))
                 {
-                    editorUI.CanvasRenderer.FocusWindow(pos);
+                    layerRenderer.CanvasRenderer.FocusWindow(pos);
                 }
             }
         }
@@ -444,9 +455,9 @@ namespace Utils.Core.Flow
 
         public void OnDestroy()
         {
-            if (Application.isPlaying && editorUI.StateMachine != null && editorUI.StateMachine.LayerStack != null)
+            if (Application.isPlaying && layerRenderer.StateMachine != null && layerRenderer.StateMachine.LayerStack != null)
             { 
-                editorUI.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
+                layerRenderer.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
             }
 
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
