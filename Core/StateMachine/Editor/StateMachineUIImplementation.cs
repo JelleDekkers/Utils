@@ -41,10 +41,11 @@ namespace Utils.Core.Flow
  
             if (stateMachineData != null)
             {
-                layerRenderer = new StateMachineLayerRenderer(stateMachineData, repaint, statemachine);
-            }
+				layerRenderer = new StateMachineLayerRenderer(statemachine.CurrentLayer.Data, repaint, statemachine);
+				LoadLinkedLayers();
+			}
 
-            Undo.undoRedoPerformed += OnUndoRedoPerformed;
+			Undo.undoRedoPerformed += OnUndoRedoPerformed;
         }
 
         public void OnDisable()
