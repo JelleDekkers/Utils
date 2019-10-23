@@ -81,7 +81,8 @@ namespace Utils.Core
 
         public void RetrieveTypes(Type type, SelectHandler onSelection)
         {
-            filteredTypes = ReflectionUtility.GetAllTypes(type).ToArray();
+            allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
+			filteredTypes = allTypes;
             selectionCallback = onSelection;
         }
 
