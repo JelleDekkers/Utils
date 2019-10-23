@@ -27,7 +27,7 @@ namespace Utils.Core.Flow.DefaultActions
 			SpawnScopedPrefab();
         }
 
-		protected void SpawnScopedPrefab()
+		protected virtual void SpawnScopedPrefab()
 		{
 			instance = scopedGameObjectManager.AddScope(prefab, this, out bool isNew);
 
