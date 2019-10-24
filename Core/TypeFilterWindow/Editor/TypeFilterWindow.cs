@@ -83,7 +83,8 @@ namespace Utils.Core
         {
             allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
 			filteredTypes = allTypes;
-            selectionCallback = onSelection;
+			Array.Sort(filteredTypes, delegate (Type x, Type y) { return x.Name.CompareTo(y.Name); });
+			selectionCallback = onSelection;
         }
 
         public void RetrieveTypes<T>(SelectHandler onSelection)
@@ -105,6 +106,7 @@ namespace Utils.Core
 			}
 
 			filteredTypes = temp.ToArray();
+			Array.Sort(filteredTypes, delegate (Type x, Type y) { return x.Name.CompareTo(y.Name); });
 			selectionCallback = onSelection;
 		}
 
