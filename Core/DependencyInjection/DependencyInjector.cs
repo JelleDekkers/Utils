@@ -9,7 +9,8 @@ namespace Utils.Core.Injection
 {
     /// <summary>
     /// Class for handling dependency injection. 
-    /// Dependencies need to be of type <see cref="IService>"/> and are resolved by <see cref="GlobalServiceLocator"/>
+    /// Dependencies of type <see cref="IService>"/> are resolved by <see cref="GlobalServiceLocator"/> automatically, 
+	/// otherwise an instance has to be registered using RegisterInstance()
     /// </summary>
     public class DependencyInjector
     {
@@ -107,7 +108,7 @@ namespace Utils.Core.Injection
                     continue;
                 }
 
-                objects[i] = null;
+				objects[i] = null;
             }
 
             return objects;
