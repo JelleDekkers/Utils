@@ -41,7 +41,7 @@ namespace Utils.Core.Flow
  
             if (stateMachineData != null)
             {
-				layerRenderer = new StateMachineLayerRenderer((!Application.isPlaying) ? stateMachineData : statemachine.CurrentLayer.Data, repaint, statemachine);
+				layerRenderer = new StateMachineLayerRenderer((!Application.isPlaying || statemachine == null) ? stateMachineData : statemachine.CurrentLayer.Data, repaint, statemachine);
 				LoadLinkedLayers();
 			}
 
