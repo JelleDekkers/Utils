@@ -12,23 +12,32 @@ namespace Utils.Core.Flow
         public StateMachineScriptableObjectData StateMachineData => stateMachineData;
         [SerializeField] protected StateMachineScriptableObjectData stateMachineData;
 
-        public StateMachine StateMachine { get; private set; }
+        public StateMachine StateMachine { get; protected set; }
 
         private void Awake()
         {
-            DontDestroyOnLoad(this);
+			DontDestroyOnLoad(this);
+		}
 
-            if (stateMachineData != null)
-            {
-                StateMachine = new StateMachine(stateMachineData);
-            }
-            else
-            {
-                enabled = false;
-            }
-        }
+		private void Start()
+		{
+			Initialize();
+			StateMachine?.Start();
+		}
 
-        private void Update()
+		protected virtual void Initialize()
+		{
+			if (stateMachineData != null)
+			{
+				StateMachine = new StateMachine(stateMachineData);
+			}
+			else
+			{
+				enabled = false;
+			}
+		}
+
+		private void Update()
         {
             StateMachine.Update();
         }

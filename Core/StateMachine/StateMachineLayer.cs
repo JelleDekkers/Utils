@@ -17,7 +17,7 @@ namespace Utils.Core.Flow
         private readonly StateMachine manager;
         private readonly DependencyInjector dependencyInjector;
 
-        public StateMachineLayer(StateMachine manager, IStateMachineData data)
+        public StateMachineLayer(StateMachine manager, IStateMachineData data, DependencyInjector injector = null)
         {
             Data = data;
             this.manager = manager;
@@ -27,7 +27,7 @@ namespace Utils.Core.Flow
                 CurrentState = data.EntryState;
             }
 
-            dependencyInjector = new DependencyInjector();
+            dependencyInjector = (injector != null) ? injector : new DependencyInjector();
             dependencyInjector.RegisterInstance<StateMachineLayer>(this);
         }
 

@@ -12,7 +12,7 @@ namespace Utils.Core.Injection
     /// Dependencies of type <see cref="IService>"/> are resolved by <see cref="GlobalServiceLocator"/> automatically, 
 	/// otherwise an instance has to be registered using RegisterInstance()
     /// </summary>
-    public class DependencyInjector
+    public class DependencyInjector : ICloneable
     {
         public const string DEFAULT_INJECTION_METHOD_NAME = "InjectDependencies";
 
@@ -113,5 +113,10 @@ namespace Utils.Core.Injection
 
             return objects;
         }
-    }
+
+		public object Clone()
+		{
+			return MemberwiseClone();
+		}
+	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils.Core.Injection;
 
 namespace Utils.Core.Flow
 {
@@ -14,26 +15,26 @@ namespace Utils.Core.Flow
         public Action<StateMachineLayer, StateMachineLayer> LayerChangedEvent;
         public StateMachineLayer CurrentLayer { get { return LayerStack.Peek(); } }
 
-        public Stack<StateMachineLayer> LayerStack { get; private set; } 
+        public Stack<StateMachineLayer> LayerStack { get; private set; }
 
-        public StateMachine(IStateMachineData data)
+		public StateMachine(IStateMachineData data, DependencyInjector injector = null)
         {
-            StateMachineLayer layer = new StateMachineLayer(this, data);
+            StateMachineLayer layer = new StateMachineLayer(this, data, injector);
             LayerStack = new Stack<StateMachineLayer>();
             LayerStack.Push(layer);
-
-            if (layer.Data.EntryState != null)
-            {
-                layer.Start();
-            }
         }
+
+		public void Start()
+		{
+			if (CurrentLayer.Data.EntryState != null)
+			{
+				CurrentLayer.Start();
+			}
+		}
 
         public void Update()
         {
-            if (CurrentLayer != null)
-            {
-                CurrentLayer.Update();
-            }
+            CurrentLayer?.Update();
         }
 
         public StateMachineLayer AddNewLayerToStack(StateMachineScriptableObjectData data)
