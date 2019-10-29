@@ -112,7 +112,8 @@ namespace Utils.Core.Services
 
         private IService CreateServiceFromFactory(Type factoryType)
         {
-            IServiceFactory factory = (IServiceFactory)Activator.CreateInstance(factoryType);
+			ConstructorInfo[] constructors = factoryType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IServiceFactory factory = (IServiceFactory)Activator.CreateInstance(factoryType, dependencyInjector.ResolveParameters(constructors[0], factoryType));
 
             MethodInfo constructMethod = factoryType.GetMethod("Construct");
             return (IService)constructMethod.Invoke(factory, null);
