@@ -15,14 +15,14 @@ namespace Utils.Core.SceneManagement
 			this.coroutineService = coroutineService;
 		}
 
-		public bool IsSceneLoaded(string scene)
+		public bool IsSceneLoaded(string sceneName)
 		{
-			return SceneManager.GetSceneByName(scene).isLoaded;
+			return SceneManager.GetSceneByName(sceneName).isLoaded; 
 		}
 
-		public void LoadScene(string scene, Action<string> onDone = null)
+		public void LoadScene(string scenePath, Action<string> onDone = null)
 		{
-			SceneManager.LoadScene(scene, LoadSceneMode.Single);
+			SceneManager.LoadScene(scenePath, LoadSceneMode.Single);
 		}
 
 		public void LoadSceneAdditive(string scene, Action<string> onDone = null)
