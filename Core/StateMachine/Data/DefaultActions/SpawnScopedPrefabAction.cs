@@ -13,8 +13,8 @@ namespace Utils.Core.Flow.DefaultActions
 
 		protected GameObject instance;
 
-        private DependencyInjector injector;
-        private ScopedGameObjectManager scopedGameObjectManager;
+        protected DependencyInjector injector;
+        protected ScopedGameObjectManager scopedGameObjectManager;
 
         public void InjectDependencies(DependencyInjector injector, ScopedGameObjectManager scopedGameObjectManager)
         {
