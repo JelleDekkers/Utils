@@ -29,12 +29,19 @@ namespace Utils.Core.Flow.DefaultActions
 
 		protected virtual void SpawnScopedPrefab()
 		{
+			// disable so that the dependencyinjector gets called before Awake, Start and OnEnable
+			bool wasActive = prefabReference.Prefab.activeSelf;
+			prefabReference.Prefab.SetActive(false);
+
 			instance = scopedGameObjectManager.AddScope(prefabReference.Prefab, this, out bool isNew);
 
 			if (isNew)
 			{
 				injector.InjectGameObject(instance);
 			}
+
+			prefabReference.Prefab.SetActive(wasActive);
+			instance.SetActive(wasActive);
 		}
 
 		public override void OnStopping()
