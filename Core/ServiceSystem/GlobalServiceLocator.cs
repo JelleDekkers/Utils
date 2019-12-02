@@ -58,6 +58,11 @@ namespace Utils.Core.Services
             }
         }
 
+		public bool Contains(Type type)
+		{
+			return InstantiatedServices.ContainsKey(type);
+		}
+
 		public void Remove<T>() where T : IService
 		{
             Remove(typeof(T));
