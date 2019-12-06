@@ -9,8 +9,8 @@ namespace Utils.Core.SceneManagement
 	{
 		[SerializeField, ScenePath] private string scene = string.Empty;
 
-		private SceneService sceneService;
-		private EventDispatcher eventDispatcher;
+		protected SceneService sceneService;
+		protected EventDispatcher eventDispatcher;
 
 		public void InjectDependencies(SceneService sceneService, EventDispatcher eventDispatcher)
 		{
@@ -20,10 +20,15 @@ namespace Utils.Core.SceneManagement
 
 		public override void OnStarting()
 		{
-			sceneService.LoadScene(scene, OnSceneLoaded);
+            LoadScene();
 		}
 
-		private void OnSceneLoaded(string sceneName)
+        protected void LoadScene()
+        {
+			sceneService.LoadScene(scene, OnSceneLoaded);
+        }
+
+		protected virtual void OnSceneLoaded(string sceneName)
 		{
 			eventDispatcher.Invoke(new SceneLoadedEvent(sceneName));
 		}
