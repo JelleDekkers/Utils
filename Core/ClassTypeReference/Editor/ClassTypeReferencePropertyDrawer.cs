@@ -82,7 +82,7 @@ namespace Utils.Core
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (!type.IsVisible || !type.IsClass)
+                if (!type.IsVisible) // || !type.IsClass) <- allow structs
                     continue;
 
                 if (filter != null && !filter.IsConstraintSatisfied(type))
