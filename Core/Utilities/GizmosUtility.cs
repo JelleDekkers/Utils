@@ -3,7 +3,7 @@
 namespace Utils.Core
 {
     public static class GizmosUtility
-    { 
+    {
         public static void DrawArrow(Vector3 pos, Vector3 direction, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f)
         {
             Gizmos.DrawRay(pos, direction);
@@ -45,5 +45,36 @@ namespace Utils.Core
 			UnityEditor.Handles.EndGUI();
 #endif
 		}
-	}
+
+        /// <summary>
+        /// Draws a <see cref="Gizmos.DrawCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
+        /// </summary>
+        /// <param name="translation"></param>
+        /// <param name="center"></param>
+        /// <param name="size"></param>
+        public static void DrawBox(Transform translation, Vector3 center, Vector3 size)
+        {
+            DrawBox(translation, center, size, Gizmos.color);
+        }
+
+        /// <summary>
+        /// Draws a <see cref="Gizmos.DrawCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
+        /// </summary>
+        /// <param name="translation"></param>
+        /// <param name="center"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        public static void DrawBox(Transform translation, Vector3 center, Vector3 size, Color color)
+        {
+            Matrix4x4 prevMatrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.TRS(translation.TransformPoint(-translation.position), translation.rotation, translation.lossyScale);
+
+            Color prevColor = Gizmos.color;
+            Gizmos.color = color;
+            Gizmos.DrawCube(center, size);
+            Gizmos.color = prevColor;
+
+            Gizmos.matrix = prevMatrix;
+        }
+    }
 }
