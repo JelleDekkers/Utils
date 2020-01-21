@@ -6,6 +6,8 @@ namespace Utils.Core
     [InitializeOnLoad]
     public class HierarchyDividerEditor
     {
+        private const float DISABLED_TRANSPARANCY = 0.3f;
+
         static HierarchyDividerEditor()
         {
             EditorApplication.hierarchyWindowItemOnGUI += HierarchyOnGUI;
@@ -26,13 +28,17 @@ namespace Utils.Core
             if (Event.current.type != EventType.Repaint) { return; }
 
             GameObject go = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-            if (go == null) { return; }
+            if (go == null)
+                return; 
+
             HierarchyDivider divider = go.GetComponent<HierarchyDivider>();
-            if (divider == null) { return; }
+            if (divider == null)
+                return; 
 
             Color fontColor = Color.black;
+            fontColor.a = (go.activeSelf) ? 1 : DISABLED_TRANSPARANCY;
             Color backgroundColor = divider.backgroundColor;
-            backgroundColor.a = 1;
+            backgroundColor.a = (go.activeSelf) ? 1 : DISABLED_TRANSPARANCY;
             EditorGUI.DrawRect(rect, backgroundColor);
 
             var style = new GUIStyle(GUI.skin.label)
