@@ -30,6 +30,10 @@ namespace Utils.Core.Flow
 			{
 				CurrentLayer.Start();
 			}
+            else
+            {
+                Debug.LogError(CurrentLayer.Data.Name + " has no EntryState");
+            }
 		}
 
         public void Update()

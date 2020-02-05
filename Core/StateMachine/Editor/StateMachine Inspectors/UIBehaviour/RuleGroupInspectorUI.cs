@@ -8,10 +8,10 @@ namespace Utils.Core.Flow.Inspector
     [CustomInspectorUI(typeof(RuleGroup))]
     public class RuleGroupInspector : IInspectorUIBehaviour
     {
-        private const string PROPERTY_NAME = "TemplateRules";
+        private const string RULES_PROPERTY_NAME = "Rules";
 
         private StateMachineLayerRenderer editorUI;
-        private SerializedObject serializedStateObject;
+        private SerializedObject serializedStateMachine;
         private SerializedProperty ruleGroupProperty;
         private State state;
         private RuleGroup ruleGroup;
@@ -22,27 +22,23 @@ namespace Utils.Core.Flow.Inspector
             this.state = state;
             this.ruleGroup = ruleGroup;
 
-            Init();
+            Refresh();
         }
 
-        private void Init()
+        public void Refresh()
         {
-            serializedStateObject = new SerializedObject(state);
+            serializedStateMachine = new SerializedObject(editorUI.StateMachineData.SerializedObject);
 
             for (int i = 0; i < state.RuleGroups.Count; i++)
             {
                 if (state.RuleGroups[i] == ruleGroup)
                 {
-                    SerializedProperty correctRuleGroup = serializedStateObject.FindProperty("RuleGroups").GetArrayElementAtIndex(i);
-                    ruleGroupProperty = correctRuleGroup.FindPropertyRelative(PROPERTY_NAME);
+                    // TODO: fix this
+                    //SerializedProperty correctRuleGroup = serializedStateObject.FindProperty("RuleGroups").GetArrayElementAtIndex(i);
+                    //ruleGroupProperty = correctRuleGroup.FindPropertyRelative(PROPERTY_NAME);
                     break;
                 }
             }
-        }
-
-        public void Refresh()
-        {
-            Init();
         }
 
         public void OnInspectorGUI(Event e)
@@ -50,8 +46,29 @@ namespace Utils.Core.Flow.Inspector
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
             InspectorUIUtility.DrawHeader("Rules", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent));
             InspectorUIUtility.DrawHorizontalLine();
-            InspectorUIUtility.DrawPropertyFields(ruleGroupProperty, OnContextMenuButtonPressed);
+            //InspectorUIUtility.DrawPropertyFields(ruleGroupProperty, OnContextMenuButtonPressed);
+
+
+            SerializedProperty statesProperty = serializedStateMachine.FindProperty("states");
+            int stateIndex = editorUI.StateMachineData.States.IndexOf(state);
+            SerializedProperty correctStateProperty = statesProperty.GetArrayElementAtIndex(stateIndex);
+            SerializedProperty ruleGroupsProperty = correctStateProperty.FindPropertyRelative("RuleGroups");
+            
+            for (int i = 0; i < ruleGroupsProperty.arraySize; i++)
+            {
+                if (state.RuleGroups[i] == ruleGroup)
+                {
+                    SerializedProperty rulesProperty = ruleGroupsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("Rules");
+                    InspectorUIUtility.DrawPropertyArrayField(rulesProperty, i);
+                }
+            }
+
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawRuleGroupUI(int index)
+        {
+
         }
 
         protected void OnAddNewButtonPressedEvent()
@@ -61,7 +78,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            ruleGroup.AddNewRule(type, editorUI.StateMachineData, serializedStateObject.targetObject as State);
+            ruleGroup.AddNewRule(type, editorUI.StateMachineData, null); // TODO: fix null
             Refresh();
         }
 
@@ -96,7 +113,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], serializedStateObject.targetObject as State);
+            ruleGroup.RemoveRule(ruleGroup.Rules[result.Index], null); // TODO: fix null
             Refresh();
         }
 
@@ -109,9 +126,9 @@ namespace Utils.Core.Flow.Inspector
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {
             int newIndex = result.Index + (int)direction;
-            if (newIndex >= 0 && newIndex < ruleGroup.TemplateRules.Count)
+            if (newIndex >= 0 && newIndex < ruleGroup.Rules.Count)
             {
-                ruleGroup.TemplateRules.ReorderItem(result.Index, newIndex);
+                ruleGroup.Rules.ReorderItem(result.Index, newIndex);
             }
 
             Refresh();

@@ -11,31 +11,95 @@ namespace Utils.Core.Flow
     [Serializable]
     public class StateMachineScriptableObjectData : ScriptableObject, IStateMachineData
     {
-        [SerializeField] public State entryState;
-        public State EntryState
-        {
-            get { return entryState; }
-            set { entryState = value; }
-        }
+        [SerializeField] private int entryStateID;
+        public State EntryState => FindEntryState();
 
-        [SerializeField] public List<State> states = new List<State>();
+        [SerializeField] private List<State> states = new List<State>();
         public List<State> States
         {
             get { return states; }
             set { states = value; }
         }
 
-        public string Name => name;
+        public string Name => GetType().Name;
         public UnityEngine.Object SerializedObject => this;
 
-        public void AddNewState(State state)
+        private Dictionary<int, State> statesTable;
+
+        private void Initialize()
+        {
+            foreach (State state in states)
+            {
+                state.Initialize();
+            }
+
+            UpdateStatesTable();
+        }
+
+        public void AddState(State state)
         {
             if (states.Count == 0)
             {
-                entryState = state;
+                SetEntryState(state);
             }
 
             states.Add(state);
+            statesTable.Add(state.ID, state);
+            UpdateStatesTable();
+        }
+
+        public void SetEntryState(State state)
+        {
+            entryStateID = state.ID;
+        }
+
+        // TODO: use either this one or at statemachineEditorUtility
+        public void RemoveState(State state)
+        {
+            states.Remove(state);
+
+            if (statesTable.ContainsKey(state.ID))
+            {
+                statesTable.Add(state.ID, state);
+                UpdateStatesTable();
+            }
+        }
+
+        private State FindEntryState()
+        {
+            foreach (State state in states)
+            {
+                if (state.ID == entryStateID)
+                    return state;
+            }
+
+            return null;
+        }
+
+        public State GetStateByID(int id)
+        {
+            if(statesTable == null)
+            {
+                UpdateStatesTable();
+            }
+
+            return statesTable[id];
+        }
+
+        private void UpdateStatesTable()
+        {
+            statesTable = new Dictionary<int, State>();
+            foreach (State state in states)
+            {
+                statesTable.Add(state.ID, state);
+            }
+        }
+
+        public IStateMachineData Copy()
+        {
+            StateMachineScriptableObjectData clone = Instantiate(this);
+            clone.Initialize();
+            return clone;
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Utils.Core.Flow
                 linkRenderer.ProcessEvents(e);
             }
 
-            if(RuleGroup.Destination != null)
+            if(RuleGroup.Destination != -1)
             {
                 ProcessEventsOnConnectedLink(e);
             }
@@ -172,18 +172,18 @@ namespace Utils.Core.Flow
         {
             if (editorUI.IsStateAtPosition(e.mousePosition, out StateRenderer hoveredStateRenderer))
             {
-                if (hoveredStateRenderer.Node != RuleGroup.Destination)
+                if (hoveredStateRenderer.Node.ID != RuleGroup.Destination)
                 {
-                    Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
+                    //Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
                 }
 
                 RuleGroup.SetDestination(hoveredStateRenderer.Node);   
             }
             else
             {
-                if (RuleGroup.Destination != null)
+                if (RuleGroup.Destination != -1)
                 {
-                    Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
+                    //Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
                 }
 
                 RuleGroup.SetDestination(null);
@@ -209,7 +209,7 @@ namespace Utils.Core.Flow
 
             menu.AddSeparator("");
 
-            if (RuleGroup.TemplateRules.Count > 0)
+            if (RuleGroup.Rules.Count > 0)
             {
                 menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear(stateRenderer.Node));
             }
@@ -218,7 +218,7 @@ namespace Utils.Core.Flow
                 menu.AddDisabledItem(new GUIContent("Clear"));
             }
 
-            if (RuleGroup.Destination != null)
+            if (RuleGroup.Destination != -1)
             {
                 menu.AddItem(new GUIContent("Reset link curve"), false, () => linkRenderer.Reset());
             }
@@ -256,9 +256,10 @@ namespace Utils.Core.Flow
 
         public void DrawLink()
         {
-            if (RuleGroup.Destination != null && !isDraggingLink)
+            if (RuleGroup.Destination != -1 && !isDraggingLink)
             {
-                Vector2 destinationPoint = new Vector2(RuleGroup.Destination.Position.x, RuleGroup.Destination.Position.y + StateRenderer.HEADER_HEIGHT / 2);
+                State destinationState = editorUI.StateMachineData.GetStateByID(RuleGroup.Destination);
+                Vector2 destinationPoint = new Vector2(destinationState.Position.x, destinationState.Position.y + StateRenderer.HEADER_HEIGHT / 2);
                 Color color = (IsSelected) ? NodeGUIStyles.LINK_COLOR_SELECTED : NodeGUIStyles.LINK_COLOR;
                 DrawLink(LinkSourcePoint, destinationPoint, color);
             }
@@ -267,7 +268,7 @@ namespace Utils.Core.Flow
         {
             Rect = new Rect(position.x, position.y, width, 0);
 
-            if (RuleGroup.TemplateRules.Count == 0)
+            if (RuleGroup.Rules.Count == 0)
             {
                 DrawRule(Rect, out Rect ruleRect);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
@@ -276,17 +277,17 @@ namespace Utils.Core.Flow
             {
                 if (Application.isPlaying && stateRenderer.IsCurrentlyRunning())
                 {
-                    for (int i = 0; i < RuleGroup.RuntimeRules.Count; i++)
+                    for (int i = 0; i < RuleGroup.Rules.Count; i++)
                     {
-                        DrawRule(Rect, out Rect ruleRect, RuleGroup.RuntimeRules[i]);
+                        DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
                         Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
+                    for (int i = 0; i < RuleGroup.Rules.Count; i++)
                     {
-                        DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
+                        DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
                         Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
                     }
                 }
@@ -317,7 +318,7 @@ namespace Utils.Core.Flow
 
         private void DrawNodeKnob()
         {
-            Color knobColor = (RuleGroup.Destination != null) ? NodeGUIStyles.KNOB_COLOR_LINKED : NodeGUIStyles.KNOB_COLOR_EMPTY;
+            Color knobColor = (RuleGroup.Destination != -1) ? NodeGUIStyles.KNOB_COLOR_LINKED : NodeGUIStyles.KNOB_COLOR_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
                 new Rect(Rect.x + Rect.width - 0.5f, Rect.y + Rect.height / 2, Rect.width, Rect.height),

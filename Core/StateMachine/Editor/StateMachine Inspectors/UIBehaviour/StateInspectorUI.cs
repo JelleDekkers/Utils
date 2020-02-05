@@ -8,28 +8,23 @@ namespace Utils.Core.Flow.Inspector
     [CustomInspectorUI(typeof(State))]
     public class StateInspectorUI : IInspectorUIBehaviour
     {
-        private const string PROPERTY_NAME = "TemplateActions";
+        private const string ACTIONS_PROPERTY_NAME = "Actions";
 
         private StateMachineLayerRenderer editorUI;
         private State state;
-        private SerializedObject serializedState;
+        private SerializedObject serializedStateMachine;
 
         public StateInspectorUI(StateMachineLayerRenderer editorUI, State state)
         {
             this.editorUI = editorUI;
             this.state = state;
 
-            Init();
-        }
-
-        private void Init()
-        {
-            serializedState = new SerializedObject(state);
+            Refresh();
         }
 
         public void Refresh()
         {
-            Init();
+            serializedStateMachine = new SerializedObject(editorUI.StateMachineData.SerializedObject);
         }
 
         public void OnInspectorGUI(Event e)
@@ -37,9 +32,113 @@ namespace Utils.Core.Flow.Inspector
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
             DrawHeader("State Actions");
             InspectorUIUtility.DrawHorizontalLine();
-            InspectorUIUtility.DrawPropertyFields(serializedState, PROPERTY_NAME, OnContextMenuButtonPressed);
+            //InspectorUIUtility.DrawPropertyFields(serializedStateMachine, ACTIONS_PROPERTY_NAME, OnContextMenuButtonPressed);
+
+
+            SerializedProperty statesProperty = serializedStateMachine.FindProperty("states");
+            int index = editorUI.StateMachineData.States.IndexOf(state);
+            //InspectorUIUtility.DrawPropertyArrayField(statesProperty, index);
+            DrawStateActions(serializedStateMachine, state, index);
+
             EditorGUILayout.EndVertical();
         }
+
+        private void DrawStateActions(SerializedObject stateMachineData, State state, int stateIndex)
+        {
+            SerializedProperty stateProperty = stateMachineData.FindProperty("states").GetArrayElementAtIndex(stateIndex);
+            SerializedProperty actionsProperty = stateProperty.FindPropertyRelative("Actions");
+
+            Rect header = EditorGUILayout.BeginHorizontal(NodeGUIStyles.InspectorStyle);
+            header.x += 3;
+            //actionsProperty.isExpanded = EditorGUILayout.Foldout(actionsProperty.isExpanded, GUIContent.none, true);
+
+            EditorGUI.LabelField(header, actionsProperty.displayName, NodeGUIStyles.FieldNameLabelStyle);
+            //if (contextMenuPressedCallback != null)
+            //{
+            //    DrawContextMenuDropdown(index, actionsProperty.objectReferenceValue as ScriptableObject, contextMenuPressedCallback);
+            //}
+            EditorGUILayout.EndHorizontal();
+
+            if (!actionsProperty.isExpanded) { return; }
+            EditorGUI.indentLevel++;
+
+
+            for (int i = 0; i < actionsProperty.arraySize; i++)
+            {
+                InspectorUIUtility.DrawPropertyArrayField(actionsProperty, i);
+                //SerializedProperty property = actionsProperty.GetArrayElementAtIndex(i);
+                //EditorGUILayout.PropertyField(property, true);
+                //DrawField(property, actionsProperty.serializedObject);
+            }
+
+            return;
+
+            SerializedObject obj = stateMachineData;
+            if (obj == null) { return; }
+
+
+            SerializedProperty field = obj.GetIterator();
+            field.NextVisible(true);
+
+            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+            EditorGUI.indentLevel++;
+
+            field = obj.GetIterator();
+            field.NextVisible(true);
+
+            EditorGUIUtility.labelWidth = header.width / 2.5f;
+            while (field.NextVisible(false))
+            {
+                try
+                {
+                    EditorGUILayout.PropertyField(field, true);
+                }
+                catch (StackOverflowException)
+                {
+                    field.objectReferenceValue = null;
+                    Debug.LogError("Detected self-nesting causing a StackOverflowException, avoid using the same object inside a nested structure.");
+                }
+            }
+
+            obj.ApplyModifiedProperties();
+
+            EditorGUI.indentLevel -= 2;
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawField(SerializedProperty field, SerializedObject targetObject)
+        {
+            EditorGUI.indentLevel++;
+
+            int index = 0;
+            field = targetObject.GetIterator();
+            field.NextVisible(true);
+
+            while (field.NextVisible(false))
+            {
+                try
+                {
+                    EditorGUILayout.PropertyField(field, true);
+                }
+                catch (StackOverflowException)
+                {
+                    field.objectReferenceValue = null;
+                    Debug.LogError("Detected self-nesting cauisng a StackOverflowException, avoid using the same object iside a nested structure.");
+                }
+
+                index++;
+            }
+
+            targetObject.ApplyModifiedProperties();
+
+            EditorGUI.indentLevel--;
+        }
+
+
+
+
+
+
 
         protected void DrawHeader(string title)
         {
@@ -52,9 +151,9 @@ namespace Utils.Core.Flow.Inspector
             if (newName != state.Title)
             {
                 //Undo.RecordObject(editorUI.StateMachineData, "Change State Name");
-                Undo.RecordObject(state, "Change State Name");
+                Undo.RecordObject(editorUI.StateMachineData.SerializedObject, "Change State Name");
                 state.Title = newName;
-                EditorUtility.SetDirty(serializedState.targetObject);
+                EditorUtility.SetDirty(serializedStateMachine.targetObject);
             }
 
             GUI.enabled = editorUI.StateMachineData.EntryState != state;
@@ -116,7 +215,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            state.RemoveStateAction(state.TemplateActions[result.Index]);
+            state.RemoveStateAction(state.Actions[result.Index]);
             Refresh();
         }
 
@@ -128,12 +227,12 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {
-            Undo.RegisterCompleteObjectUndo(state, "Reorder Actions");
+            Undo.RegisterCompleteObjectUndo(editorUI.StateMachineData.SerializedObject, "Reorder Actions");
 
             int newIndex = result.Index + (int)direction;
-            if (newIndex >= 0 && newIndex < state.TemplateActions.Count)
+            if (newIndex >= 0 && newIndex < state.Actions.Count)
             {
-                state.TemplateActions.ReorderItem(result.Index, newIndex);
+                state.Actions.ReorderItem(result.Index, newIndex);
             }
 
             Refresh();

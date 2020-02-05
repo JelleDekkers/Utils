@@ -38,19 +38,19 @@ namespace Utils.Core.Flow
         {
             Undo.RecordObject(data.SerializedObject, "Add State");
 
-            State state;
-            if (data.SerializedObject is ScriptableObject)
-            {
-                string assetFilePath = AssetDatabase.GetAssetPath(data.SerializedObject);
-                state = StateMachineEditorUtilityHelper.CreateObjectInstance<State>(assetFilePath);
-            }
-            else
-            {
-                state = ScriptableObject.CreateInstance<State>();
-            }
+            State state = new State();
+            //if (data.SerializedObject is ScriptableObject)
+            //{
+            //    string assetFilePath = AssetDatabase.GetAssetPath(data.SerializedObject);
+            //    state = StateMachineEditorUtilityHelper.CreateObjectInstance<State>(assetFilePath);
+            //}
+            //else
+            //{
+            //    state = ScriptableObject.CreateInstance<State>();
+            //}
 
             state.Position = position;
-            data.AddNewState(state);
+            data.AddState(state);
 
             StateAddedEvent?.Invoke(data, state);
             EditorUtility.SetDirty(data.SerializedObject);
@@ -70,21 +70,21 @@ namespace Utils.Core.Flow
             bool isEntryState = data.EntryState == state;
 
             data.States.Remove(state);
-            Undo.DestroyObjectImmediate(state);
+            //Undo.DestroyObjectImmediate(state);
 
             if (isEntryState && data.States.Count > 0)
             {
-                data.EntryState = data.States[0];
+                data.SetEntryState(data.States[0]);
             }
 
-            foreach(StateAction action in state.TemplateActions)
+            foreach(StateAction action in state.Actions)
             {
                 Undo.DestroyObjectImmediate(action);
             }
 
             foreach (RuleGroup ruleGroup in state.RuleGroups)
             {
-                foreach(Rule rule in ruleGroup.TemplateRules)
+                foreach(Rule rule in ruleGroup.Rules)
                 {
                     Undo.DestroyObjectImmediate(rule);
                 }
@@ -97,32 +97,32 @@ namespace Utils.Core.Flow
         public static void SetEntryState(this IStateMachineData data, State state)
         {
             Undo.RecordObject(data.SerializedObject, "Set Entry State");
-            data.EntryState = state;
+            data.SetEntryState(state);
             EditorUtility.SetDirty(data.SerializedObject);
         }
 
         public static void ClearActions(this State state)
         {
-            Undo.RegisterCompleteObjectUndo(state, "Clear State Actions");
+            //Undo.RegisterCompleteObjectUndo(state, "Clear State Actions");
 
-            for (int i = state.TemplateActions.Count - 1; i >= 0; i--)
+            for (int i = state.Actions.Count - 1; i >= 0; i--)
             {
-                Undo.DestroyObjectImmediate(state.TemplateActions[i]);
+                Undo.DestroyObjectImmediate(state.Actions[i]);
             }
 
-            state.TemplateActions.Clear();
+            state.Actions.Clear();
 
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         public static void ClearRules(this State state)
         {
-            Undo.RegisterCompleteObjectUndo(state, "Clear State Rules");
+            //Undo.RegisterCompleteObjectUndo(state, "Clear State Rules");
 
             for (int i = 0; i < state.RuleGroups.Count; i++)
             {
-                foreach (Rule rule in state.RuleGroups[i].TemplateRules)
+                foreach (Rule rule in state.RuleGroups[i].Rules)
                 {
                     Undo.DestroyObjectImmediate(rule);
                 }
@@ -130,17 +130,17 @@ namespace Utils.Core.Flow
 
             state.RuleGroups.Clear();
 
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         public static void AddStateAction(this State state, Type actionType, IStateMachineData data)
         {
-            Undo.RecordObject(state, "Add Action");
+            //Undo.RecordObject(state, "Add Action");
 
             StateAction stateAction = null;
             if (data is ScriptableObject)
             {
-                string assetFilePath = AssetDatabase.GetAssetPath(state);
+                string assetFilePath = AssetDatabase.GetAssetPath(data.SerializedObject);
                 stateAction = StateMachineEditorUtilityHelper.CreateObjectInstance(actionType, assetFilePath) as StateAction;
             }
             else
@@ -148,18 +148,18 @@ namespace Utils.Core.Flow
                 stateAction = ScriptableObject.CreateInstance(actionType) as StateAction;
             }
 
-            state.TemplateActions.Add(stateAction);
+            state.Actions.Add(stateAction);
 
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         public static void RemoveStateAction(this State state, StateAction stateAction)
         {
-            Undo.RecordObject(state, "Remove Action");
+            //Undo.RecordObject(state, "Remove Action");
 
-            state.TemplateActions.Remove(stateAction);
+            state.Actions.Remove(stateAction);
             Undo.DestroyObjectImmediate(stateAction);
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         //public static void Reset(this StateAction action, State state, IStateMachineData data)
@@ -187,22 +187,22 @@ namespace Utils.Core.Flow
 
         public static RuleGroup AddNewRuleGroup(this State state)
         {
-            Undo.RecordObject(state, "Add RuleGroup");
+            //Undo.RecordObject(state, "Add RuleGroup");
 
             RuleGroup group = new RuleGroup();
             state.RuleGroups.Add(group);
 
             RuleGroupAddedEvent?.Invoke(state, group);
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
 
             return group;
         }
 
         public static void RemoveRuleGroup(this State state, RuleGroup group)
         {
-            Undo.RecordObject(state, "Remove RuleGroup");
+            //Undo.RecordObject(state, "Remove RuleGroup");
 
-            foreach(Rule rule in group.TemplateRules)
+            foreach(Rule rule in group.Rules)
             {
                 Object.DestroyImmediate(rule, true);
             }
@@ -210,22 +210,22 @@ namespace Utils.Core.Flow
             state.RuleGroups.Remove(group);
             RuleGroupRemovedEvent?.Invoke(state, group);
 
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         public static void Clear(this RuleGroup ruleGroup, State state)
         {
-            Undo.RegisterCompleteObjectUndo(state, "Clear RuleGroup");
+            //Undo.RegisterCompleteObjectUndo(state, "Clear RuleGroup");
 
-            for (int i = ruleGroup.TemplateRules.Count - 1; i >= 0; i--)
+            for (int i = ruleGroup.Rules.Count - 1; i >= 0; i--)
             {
-                Undo.DestroyObjectImmediate(ruleGroup.TemplateRules[i]);
+                Undo.DestroyObjectImmediate(ruleGroup.Rules[i]);
             }
 
-            ruleGroup.TemplateRules.Clear();
+            ruleGroup.Rules.Clear();
 
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         //public static void Reset(this Rule rule, RuleGroup ruleGroup, IStateMachineData data)
@@ -253,7 +253,7 @@ namespace Utils.Core.Flow
 
         public static void AddNewRule(this RuleGroup group, Type ruleType, IStateMachineData data, State state)
         {
-            Undo.RecordObject(state, "Add Rule");
+            //Undo.RecordObject(state, "Add Rule");
 
             Rule rule;
             if (data.SerializedObject is ScriptableObject)
@@ -265,18 +265,18 @@ namespace Utils.Core.Flow
             {
                 rule = ScriptableObject.CreateInstance(ruleType) as Rule;
             }
-            group.TemplateRules.Add(rule);
+            group.Rules.Add(rule);
 
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
 
         public static void RemoveRule(this RuleGroup group, Rule rule, State state)
         {
-            Undo.RecordObject(state, "Remove rule");
-            group.TemplateRules.Remove(rule);
+            //Undo.RecordObject(state, "Remove rule");
+            group.Rules.Remove(rule);
             Undo.DestroyObjectImmediate(rule);
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-            EditorUtility.SetDirty(state);
+            //EditorUtility.SetDirty(state);
         }
     }
 }

@@ -140,7 +140,7 @@ namespace Utils.Core.Flow
         {
             foreach (State state in data.States)
             {
-                foreach (StateAction action in state.TemplateActions)
+                foreach (StateAction action in state.Actions)
                 {
                     FieldInfo[] fields = action.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                     foreach (FieldInfo field in fields)

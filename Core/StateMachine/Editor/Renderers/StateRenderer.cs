@@ -65,7 +65,7 @@ namespace Utils.Core.Flow
 
             if (Application.isPlaying && layerRenderer.StateMachine != null && layerRenderer.StateMachine.LayerStack != null)
             {
-                layerRenderer.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
+                layerRenderer.StateMachine.CurrentLayer.onStateChangedEvent += OnRunTimeStateChangedEvent;
             }
 
             StateMachineEditorUtility.RuleGroupAddedEvent += OnRuleGroupAddedEvent;
@@ -318,7 +318,7 @@ namespace Utils.Core.Flow
 			menu.AddSeparator("");
 			menu.AddItem(new GUIContent("Delete"), false, () => layerRenderer.StateMachineData.RemoveState(Node));
 
-            if (Node.TemplateActions.Count > 0)
+            if (Node.Actions.Count > 0)
             {
                 menu.AddItem(new GUIContent("Clear Actions"), false, () => Node.ClearActions());
             }
@@ -390,8 +390,8 @@ namespace Utils.Core.Flow
 
         public void OnDragStart(Event e)
         {
-            Undo.RegisterCompleteObjectUndo(Node, "State Dragged");
-            EditorUtility.SetDirty(Node);
+            //Undo.RegisterCompleteObjectUndo(Node, "State Dragged");
+            //EditorUtility.SetDirty(Node);
 
             isDragging = true;
             dragStartPos = e.mousePosition;
@@ -457,7 +457,7 @@ namespace Utils.Core.Flow
         {
             if (Application.isPlaying && layerRenderer.StateMachine != null && layerRenderer.StateMachine.LayerStack != null)
             { 
-                layerRenderer.StateMachine.CurrentLayer.StateChangedEvent += OnRunTimeStateChangedEvent;
+                layerRenderer.StateMachine.CurrentLayer.onStateChangedEvent += OnRunTimeStateChangedEvent;
             }
 
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;

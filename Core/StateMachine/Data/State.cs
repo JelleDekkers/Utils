@@ -5,23 +5,51 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Abstract class for states, used in <see cref="StateMachineScriptableObjectData"/>
+    /// Class for state nodes, used in <see cref="StateMachineScriptableObjectData"/>
     /// </summary>
     [Serializable]
-    public class State : ScriptableObject, INode
+    public class State : INode
     {
-        public List<StateAction> TemplateActions = new List<StateAction>();
-        public List<StateAction> RunTimeActions;
+        private const string DEFAULT_NAME = "New State";
 
-        public List<RuleGroup> RuleGroups = new List<RuleGroup>();
-
-        public string Title = "New State";
+        public string Title;
+        public bool IsActive { get; private set; }
 
         [SerializeField] private Vector2 position;
         public Vector2 Position
         {
             get { return position; }
             set { position = value; }
+        }
+
+        [SerializeField] private int id;
+        public int ID
+        {
+            get { return id; }
+            set { id = value; }
+        }
+
+        public List<StateAction> Actions = new List<StateAction>();
+        public List<RuleGroup> RuleGroups = new List<RuleGroup>();
+
+        public State(string name = DEFAULT_NAME)
+        {
+            id = GetHashCode();
+            Title = name;
+        }
+
+        public void Initialize()
+        {
+            List<StateAction> copiedActions = Actions;
+            for (int i = 0; i < Actions.Count; i++)
+            {
+                Actions[i] = UnityEngine.Object.Instantiate(copiedActions[i]);
+            }
+
+            foreach(RuleGroup group in RuleGroups)
+            {
+                group.Initialize();
+            }
         }
 
         public override string ToString()
@@ -31,16 +59,12 @@ namespace Utils.Core.Flow
 
         public void OnStart()
         {
-            RunTimeActions = new List<StateAction>();
-            for (int i = 0; i < TemplateActions.Count; i++)
-            {
-                RunTimeActions.Add(Instantiate(TemplateActions[i]));
-            }
+            IsActive = true;
         }
 
         public void OnExit()
         {
-            RunTimeActions = null;
+            IsActive = false;
         }
     }
 }

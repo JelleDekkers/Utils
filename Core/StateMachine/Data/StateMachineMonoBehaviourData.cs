@@ -4,6 +4,8 @@ using UnityEngine;
 
 using Object = UnityEngine.Object;
 
+// TODO: DRY principle for this and scriptableObjectData class
+
 namespace Utils.Core.Flow
 {
     /// <summary>
@@ -11,13 +13,9 @@ namespace Utils.Core.Flow
     /// </summary>
     [Serializable]
     public class StateMachineMonoBehaviourData : IStateMachineData
-    { 
-        [SerializeField] private State entryState;
-        public State EntryState
-        {
-            get { return entryState; }
-            set { entryState = value; }
-        }
+    {
+        [SerializeField] private int entryStateID;
+        public State EntryState => FindEntryState();
 
         [SerializeField] private List<State> states = new List<State>();
         public List<State> States
@@ -30,20 +28,51 @@ namespace Utils.Core.Flow
 
         [SerializeField] private Object obj; 
         public Object SerializedObject => obj;
-
+        
         public StateMachineMonoBehaviourData(StateMachineMonoBehaviour gameObject)
         {
             obj = gameObject;
         }
 
-        public void AddNewState(State state)
+        public void AddState(State state)
         {
             if (states.Count == 0)
             {
-                entryState = state;
+                SetEntryState(state);
             }
 
             states.Add(state);
+        }
+
+        public void RemoveState(State state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetEntryState(State state)
+        {
+            entryStateID = state.ID;
+        }
+
+        private State FindEntryState()
+        {
+            foreach(State state in states)
+            {
+                if (state.ID == entryStateID)
+                    return state;
+            }
+
+            return null;
+        }
+
+        public IStateMachineData Copy()
+        {
+            return this;
+        }
+
+        public State GetStateByID(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

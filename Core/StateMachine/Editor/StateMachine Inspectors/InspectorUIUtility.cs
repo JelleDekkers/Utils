@@ -74,7 +74,7 @@ namespace Utils.Core.Flow.Inspector
                 catch (StackOverflowException)
                 {
                     field.objectReferenceValue = null;
-                    Debug.LogError("Detected self-nesting cauisng a StackOverflowException, avoid using the same object iside a nested structure.");
+                    Debug.LogError("Detected self-nesting causing a StackOverflowException, avoid using the same object inside a nested structure.");
                 }
             }
 

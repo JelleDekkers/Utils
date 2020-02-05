@@ -4,7 +4,8 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for deciding when a <see cref="State"/> inside the <see cref="StateMachineScriptableObjectData>"/> needs to transition to another
+    /// Abstract class for deciding when a <see cref="State"/> inside the <see cref="StateMachineScriptableObjectData>"/> needs to transition to another
+    /// Inherits from <see cref="ScriptableObject"/> to allow for serialization and inspector editing
     /// </summary>
     [Serializable]
     public abstract class Rule : ScriptableObject
