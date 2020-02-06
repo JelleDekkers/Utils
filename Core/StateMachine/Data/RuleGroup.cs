@@ -30,7 +30,7 @@ namespace Utils.Core.Flow
 
         public void SetDestination(State state)
         {
-            DestinationID = state.ID;
+            DestinationID = (state != null) ? state.ID : -1;
         }
 
         public void OnActivate()

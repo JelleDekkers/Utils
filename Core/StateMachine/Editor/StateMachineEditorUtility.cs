@@ -23,7 +23,7 @@ namespace Utils.Core.Flow
 
             for (int i = data.States.Count - 1; i >= 0; i--)
             {
-                RemoveState(data, data.States[i], false);
+                RemoveStateEditor(data, data.States[i]);
             }
 
             data.States.Clear();
@@ -48,13 +48,9 @@ namespace Utils.Core.Flow
             return state;
         }
 
-        // TODO: doesn't work, fix:
-        public static void RemoveState(this IStateMachineData data, State state, bool callEvent = true)
+        public static void RemoveStateEditor(this IStateMachineData data, State state)
         {
-            if (callEvent)
-            {
-                StateRemovedEvent?.Invoke(data, state);
-            }
+            StateRemovedEvent?.Invoke(data, state);
 
             Undo.RecordObject(data.SerializedObject, "Remove State");
 
@@ -74,13 +70,6 @@ namespace Utils.Core.Flow
             data.RemoveState(state);
 
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-            EditorUtility.SetDirty(data.SerializedObject);
-        }
-
-        public static void SetEntryState(this IStateMachineData data, State state)
-        {
-            Undo.RecordObject(data.SerializedObject, "Set Entry State");
-            data.SetEntryState(state);
             EditorUtility.SetDirty(data.SerializedObject);
         }
 
@@ -119,7 +108,7 @@ namespace Utils.Core.Flow
         {
             Undo.RecordObject(data.SerializedObject, "Add Action");
 
-            StateAction stateAction = null;
+            StateAction stateAction;
             if (data is ScriptableObject)
             {
                 string assetFilePath = AssetDatabase.GetAssetPath(data.SerializedObject);

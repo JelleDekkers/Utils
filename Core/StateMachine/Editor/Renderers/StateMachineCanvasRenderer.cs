@@ -225,7 +225,7 @@ namespace Utils.Core.Flow
             GUI.enabled = EditorUI.Selection != null && EditorUI.Selection is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                EditorUI.StateMachineData.RemoveState((EditorUI.Selection as StateRenderer).Node);
+                EditorUI.StateMachineData.RemoveStateEditor((EditorUI.Selection as StateRenderer).Node);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))

@@ -37,6 +37,7 @@ namespace Utils.Core.Flow
                 CreateNewNodeRenderer(state);
             }
 
+            Debug.Log("subscribe");
             StateMachineEditorUtility.StateAddedEvent += OnStateAddedEvent;
             StateMachineEditorUtility.StateRemovedEvent += OnStateRemovedEvent;
             StateMachineEditorUtility.StateMachineClearedEvent += OnStateMachineClearedEvent;
@@ -116,7 +117,7 @@ namespace Utils.Core.Flow
 
         private void OnStateRemovedEvent(IStateMachineData stateMachine, State state)
         {
-           if(StateMachineData == stateMachine)
+            if(StateMachineData == stateMachine)
             {
                 RemoveStateRenderer(state);
             }

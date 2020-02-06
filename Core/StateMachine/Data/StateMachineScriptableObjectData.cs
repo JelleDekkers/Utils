@@ -43,7 +43,6 @@ namespace Utils.Core.Flow
             entryStateID = state.ID;
         }
 
-        // TODO: use either this one or at statemachineEditorUtility
         public void RemoveState(State state)
         {
             if (statesLookupTable == null)
@@ -58,13 +57,16 @@ namespace Utils.Core.Flow
 
             bool wasEntryState = state.ID == entryStateID;
             states.Remove(state);
-            if (wasEntryState && States.Count > 0)
+            if (wasEntryState)
             {
-                SetEntryState(States[0]);
-            }
-            else
-            {
-                entryStateID = -1;
+                if (States.Count > 0)
+                {
+                    SetEntryState(States[0]);
+                }
+                else
+                {
+                    entryStateID = -1;
+                }
             }
         }
 

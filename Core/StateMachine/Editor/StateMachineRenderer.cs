@@ -9,7 +9,7 @@ namespace Utils.Core.Flow
     /// <summary>
     /// Manager class for rendering a state machine in the editor
     /// </summary>
-    public class StateMachineUIImplementation : IDisposable
+    public class StateMachineRenderer : IDisposable
     {
         private StateMachineLayerRenderer layerRenderer;
         private StateMachineScriptableObjectData stateMachineData;
@@ -17,12 +17,12 @@ namespace Utils.Core.Flow
 
         private List<StateMachineScriptableObjectData> linkedLayers = new List<StateMachineScriptableObjectData>();
         private string[] linkedLayerNames = new string[0];
-        private int linkedLayersToolbarIndex = 0;
+        private int currentLinkedLayerButtonSelected = 0;
 
         private GUIStyle linkedLayersToolbarStyle;
         private readonly Action repaint;
 
-        public StateMachineUIImplementation(StateMachineScriptableObjectData data, StateMachine statemachine, Action repaint)
+        public StateMachineRenderer(StateMachineScriptableObjectData data, StateMachine statemachine, Action repaint)
         {
             stateMachineData = data;
             this.statemachine = statemachine;
@@ -94,7 +94,7 @@ namespace Utils.Core.Flow
         public void OnStateMachineDataChanged(StateMachineScriptableObjectData newData)
         {
             stateMachineData = newData;
-            layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(newData, repaint, statemachine) : null;
+            layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(stateMachineData, repaint, statemachine) : null;
         }
 
         private void DrawLayersToolbar()
@@ -113,14 +113,19 @@ namespace Utils.Core.Flow
             }
 
             linkedLayersToolbarStyle.fontStyle = FontStyle.Normal;
-            int prevSelectionIndex = linkedLayersToolbarIndex;
-            linkedLayersToolbarIndex = GUILayout.Toolbar(linkedLayersToolbarIndex, linkedLayerNames, linkedLayersToolbarStyle, GUILayout.Width(toolbarButtonMaxWidth * linkedLayers.Count), GUILayout.MinWidth(10));
-            if (linkedLayersToolbarIndex != prevSelectionIndex)
+            int prevSelectionIndex = currentLinkedLayerButtonSelected;
+            currentLinkedLayerButtonSelected = GUILayout.Toolbar(currentLinkedLayerButtonSelected, linkedLayerNames, linkedLayersToolbarStyle, GUILayout.Width(toolbarButtonMaxWidth * linkedLayers.Count), GUILayout.MinWidth(10));
+            if (currentLinkedLayerButtonSelected != prevSelectionIndex)
             {
-                layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(linkedLayers[linkedLayersToolbarIndex], repaint, statemachine) : null;
+                OnCurrentSelectedLinkedLayerChanged();
             }
 
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void OnCurrentSelectedLinkedLayerChanged()
+        {
+            layerRenderer = (stateMachineData != null) ? new StateMachineLayerRenderer(linkedLayers[currentLinkedLayerButtonSelected], repaint, statemachine) : null;
         }
 
         private void LoadLinkedLayers()

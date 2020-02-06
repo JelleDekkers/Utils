@@ -13,7 +13,14 @@ namespace Utils.Core.Flow
 
         private void Awake()
         {
-            StateMachine = new StateMachine(Data);
+            if (Data != null)
+            {
+                StateMachine = new StateMachine(Data);
+            }
+            else
+            {
+                enabled = false;
+            }
         }
 
         private void Update()

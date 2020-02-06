@@ -11,7 +11,7 @@ namespace Utils.Core.Flow
         private static readonly Vector2 windowMinSize = new Vector2(500, 500);
         
         private StateMachineScriptableObjectData data;
-        private StateMachineUIImplementation editorUI;
+        private StateMachineRenderer editorUI;
 
         [MenuItem("Window/State Machine Window")]
         public static StateMachineWindow Init()
@@ -55,7 +55,7 @@ namespace Utils.Core.Flow
             if(data != null)
             {
                 this.data = data;
-                editorUI = new StateMachineUIImplementation(data, null, Repaint);
+                editorUI = new StateMachineRenderer(data, null, Repaint);
                 editorUI.OnEnable();
             }
         }

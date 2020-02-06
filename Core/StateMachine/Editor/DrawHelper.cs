@@ -10,7 +10,7 @@ namespace Utils.Core.Flow
 
             Color previousColor = GUI.color;
             GUI.color = color;
-            rect = new Rect(rect.x + 1, rect.y + 1, rect.width + 1, rect.height + 1);
+            rect = new Rect(rect.x, rect.y, rect.width, rect.height);
             GUI.Box(rect, "", borderStyle);
 
             GUI.color = previousColor;

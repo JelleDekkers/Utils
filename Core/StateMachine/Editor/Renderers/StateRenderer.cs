@@ -93,7 +93,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.Delete)
                     {
-                        layerRenderer.StateMachineData.RemoveState(Node);
+                        layerRenderer.StateMachineData.RemoveStateEditor(Node);
                         e.Use();
                     }
                     else if(IsSelected && e.keyCode == KeyCode.LeftControl)
@@ -171,7 +171,7 @@ namespace Utils.Core.Flow
             ruleGroupRenderers.ReorderItem(currentIndex, newIndex);
         }
 
-        public bool IsCurrentlyRunning()
+        public bool StateIsActive()
         {
             return layerRenderer.StateMachine != null && layerRenderer.StateMachine.CurrentLayer.CurrentState == Node;
         }
@@ -217,7 +217,11 @@ namespace Utils.Core.Flow
             Rect = new Rect(Rect.x, Rect.y, Rect.width, (int)heightNeeded);
 
             Color prevColor = GUI.backgroundColor;
-            GUI.backgroundColor = (Application.isPlaying && IsCurrentlyRunning()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
+            GUI.backgroundColor = (Application.isPlaying && StateIsActive()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
+
+            if(Application.isPlaying)
+                label += " " + StateIsActive();
+
             GUI.Box(Rect, label, NodeGUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
         }
@@ -316,7 +320,7 @@ namespace Utils.Core.Flow
 			}
 
 			menu.AddSeparator("");
-			menu.AddItem(new GUIContent("Delete"), false, () => layerRenderer.StateMachineData.RemoveState(Node));
+			menu.AddItem(new GUIContent("Delete"), false, () => layerRenderer.StateMachineData.RemoveStateEditor(Node));
 
             if (Node.TemplateActions.Count > 0)
             {

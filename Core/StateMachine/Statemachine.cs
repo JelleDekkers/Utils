@@ -19,9 +19,8 @@ namespace Utils.Core.Flow
 
 		public StateMachine(IStateMachineData data, DependencyInjector injector = null)
         {
-            StateMachineLayer layer = new StateMachineLayer(this, data, injector);
             LayerStack = new Stack<StateMachineLayer>();
-            LayerStack.Push(layer);
+            LayerStack.Push(new StateMachineLayer(this, data, injector));
         }
 
 		public void Start()

@@ -9,7 +9,7 @@ namespace Utils.Core.Flow
     public class StateMachineExecutorEditor : Editor
     {
         private StateMachineExecutor executor;
-        private StateMachineUIImplementation editorUI;
+        private StateMachineRenderer editorUI;
 
         private StateMachineScriptableObjectData initialData;
 
@@ -23,7 +23,7 @@ namespace Utils.Core.Flow
 
         protected void OnEnable()
         {
-            editorUI = new StateMachineUIImplementation(initialData, executor.StateMachine, Repaint);
+            editorUI = new StateMachineRenderer(initialData, executor.StateMachine, Repaint);
             editorUI.OnEnable();
         }
 

@@ -8,11 +8,11 @@ namespace Utils.Core.Flow
     [CustomEditor(typeof(StateMachineScriptableObjectData))]
     public class StateMachineDataEditor : Editor
     {
-        private StateMachineUIImplementation editorUI;
+        private StateMachineRenderer editorUI;
 
         protected void OnEnable()
         {
-            editorUI = new StateMachineUIImplementation(target as StateMachineScriptableObjectData, null, Repaint);
+            editorUI = new StateMachineRenderer(target as StateMachineScriptableObjectData, null, Repaint);
             editorUI.OnEnable();
         }
 

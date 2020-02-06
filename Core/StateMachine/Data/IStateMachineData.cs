@@ -16,6 +16,7 @@ namespace Utils.Core.Flow
         void AddState(State state);
         void RemoveState(State state);
         State GetStateByID(int id);
+        void SetEntryState(State state);
         IStateMachineData Copy();
     }
 }

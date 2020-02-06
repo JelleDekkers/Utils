@@ -8,7 +8,7 @@ namespace Utils.Core.Flow.Inspector
     [CustomInspectorUI(typeof(State))]
     public class StateInspectorUI : IInspectorUIBehaviour
     {
-        private const string ACTIONS_PROPERTY_NAME = "TemplateActions"; // TODO: change this to RuntimeActions during playmode?
+        private const string ACTIONS_PROPERTY_NAME = "TemplateActions"; 
         private const string STATES_PROPERTY_NAME = "states";
 
         private StateMachineLayerRenderer editorUI;
@@ -29,7 +29,9 @@ namespace Utils.Core.Flow.Inspector
             serializedStateMachine = new SerializedObject(editorUI.StateMachineData.SerializedObject);
 
             int stateIndex = editorUI.StateMachineData.States.IndexOf(state);
-            SerializedProperty stateProperty = serializedStateMachine.FindProperty(STATES_PROPERTY_NAME).GetArrayElementAtIndex(stateIndex);
+            SerializedProperty stateProperty = (serializedStateMachine.targetObject is StateMachineMonoBehaviour)
+                ? serializedStateMachine.FindProperty("Data").FindPropertyRelative(STATES_PROPERTY_NAME).GetArrayElementAtIndex(stateIndex)
+                : serializedStateMachine.FindProperty(STATES_PROPERTY_NAME).GetArrayElementAtIndex(stateIndex);
             actionsProperty = stateProperty.FindPropertyRelative(ACTIONS_PROPERTY_NAME);
         }
 
@@ -79,7 +81,9 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnSetEntryStateButtonPressedEvent()
         {
+            Undo.RecordObject(serializedStateMachine.targetObject, "Set Entry State");
             editorUI.StateMachineData.SetEntryState(state);
+            EditorUtility.SetDirty(serializedStateMachine.targetObject);
         }
 
         private void OnAddNewButtonPressedEvent()

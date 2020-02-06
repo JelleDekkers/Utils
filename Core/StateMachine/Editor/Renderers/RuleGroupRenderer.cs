@@ -275,7 +275,7 @@ namespace Utils.Core.Flow
             }
             else
             {
-                if (Application.isPlaying && stateRenderer.IsCurrentlyRunning())
+                if (Application.isPlaying && stateRenderer.StateIsActive())
                 {
                     for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
                     {
@@ -305,7 +305,7 @@ namespace Utils.Core.Flow
             ruleRect = new Rect(groupRect.x, groupRect.y + groupRect.height, groupRect.width, (int)heightNeeded);
 
             style.normal.textColor = Color.black;
-            if (Application.isPlaying && stateRenderer.IsCurrentlyRunning()) 
+            if (Application.isPlaying && stateRenderer.StateIsActive()) 
             {
                 if (rule == null || rule.IsValid)
                 {

@@ -4,7 +4,7 @@ using Utils.Core.Injection;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for handling <see cref="StateMachineScriptableObjectData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s
+    /// Class for handling <see cref="IStateMachineData"/> logic during runtime such as evaluating <see cref="Rule"/>s and transitioning <see cref=" State"/>s
     /// Layers can be stacked on top of eachother to handle different flows and to prevent merge conflicts with version control
     /// </summary>
     public class StateMachineLayer
