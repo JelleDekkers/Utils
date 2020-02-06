@@ -18,7 +18,7 @@ namespace Utils.Core.Flow.Inspector
             this.editorUI = editorUI;
 
             Undo.undoRedoPerformed += Refresh;
-            StateMachineEditorUtility.ObjectResetEvent += OnObjectResetEvent;
+            StateMachineEditorUtility.StateActionResetEvent += OnObjectResetEvent;
         }
 
         public void OnInspectorGUI(Event e)
@@ -102,10 +102,10 @@ namespace Utils.Core.Flow.Inspector
         {
             uiBehaviour = null;
             Undo.undoRedoPerformed -= Refresh;
-            StateMachineEditorUtility.ObjectResetEvent -= OnObjectResetEvent;
+            StateMachineEditorUtility.StateActionResetEvent -= OnObjectResetEvent;
         }
 
-        private void OnObjectResetEvent(IStateMachineData obj)
+        private void OnObjectResetEvent(State state)
         {
             if (uiBehaviour != null)
             {
