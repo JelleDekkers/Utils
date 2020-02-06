@@ -5,11 +5,11 @@ using Utils.Core.Services;
 namespace Utils.Core.Flow.Services
 {
     /// <summary>
-    /// Manager service for keepting track of spawned GameObjects and their users
+    /// Manager service for keeping track of spawned GameObjects and their users
     /// When adding a new scope for a prefab, if the prefab is not in <see cref="instanceScopeTable"/> a new instance will be created
     /// When removing a scope and the instance has no more users it will be destroyed
     /// </summary>
-    public class ScopedGameObjectManager : IService
+    public class ScopedGameObjectService : IService
     {
         private class InstanceScope
         {

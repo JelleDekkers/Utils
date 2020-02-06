@@ -3,7 +3,7 @@
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// State Machine for local scene references. Does not work on assets and will therefore always be 1 <see cref="StateMachineLayer"/>
+    /// State Machine for local scene references. Does not work with assets and will therefore always have only one instance available <see cref="StateMachineLayer"/>
     /// </summary>
     public class StateMachineMonoBehaviour : MonoBehaviour
     {

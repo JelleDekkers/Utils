@@ -193,7 +193,7 @@ namespace Utils.Core.Flow
             {
                 if (canvasBottomToolbarStyle == null)
                 {
-                    canvasBottomToolbarStyle = new GUIStyle("Toolbar");
+                    canvasBottomToolbarStyle = new GUIStyle("label");
                     canvasBottomToolbarStyle.alignment = TextAnchor.MiddleRight;
                     canvasBottomToolbarStyle.normal.background = null;
                     canvasBottomToolbarStyle.padding = new RectOffset(0, 5, 0, 1);

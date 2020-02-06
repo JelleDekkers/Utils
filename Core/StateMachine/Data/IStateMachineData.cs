@@ -7,6 +7,10 @@ namespace Utils.Core.Flow
         State EntryState { get; }
         List<State> States { get; }
         string Name { get; }
+
+        /// <summary>
+        /// The object/asset Unity uses for serialization 
+        /// </summary>
         UnityEngine.Object SerializedObject { get; }
 
         void AddState(State state);

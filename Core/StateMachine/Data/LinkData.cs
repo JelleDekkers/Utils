@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Container class for serializing the required link data between 2 <see cref="State"/>s in the StateMachine Editor
+    /// Container class for serializing the visual link data between 2 <see cref="State"/>s in the StateMachine Editor
     /// </summary>
     [Serializable]
     public class LinkData

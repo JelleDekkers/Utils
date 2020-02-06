@@ -4,30 +4,22 @@ using UnityEngine;
 namespace Utils.Core.Flow
 {
     /// <summary>
-    /// Class for handling multiple rules, when all <see cref="Rules"/> are valid, the stateMachine can transition to <see cref="Destination"/>
+    /// Class for handling multiple rules, when all <see cref="Rules"/> are valid, the stateMachine can transition to <see cref="DestinationID"/>
     /// </summary>
     [System.Serializable]
     public class RuleGroup
     {
-        public List<Rule> Rules = new List<Rule>();
+        public List<Rule> TemplateRules = new List<Rule>();
+        public List<Rule> RuntimeRules { get; private set; }
 
-        public int Destination = -1;
+        public int DestinationID = -1;
         public LinkData linkData = new LinkData();
-
-        public void Initialize()
-        {
-            List<Rule> copiedRules = Rules;
-            for (int i = 0; i < Rules.Count; i++)
-            {
-                Rules[i] = Object.Instantiate(copiedRules[i]);
-            }
-        }
 
         public bool AllRulesAreValid()
         {
-            for (int i = 0; i < Rules.Count; i++)
+            for (int i = 0; i < RuntimeRules.Count; i++)
             {
-                if (!Rules[i].IsValid)
+                if (!RuntimeRules[i].IsValid)
                 {
                     return false;
                 }
@@ -38,17 +30,26 @@ namespace Utils.Core.Flow
 
         public void SetDestination(State state)
         {
-            Destination = state.ID;
+            DestinationID = state.ID;
         }
 
         public void OnActivate()
         {
-
+            CreateRuntimeRules();
         }
 
         public void OnDeactivatie()
         {
+            RuntimeRules = null;
+        }
 
+        private void CreateRuntimeRules()
+        {
+            RuntimeRules = new List<Rule>(TemplateRules.Count);
+            for (int i = 0; i < TemplateRules.Count; i++)
+            {
+                RuntimeRules.Add(Object.Instantiate(TemplateRules[i]));
+            }
         }
     }
 }

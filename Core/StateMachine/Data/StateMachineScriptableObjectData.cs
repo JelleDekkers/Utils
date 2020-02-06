@@ -11,30 +11,16 @@ namespace Utils.Core.Flow
     [Serializable]
     public class StateMachineScriptableObjectData : ScriptableObject, IStateMachineData
     {
-        [SerializeField] private int entryStateID;
         public State EntryState => FindEntryState();
+        [SerializeField] private int entryStateID;
 
+        public List<State> States => states;
         [SerializeField] private List<State> states = new List<State>();
-        public List<State> States
-        {
-            get { return states; }
-            set { states = value; }
-        }
 
         public string Name => GetType().Name;
         public UnityEngine.Object SerializedObject => this;
 
-        private Dictionary<int, State> statesTable;
-
-        private void Initialize()
-        {
-            foreach (State state in states)
-            {
-                state.Initialize();
-            }
-
-            UpdateStatesTable();
-        }
+        private Dictionary<int, State> statesLookupTable;
 
         public void AddState(State state)
         {
@@ -43,9 +29,13 @@ namespace Utils.Core.Flow
                 SetEntryState(state);
             }
 
+            if(statesLookupTable == null)
+            {
+                RefreshStatesTable();
+            }
+
             states.Add(state);
-            statesTable.Add(state.ID, state);
-            UpdateStatesTable();
+            statesLookupTable.Add(state.ID, state);
         }
 
         public void SetEntryState(State state)
@@ -56,12 +46,25 @@ namespace Utils.Core.Flow
         // TODO: use either this one or at statemachineEditorUtility
         public void RemoveState(State state)
         {
-            states.Remove(state);
-
-            if (statesTable.ContainsKey(state.ID))
+            if (statesLookupTable == null)
             {
-                statesTable.Add(state.ID, state);
-                UpdateStatesTable();
+                RefreshStatesTable();
+            }
+
+            if (statesLookupTable.ContainsKey(state.ID))
+            {
+                statesLookupTable.Remove(state.ID);
+            }
+
+            bool wasEntryState = state.ID == entryStateID;
+            states.Remove(state);
+            if (wasEntryState && States.Count > 0)
+            {
+                SetEntryState(States[0]);
+            }
+            else
+            {
+                entryStateID = -1;
             }
         }
 
@@ -78,27 +81,26 @@ namespace Utils.Core.Flow
 
         public State GetStateByID(int id)
         {
-            if(statesTable == null)
+            if(statesLookupTable == null)
             {
-                UpdateStatesTable();
+                RefreshStatesTable();
             }
 
-            return statesTable[id];
+            return statesLookupTable[id];
         }
 
-        private void UpdateStatesTable()
+        private void RefreshStatesTable()
         {
-            statesTable = new Dictionary<int, State>();
+            statesLookupTable = new Dictionary<int, State>();
             foreach (State state in states)
             {
-                statesTable.Add(state.ID, state);
+                statesLookupTable.Add(state.ID, state);
             }
         }
 
         public IStateMachineData Copy()
         {
             StateMachineScriptableObjectData clone = Instantiate(this);
-            clone.Initialize();
             return clone;
         }
     }

@@ -35,13 +35,13 @@ namespace Utils.Core.Flow
         {
             CurrentState.OnStart();
 
-            foreach (StateAction action in CurrentState.Actions)
+            foreach (StateAction action in CurrentState.RuntimeActions)
             {
                 dependencyInjector.InjectMethod(action);
                 action.OnStarting();
             }
 
-            foreach (StateAction action in CurrentState.Actions)
+            foreach (StateAction action in CurrentState.RuntimeActions)
             {
                 action.OnStarted();
             }
@@ -50,7 +50,7 @@ namespace Utils.Core.Flow
             {
                 group.OnActivate();
 
-                foreach (Rule rule in group.Rules)
+                foreach (Rule rule in group.RuntimeRules)
                 {
                     dependencyInjector.InjectMethod(rule);
                     rule.OnActivate();
@@ -64,9 +64,9 @@ namespace Utils.Core.Flow
         {
             if (CurrentState == null) { return; }
 
-            for (int i = 0; i < CurrentState.Actions.Count; i++)
+            for (int i = 0; i < CurrentState.RuntimeActions.Count; i++)
             {
-                CurrentState.Actions[i].Update();
+                CurrentState.RuntimeActions[i].Update();
             }
 
             if (IsStateValidForTransition(CurrentState, out State newState, out RuleGroup ruleGroup))
@@ -107,7 +107,7 @@ namespace Utils.Core.Flow
             {
                 if (ruleGroup.AllRulesAreValid())
                 {
-                    newState = manager.CurrentLayer.Data.GetStateByID(ruleGroup.Destination);
+                    newState = manager.CurrentLayer.Data.GetStateByID(ruleGroup.DestinationID);
                     validRuleGroup = ruleGroup;
                     return true;
                 }
@@ -132,7 +132,7 @@ namespace Utils.Core.Flow
                 newState.OnStart();
 
                 // newState OnStarting
-                foreach (StateAction action in newState.Actions)
+                foreach (StateAction action in newState.RuntimeActions)
                 {
                     dependencyInjector.InjectMethod(action);
                     action.OnStarting();
@@ -142,7 +142,7 @@ namespace Utils.Core.Flow
             if (prevState != null)
             {
                 // prevState OnStopping
-                foreach (StateAction action in prevState.Actions)
+                foreach (StateAction action in prevState.RuntimeActions)
                 {
                     action.OnStopping();
                 }
@@ -151,7 +151,7 @@ namespace Utils.Core.Flow
             if (newState != null)
             {
                 // newState OnStarted
-                foreach (StateAction action in newState.Actions)
+                foreach (StateAction action in newState.RuntimeActions)
                 {
                     action.OnStarted();
                 }
@@ -161,7 +161,7 @@ namespace Utils.Core.Flow
                 {
                     group.OnActivate();
 
-                    foreach (Rule rule in group.Rules)
+                    foreach (Rule rule in group.RuntimeRules)
                     {
                         dependencyInjector.InjectMethod(rule);
                         rule.OnActivate();
@@ -172,7 +172,7 @@ namespace Utils.Core.Flow
             if (prevState != null)
             {
                 // prevState OnStopped
-                foreach (StateAction action in prevState.Actions)
+                foreach (StateAction action in prevState.RuntimeActions)
                 {
                     action.OnStopped();
                 }
@@ -180,7 +180,7 @@ namespace Utils.Core.Flow
                 // prevState Rules OnDeactivate
                 foreach (RuleGroup group in prevState.RuleGroups)
                 {
-                    foreach (Rule rule in group.Rules)
+                    foreach (Rule rule in group.RuntimeRules)
                     {
                         rule.OnDeactivate();
                     }
@@ -197,19 +197,19 @@ namespace Utils.Core.Flow
 
         public void OnClose(State newState = null)
         {
-            foreach (StateAction action in CurrentState.Actions)
+            foreach (StateAction action in CurrentState.RuntimeActions)
             {
                 action.OnStopping();
             }
 
-            foreach (StateAction action in CurrentState.Actions)
+            foreach (StateAction action in CurrentState.RuntimeActions)
             {
                 action.OnStopped();
             }
 
             foreach (RuleGroup group in CurrentState.RuleGroups)
             {
-                foreach (Rule rule in group.Rules)
+                foreach (Rule rule in group.RuntimeRules)
                 {
                     rule.OnDeactivate();
                 }

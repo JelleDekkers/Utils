@@ -49,7 +49,7 @@ namespace Utils.Core.Flow
                 linkRenderer.ProcessEvents(e);
             }
 
-            if(RuleGroup.Destination != -1)
+            if(RuleGroup.DestinationID != -1)
             {
                 ProcessEventsOnConnectedLink(e);
             }
@@ -93,7 +93,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
-                        stateRenderer.Node.RemoveRuleGroup(RuleGroup);
+                        stateRenderer.Node.RemoveRuleGroup(RuleGroup, editorUI.StateMachineData);
                         e.Use();
                         return;
                     }
@@ -172,7 +172,7 @@ namespace Utils.Core.Flow
         {
             if (editorUI.IsStateAtPosition(e.mousePosition, out StateRenderer hoveredStateRenderer))
             {
-                if (hoveredStateRenderer.Node.ID != RuleGroup.Destination)
+                if (hoveredStateRenderer.Node.ID != RuleGroup.DestinationID)
                 {
                     //Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
                 }
@@ -181,7 +181,7 @@ namespace Utils.Core.Flow
             }
             else
             {
-                if (RuleGroup.Destination != -1)
+                if (RuleGroup.DestinationID != -1)
                 {
                     //Undo.RegisterCompleteObjectUndo(stateRenderer.Node, "Set RuleGroup Destination");
                 }
@@ -197,7 +197,7 @@ namespace Utils.Core.Flow
         private void DeleteRule()
         {
             RuleGroup.linkData = new LinkData();
-            stateRenderer.Node.RemoveRuleGroup(RuleGroup);
+            stateRenderer.Node.RemoveRuleGroup(RuleGroup, editorUI.StateMachineData);
         }
         #endregion
 
@@ -209,16 +209,16 @@ namespace Utils.Core.Flow
 
             menu.AddSeparator("");
 
-            if (RuleGroup.Rules.Count > 0)
+            if (RuleGroup.TemplateRules.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear(stateRenderer.Node));
+                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear(editorUI.StateMachineData));
             }
             else
             {
                 menu.AddDisabledItem(new GUIContent("Clear"));
             }
 
-            if (RuleGroup.Destination != -1)
+            if (RuleGroup.DestinationID != -1)
             {
                 menu.AddItem(new GUIContent("Reset link curve"), false, () => linkRenderer.Reset());
             }
@@ -256,9 +256,9 @@ namespace Utils.Core.Flow
 
         public void DrawLink()
         {
-            if (RuleGroup.Destination != -1 && !isDraggingLink)
+            if (RuleGroup.DestinationID != -1 && !isDraggingLink)
             {
-                State destinationState = editorUI.StateMachineData.GetStateByID(RuleGroup.Destination);
+                State destinationState = editorUI.StateMachineData.GetStateByID(RuleGroup.DestinationID);
                 Vector2 destinationPoint = new Vector2(destinationState.Position.x, destinationState.Position.y + StateRenderer.HEADER_HEIGHT / 2);
                 Color color = (IsSelected) ? NodeGUIStyles.LINK_COLOR_SELECTED : NodeGUIStyles.LINK_COLOR;
                 DrawLink(LinkSourcePoint, destinationPoint, color);
@@ -268,7 +268,7 @@ namespace Utils.Core.Flow
         {
             Rect = new Rect(position.x, position.y, width, 0);
 
-            if (RuleGroup.Rules.Count == 0)
+            if (RuleGroup.TemplateRules.Count == 0)
             {
                 DrawRule(Rect, out Rect ruleRect);
                 Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
@@ -277,17 +277,17 @@ namespace Utils.Core.Flow
             {
                 if (Application.isPlaying && stateRenderer.IsCurrentlyRunning())
                 {
-                    for (int i = 0; i < RuleGroup.Rules.Count; i++)
+                    for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
                     {
-                        DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
+                        DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
                         Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < RuleGroup.Rules.Count; i++)
+                    for (int i = 0; i < RuleGroup.TemplateRules.Count; i++)
                     {
-                        DrawRule(Rect, out Rect ruleRect, RuleGroup.Rules[i]);
+                        DrawRule(Rect, out Rect ruleRect, RuleGroup.TemplateRules[i]);
                         Rect = new Rect(Rect.x, Rect.y, Rect.width, (Rect.height + ruleRect.height));
                     }
                 }
@@ -318,7 +318,7 @@ namespace Utils.Core.Flow
 
         private void DrawNodeKnob()
         {
-            Color knobColor = (RuleGroup.Destination != -1) ? NodeGUIStyles.KNOB_COLOR_LINKED : NodeGUIStyles.KNOB_COLOR_EMPTY;
+            Color knobColor = (RuleGroup.DestinationID != -1) ? NodeGUIStyles.KNOB_COLOR_LINKED : NodeGUIStyles.KNOB_COLOR_EMPTY;
 
             DrawHelper.DrawRuleHandleKnob(
                 new Rect(Rect.x + Rect.width - 0.5f, Rect.y + Rect.height / 2, Rect.width, Rect.height),

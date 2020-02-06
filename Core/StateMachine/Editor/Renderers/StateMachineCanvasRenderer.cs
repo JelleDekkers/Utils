@@ -21,7 +21,7 @@ namespace Utils.Core.Flow
         public Vector2 ScrollViewDrag { get; private set; }
         public Rect windowRect = new Rect(0, 0, 0, MIN_WINDOW_HEIGHT);
 
-        private readonly Color backgroundColor = new Color(0.8f, 0.8f, 0.8f);
+        private readonly Color backgroundColor = new Color(0.9f, 0.9f, 0.9f);
         private readonly Color gridPrimaryColor = new Color(0, 0, 0, 0.18f);
         private readonly Color gridSecondaryColor = new Color(0, 0, 0, 0.2f);
         private readonly float gridPrimarySpacing = 20f;
@@ -230,7 +230,7 @@ namespace Utils.Core.Flow
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                (EditorUI.Selection as StateRenderer).Node.ClearActions();
+                (EditorUI.Selection as StateRenderer).Node.ClearActions(EditorUI.StateMachineData);
             }
             GUI.enabled = true;
 

@@ -6,21 +6,70 @@ namespace Utils.Core.Flow.Inspector
 {
     public static class InspectorUIUtility
     {
-        public static void DrawPropertyFields(SerializedObject serializedObject, string propertyName, GenericMenu.MenuFunction2 contextMenuPressedCallback = null)
+        /// <summary>
+        /// Draws all properties inside an array
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="index"></param>
+        public static void DrawArrayPropertyField(SerializedProperty property, int index, GenericMenu.MenuFunction2 contextMenuPressedCallback = null)
         {
-            SerializedProperty property = serializedObject.FindProperty(propertyName);
-            DrawPropertyFields(property, contextMenuPressedCallback);
-        }
-
-        public static void DrawPropertyFields(SerializedProperty serializedProperty, GenericMenu.MenuFunction2 contextMenuPressedCallback = null)
-        {
-            for (int i = 0; i < serializedProperty.arraySize; i++)
+            if(!property.isArray)
             {
-                //if (i != 0) { DrawHorizontalLine(); }
-                DrawPropertyArrayField(serializedProperty, i, contextMenuPressedCallback);
+                Debug.LogWarning(property.displayName + " is not an array");
+                return;
             }
 
-            if (serializedProperty.arraySize == 0)
+            if (property.arraySize > 0)
+            {
+                property = property.GetArrayElementAtIndex(index);
+                if (property.objectReferenceValue == null) { return; }
+
+                Rect header = EditorGUILayout.BeginHorizontal(NodeGUIStyles.InspectorStyle);
+                header.x += 3;
+                property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, GUIContent.none, true);
+
+                EditorGUI.LabelField(header, NicifyPropertyName(property), NodeGUIStyles.FieldNameLabelStyle);
+                if (contextMenuPressedCallback != null)
+                {
+                    DrawContextMenuDropdown(index, property.objectReferenceValue as ScriptableObject, contextMenuPressedCallback);
+                }
+                EditorGUILayout.EndHorizontal();
+
+                if (!property.isExpanded) { return; }
+                EditorGUI.indentLevel++;
+
+                SerializedObject obj = new SerializedObject(property.objectReferenceValue);
+                if (obj == null) { return; }
+
+                SerializedProperty field = obj.GetIterator();
+                field.NextVisible(true);
+
+                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+                EditorGUI.indentLevel++;
+
+                field = obj.GetIterator();
+                field.NextVisible(true);
+
+                EditorGUIUtility.labelWidth = header.width / 2.5f;
+                while (field.NextVisible(false))
+                {
+                    try
+                    {
+                        EditorGUILayout.PropertyField(field, true);
+                    }
+                    catch (StackOverflowException)
+                    {
+                        field.objectReferenceValue = null;
+                        Debug.LogError("Detected self-nesting causing a StackOverflowException, avoid using the same object inside a nested structure.");
+                    }
+                }
+
+                obj.ApplyModifiedProperties();
+
+                EditorGUI.indentLevel -= 2;
+                EditorGUILayout.EndVertical();
+            }
+            else
             {
                 GUIStyle style = new GUIStyle("Label");
                 style.alignment = TextAnchor.UpperLeft;
@@ -29,63 +78,7 @@ namespace Utils.Core.Flow.Inspector
         }
 
         /// <summary>
-        /// Draws all properties inside <see cref="property"/> from an array
-        /// </summary>
-        /// <param name="property"></param>
-        /// <param name="index"></param>
-        public static void DrawPropertyArrayField(SerializedProperty property, int index, GenericMenu.MenuFunction2 contextMenuPressedCallback = null)
-        {
-            property = property.GetArrayElementAtIndex(index);
-            if (property.objectReferenceValue == null) { return; }
-
-            Rect header = EditorGUILayout.BeginHorizontal(NodeGUIStyles.InspectorStyle);
-            header.x += 3;
-            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, GUIContent.none, true);
-
-            EditorGUI.LabelField(header, NicifyPropertyName(property), NodeGUIStyles.FieldNameLabelStyle);
-            if (contextMenuPressedCallback != null)
-            {
-                DrawContextMenuDropdown(index, property.objectReferenceValue as ScriptableObject, contextMenuPressedCallback);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            if (!property.isExpanded) { return; }
-            EditorGUI.indentLevel++;
-
-            SerializedObject obj = new SerializedObject(property.objectReferenceValue);
-            if (obj == null) { return; }
-
-            SerializedProperty field = obj.GetIterator();
-            field.NextVisible(true);
-
-            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            EditorGUI.indentLevel++;
-
-            field = obj.GetIterator();
-            field.NextVisible(true);
-
-            EditorGUIUtility.labelWidth = header.width / 2.5f;
-            while (field.NextVisible(false))
-            {
-                try
-                {
-                    EditorGUILayout.PropertyField(field, true);
-                }
-                catch (StackOverflowException)
-                {
-                    field.objectReferenceValue = null;
-                    Debug.LogError("Detected self-nesting causing a StackOverflowException, avoid using the same object inside a nested structure.");
-                }
-            }
-
-            obj.ApplyModifiedProperties();
-
-            EditorGUI.indentLevel -= 2;
-            EditorGUILayout.EndVertical();
-        }
-
-        /// <summary>
-        /// Draws all properties of <see cref="TargetObject"/>.
+        /// Draws all properties of <see cref="TargetObject"/> like a normal editor inspector would.
         /// </summary>
         public static void DrawAllProperties(SerializedObject targetObject)
         {
@@ -137,7 +130,10 @@ namespace Utils.Core.Flow.Inspector
 
         public static void DrawHorizontalLine(float height = 1)
         {
+            Color prevColor = GUI.color;
+            GUI.color = Color.black;
             GUILayout.Box(GUIContent.none, GUILayout.MaxWidth(Screen.width), GUILayout.Height(height));
+            GUI.color = prevColor;
         }
 
         public static void DrawHeader(string title, params Action[] extraContent)
@@ -146,29 +142,21 @@ namespace Utils.Core.Flow.Inspector
             style.fontSize = 13;
 
             EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(title, style);
             for (int i = 0; i < extraContent.Length; i++)
             {
                 extraContent[i].Invoke();
             }
-            EditorGUILayout.LabelField(title, style);
             EditorGUILayout.EndHorizontal();
         }
 
-        public static void DrawAddNewButton(Action buttonPressedEvent)
+        public static void DrawAddNewButton(Action buttonPressedEvent, string tooltipText = "")
         {
-            GUIStyle style = new GUIStyle();
-            style.normal.background = GUI.skin.button.normal.background;
-            style.padding.left = 1;
-            style.margin.top = 3;
-            Color prevColor = GUI.backgroundColor;
-            GUI.backgroundColor = Color.green;
-
-            if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), style, GUILayout.MaxWidth(18)))
+            GUIStyle style = new GUIStyle("Button");
+            if (GUILayout.Button(new GUIContent("Add New", tooltipText), style, GUILayout.Width(90)))
             {
                 buttonPressedEvent.Invoke();
             }
-
-            GUI.backgroundColor = prevColor;
         }
 
         public static void OpenTypeFilterWindow(Type type, Action<Type> typeSelectedEvent)

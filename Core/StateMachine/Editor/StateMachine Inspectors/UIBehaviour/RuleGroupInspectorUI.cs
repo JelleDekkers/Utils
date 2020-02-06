@@ -8,13 +8,18 @@ namespace Utils.Core.Flow.Inspector
     [CustomInspectorUI(typeof(RuleGroup))]
     public class RuleGroupInspector : IInspectorUIBehaviour
     {
-        private const string RULES_PROPERTY_NAME = "Rules";
+        private const string RULES_PROPERTY_NAME = "TemplateRules"; // TODO: change this during playmode?
+        private const string STATES_PROPERTY_NAME = "states";
+        private const string RULEGROUPS_PROPERTY_NAME = "RuleGroups";
 
         private StateMachineLayerRenderer editorUI;
         private SerializedObject serializedStateMachine;
         private SerializedProperty ruleGroupProperty;
         private State state;
         private RuleGroup ruleGroup;
+
+        private SerializedProperty rulesProperty;
+        private int ruleGroupIndex;
 
         public RuleGroupInspector(StateMachineLayerRenderer editorUI, State state, RuleGroup ruleGroup)
         {
@@ -29,14 +34,17 @@ namespace Utils.Core.Flow.Inspector
         {
             serializedStateMachine = new SerializedObject(editorUI.StateMachineData.SerializedObject);
 
-            for (int i = 0; i < state.RuleGroups.Count; i++)
+            SerializedProperty statesProperty = serializedStateMachine.FindProperty(STATES_PROPERTY_NAME);
+            int stateIndex = editorUI.StateMachineData.States.IndexOf(state);
+            SerializedProperty correctStateProperty = statesProperty.GetArrayElementAtIndex(stateIndex);
+            SerializedProperty ruleGroupsProperty = correctStateProperty.FindPropertyRelative(RULEGROUPS_PROPERTY_NAME);
+
+            for (int i = 0; i < ruleGroupsProperty.arraySize; i++)
             {
                 if (state.RuleGroups[i] == ruleGroup)
                 {
-                    // TODO: fix this
-                    //SerializedProperty correctRuleGroup = serializedStateObject.FindProperty("RuleGroups").GetArrayElementAtIndex(i);
-                    //ruleGroupProperty = correctRuleGroup.FindPropertyRelative(PROPERTY_NAME);
-                    break;
+                    ruleGroupIndex = i;
+                    rulesProperty = ruleGroupsProperty.GetArrayElementAtIndex(ruleGroupIndex).FindPropertyRelative(RULES_PROPERTY_NAME);
                 }
             }
         }
@@ -44,31 +52,10 @@ namespace Utils.Core.Flow.Inspector
         public void OnInspectorGUI(Event e)
         {
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
-            InspectorUIUtility.DrawHeader("Rules", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent));
+            InspectorUIUtility.DrawHeader("Rules", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent, "Add new Rule"));
             InspectorUIUtility.DrawHorizontalLine();
-            //InspectorUIUtility.DrawPropertyFields(ruleGroupProperty, OnContextMenuButtonPressed);
-
-
-            SerializedProperty statesProperty = serializedStateMachine.FindProperty("states");
-            int stateIndex = editorUI.StateMachineData.States.IndexOf(state);
-            SerializedProperty correctStateProperty = statesProperty.GetArrayElementAtIndex(stateIndex);
-            SerializedProperty ruleGroupsProperty = correctStateProperty.FindPropertyRelative("RuleGroups");
-            
-            for (int i = 0; i < ruleGroupsProperty.arraySize; i++)
-            {
-                if (state.RuleGroups[i] == ruleGroup)
-                {
-                    SerializedProperty rulesProperty = ruleGroupsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("Rules");
-                    InspectorUIUtility.DrawPropertyArrayField(rulesProperty, i);
-                }
-            }
-
+            InspectorUIUtility.DrawArrayPropertyField(rulesProperty, ruleGroupIndex, OnContextMenuButtonPressed);
             EditorGUILayout.EndVertical();
-        }
-
-        private void DrawRuleGroupUI(int index)
-        {
-
         }
 
         protected void OnAddNewButtonPressedEvent()
@@ -78,7 +65,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            ruleGroup.AddNewRule(type, editorUI.StateMachineData, null); // TODO: fix null
+            ruleGroup.AddNewRule(type, editorUI.StateMachineData);
             Refresh();
         }
 
@@ -113,7 +100,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            ruleGroup.RemoveRule(ruleGroup.Rules[result.Index], null); // TODO: fix null
+            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], editorUI.StateMachineData); 
             Refresh();
         }
 
@@ -126,9 +113,9 @@ namespace Utils.Core.Flow.Inspector
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {
             int newIndex = result.Index + (int)direction;
-            if (newIndex >= 0 && newIndex < ruleGroup.Rules.Count)
+            if (newIndex >= 0 && newIndex < ruleGroup.TemplateRules.Count)
             {
-                ruleGroup.Rules.ReorderItem(result.Index, newIndex);
+                ruleGroup.TemplateRules.ReorderItem(result.Index, newIndex);
             }
 
             Refresh();

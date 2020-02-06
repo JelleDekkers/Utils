@@ -105,7 +105,7 @@ namespace Utils.Core.Flow.Inspector
             StateMachineEditorUtility.ObjectResetEvent -= OnObjectResetEvent;
         }
 
-        private void OnObjectResetEvent(ScriptableObject obj)
+        private void OnObjectResetEvent(IStateMachineData obj)
         {
             if (uiBehaviour != null)
             {

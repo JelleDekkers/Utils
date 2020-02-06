@@ -14,9 +14,9 @@ namespace Utils.Core.Flow.DefaultActions
 		protected GameObject instance;
 
         protected DependencyInjector injector;
-        protected ScopedGameObjectManager scopedGameObjectManager;
+        protected ScopedGameObjectService scopedGameObjectManager;
 
-        public void InjectDependencies(DependencyInjector injector, ScopedGameObjectManager scopedGameObjectManager)
+        public void InjectDependencies(DependencyInjector injector, ScopedGameObjectService scopedGameObjectManager)
         {
             this.injector = injector;
             this.scopedGameObjectManager = scopedGameObjectManager;

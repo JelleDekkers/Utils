@@ -29,27 +29,15 @@ namespace Utils.Core.Flow
             set { id = value; }
         }
 
-        public List<StateAction> Actions = new List<StateAction>();
+        public List<StateAction> TemplateActions = new List<StateAction>();
+        public List<StateAction> RuntimeActions { get; private set; }
+
         public List<RuleGroup> RuleGroups = new List<RuleGroup>();
 
         public State(string name = DEFAULT_NAME)
         {
             id = GetHashCode();
             Title = name;
-        }
-
-        public void Initialize()
-        {
-            List<StateAction> copiedActions = Actions;
-            for (int i = 0; i < Actions.Count; i++)
-            {
-                Actions[i] = UnityEngine.Object.Instantiate(copiedActions[i]);
-            }
-
-            foreach(RuleGroup group in RuleGroups)
-            {
-                group.Initialize();
-            }
         }
 
         public override string ToString()
@@ -59,12 +47,23 @@ namespace Utils.Core.Flow
 
         public void OnStart()
         {
+            CreateRuntimeStateActions();
             IsActive = true;
         }
 
         public void OnExit()
         {
+            RuntimeActions = null;
             IsActive = false;
+        }
+
+        private void CreateRuntimeStateActions()
+        {
+            RuntimeActions = new List<StateAction>(TemplateActions.Count);
+            for (int i = 0; i < TemplateActions.Count; i++)
+            {
+                RuntimeActions.Add(UnityEngine.Object.Instantiate(TemplateActions[i]));
+            }
         }
     }
 }

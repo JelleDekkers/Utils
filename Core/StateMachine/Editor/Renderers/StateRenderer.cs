@@ -277,13 +277,13 @@ namespace Utils.Core.Flow
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Plus"), NodeGUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             { 
-                Node.AddNewRuleGroup();
+                Node.AddNewRuleGroup(layerRenderer.StateMachineData);
             }
 
             GUI.enabled = SelectedRuleGroup != null;
             if (GUILayout.Button(EditorGUIUtility.IconContent("Toolbar Minus"), NodeGUIStyles.StateToolbarButtonsStyle, GUILayout.MaxWidth(rect.width / buttonsAmount)))
             {
-                Node.RemoveRuleGroup(SelectedRuleGroup.RuleGroup);
+                Node.RemoveRuleGroup(SelectedRuleGroup.RuleGroup, layerRenderer.StateMachineData);
             }
             GUI.enabled = true;
 
@@ -318,17 +318,17 @@ namespace Utils.Core.Flow
 			menu.AddSeparator("");
 			menu.AddItem(new GUIContent("Delete"), false, () => layerRenderer.StateMachineData.RemoveState(Node));
 
-            if (Node.Actions.Count > 0)
+            if (Node.TemplateActions.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear Actions"), false, () => Node.ClearActions());
+                menu.AddItem(new GUIContent("Clear Actions"), false, () => Node.ClearActions(layerRenderer.StateMachineData));
             }
 
             if (Node.RuleGroups.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear Rules"), false, () => Node.ClearRules());
+                menu.AddItem(new GUIContent("Clear Rules"), false, () => Node.ClearRules(layerRenderer.StateMachineData));
             }
 
-            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => Node.AddNewRuleGroup());
+            menu.AddItem(new GUIContent("Add New Rulegroup"), false, () => Node.AddNewRuleGroup(layerRenderer.StateMachineData));
 
             //menu.AddItem(new GUIContent("Copy State"), false, () => DataObject.CopyDataToClipboard());
             //menu.AddItem(new GUIContent("Paste Rulegroup"), false, () => throw new NotImplementedException());
@@ -390,13 +390,14 @@ namespace Utils.Core.Flow
 
         public void OnDragStart(Event e)
         {
-            //Undo.RegisterCompleteObjectUndo(Node, "State Dragged");
-            //EditorUtility.SetDirty(Node);
+            Undo.RegisterCompleteObjectUndo(layerRenderer.StateMachineData.SerializedObject, "State Dragged");
 
             isDragging = true;
             dragStartPos = e.mousePosition;
             dragStartSelectionDif = dragStartPos - Node.Position;
             canDrag = false;
+
+            EditorUtility.SetDirty(layerRenderer.StateMachineData.SerializedObject);
         }
 
         public void OnDragEnd(Event e)
