@@ -8,7 +8,7 @@ namespace Utils.Core.Flow
     /// <summary>
     /// Class for rendering <see cref="Flow.RuleGroup"/>s on <see cref="StateMachineLayerRenderer"/>
     /// </summary>
-    public class RuleGroupRenderer : ISelectable, IDraggable
+    public class RuleGroupRenderer : ISelectable, IDraggable, IInspectable
     {
         private const float RULE_HEIGHT_SINGLE_LINE = 20f;
         private const float LINE_THICKNESS = 3f;
@@ -18,11 +18,10 @@ namespace Utils.Core.Flow
         public RuleGroup RuleGroup { get; private set; }
         public Rect Rect { get; private set; }
         public bool IsSelected { get; private set; }
-        
         private Vector2 LinkSourcePoint { get { return new Vector2(Rect.position.x + Rect.width, Rect.position.y + Rect.height / 2); } }
-        
+
         public StateRenderer stateRenderer;
-        private StateMachineLayerRenderer editorUI;
+        private StateMachineLayerRenderer layerRenderer;
         private Rect fullRect;
         private bool isDraggingLink;
         private LinkRenderer linkRenderer;
@@ -31,7 +30,7 @@ namespace Utils.Core.Flow
         {
             RuleGroup = ruleGroup;
             this.stateRenderer = stateRenderer;
-            this.editorUI = editorUI;
+            this.layerRenderer = editorUI;
 
             Rect = new Rect();
             linkRenderer = new LinkRenderer(RuleGroup.linkData);
@@ -93,7 +92,7 @@ namespace Utils.Core.Flow
                 case EventType.KeyDown:
                     if (IsSelected && e.keyCode == (KeyCode.Delete))
                     {
-                        stateRenderer.Node.RemoveRuleGroup(RuleGroup, editorUI.StateMachineData);
+                        stateRenderer.Node.RemoveRuleGroup(RuleGroup, layerRenderer.StateMachineData);
                         e.Use();
                         return;
                     }
@@ -133,20 +132,24 @@ namespace Utils.Core.Flow
             }
         }
 
+        public IInspectorUIBehaviour CreateInspectorBehaviour()
+        {
+            return new RuleGroupInspectorUIBehaviour(layerRenderer.StateMachineData, stateRenderer.Node, RuleGroup);
+        }
+
         #region Events
         public void OnSelect(Event e)
         {
             IsSelected = true;
-            editorUI.Select(this);
+            layerRenderer.Select(this);
             stateRenderer.SelectedRuleGroup = this;
-            editorUI.Inspector.Inspect(RuleGroup, new RuleGroupInspector(editorUI, stateRenderer.Node, RuleGroup));
             GUI.changed = true;
         }
 
         public void OnDeselect(Event e)
         {
             IsSelected = false;
-            editorUI.Deselect(this);
+            layerRenderer.Deselect(this);
             isDraggingLink = false;
 
             if(stateRenderer.SelectedRuleGroup == this)
@@ -170,7 +173,7 @@ namespace Utils.Core.Flow
 
         public void OnDragEnd(Event e)
         {
-            if (editorUI.IsStateAtPosition(e.mousePosition, out StateRenderer hoveredStateRenderer))
+            if (layerRenderer.IsStateAtPosition(e.mousePosition, out StateRenderer hoveredStateRenderer))
             {
                 if (hoveredStateRenderer.Node.ID != RuleGroup.DestinationID)
                 {
@@ -197,11 +200,11 @@ namespace Utils.Core.Flow
         private void DeleteRule()
         {
             RuleGroup.linkData = new LinkData();
-            stateRenderer.Node.RemoveRuleGroup(RuleGroup, editorUI.StateMachineData);
+            stateRenderer.Node.RemoveRuleGroup(RuleGroup, layerRenderer.StateMachineData);
         }
         #endregion
 
-        #region Drawing
+        #region Rendering
         private void ShowContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
@@ -211,7 +214,7 @@ namespace Utils.Core.Flow
 
             if (RuleGroup.TemplateRules.Count > 0)
             {
-                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear(editorUI.StateMachineData));
+                menu.AddItem(new GUIContent("Clear"), false, () => RuleGroup.Clear(layerRenderer.StateMachineData));
             }
             else
             {
@@ -258,7 +261,7 @@ namespace Utils.Core.Flow
         {
             if (RuleGroup.DestinationID != -1 && !isDraggingLink)
             {
-                State destinationState = editorUI.StateMachineData.GetStateByID(RuleGroup.DestinationID);
+                State destinationState = layerRenderer.StateMachineData.GetStateByID(RuleGroup.DestinationID);
                 Vector2 destinationPoint = new Vector2(destinationState.Position.x, destinationState.Position.y + StateRenderer.HEADER_HEIGHT / 2);
                 Color color = (IsSelected) ? NodeGUIStyles.LINK_COLOR_SELECTED : NodeGUIStyles.LINK_COLOR;
                 DrawLink(LinkSourcePoint, destinationPoint, color);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,10 +28,10 @@ namespace Utils.Core.Flow
         private readonly float gridPrimarySpacing = 20f;
         private readonly float gridSecondarySpacing = 100f;
 
+        private bool isDragging;
         private Rect scrollView; 
         private float zoomScale = 1f;
         private Vector2 dragStartPos;
-        private bool dragThresholdReached;
         private HorizontalResizeHandle resizeHandle;
 
         public StateMachineCanvasRenderer(StateMachineLayerRenderer editorUI)
@@ -80,6 +81,11 @@ namespace Utils.Core.Flow
             ProcessNodeRendererEvents(e);
             ProcessEvents(e);
 
+            //if (IsDraggingSelectionBox)
+            //{
+            //    DrawSelectionBox(e, canvasArea);
+            //}
+
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
@@ -96,12 +102,11 @@ namespace Utils.Core.Flow
                         break;
                     }
 
-                    if (e.button == 0)
+                    if (windowRect.Contains(e.mousePosition))
                     {
-                        if (windowRect.Contains(e.mousePosition))
+                        if (e.button == 0)
                         {
-                            dragStartPos = e.mousePosition;
-                            dragThresholdReached = false;
+                            OnDragStart(e);
                         }
                     }
 
@@ -109,14 +114,23 @@ namespace Utils.Core.Flow
                     break;
 
                 case EventType.MouseDrag:
-
-                    if (!EditorUI.ContextMenuIsOpen && e.button == 0)
+                    if (!EditorUI.ContextMenuIsOpen)
                     {
                         if (windowRect.Contains(e.mousePosition))
                         {
-                            Drag(e); 
-                            e.Use();
+                            if (e.button == 0)
+                            {
+                                OnDrag(e);
+                                e.Use();
+                            }
                         }
+                    }
+                    break;
+
+                case EventType.MouseUp:
+                    if (isDragging)
+                    {
+                        OnDragEnd(e);
                     }
                     break;
             }
@@ -153,15 +167,41 @@ namespace Utils.Core.Flow
             GUI.changed = true;
         }
 
-        private void Drag(Event e)
+        private void OnDragStart(Event e)
+        {
+            isDragging = true;
+            dragStartPos = e.mousePosition;
+        }
+
+        private void OnDragEnd(Event e)
+        {
+            isDragging = false;
+
+            //if(IsDraggingSelectionBox)
+            //{
+            //    OnSelectionBoxDragEnd(e);
+            //    IsDraggingSelectionBox = false;
+            //}
+        }
+
+        //private void OnSelectionBoxDragEnd(Event e)
+        //{
+        //    List<ISelectable> selectables = new List<ISelectable>();
+        //    foreach(StateRenderer state in EditorUI.NodeRenderers)
+        //    {
+        //        if(selectionBox.Contains(state.Node.Position))
+        //        {
+        //            selectables.Add(state);
+        //            //state.OnSelect(e);
+        //            EditorUI.Select(selectables.ToArray());
+        //        }
+        //    }
+        //}
+
+        private void OnDrag(Event e)
         {
             float dragDif = (dragStartPos - e.mousePosition).magnitude;
             if (dragDif > DRAG_THRESHOLD)
-            {
-                dragThresholdReached = true;
-            }
-
-            if (dragThresholdReached)
             {
                 Vector2 drag = ScrollViewDrag;
                 drag -= e.delta;
@@ -172,6 +212,22 @@ namespace Utils.Core.Flow
                 GUI.changed = true;
             }
         }
+
+        //private void DrawSelectionBox(Event e, Rect canvasArea)
+        //{
+        //    // TODO: implement dragThresholdReached
+        //    // TODO: use own color/texture
+
+        //    Vector2 drag = ScrollViewDrag;
+        //    drag -= e.delta;
+        //    drag.x = Mathf.Clamp(drag.x, 0, scrollView.width - windowRect.width);
+        //    drag.y = Mathf.Clamp(drag.y, 0, scrollView.height - windowRect.height);
+
+        //    Vector2 start = dragStartPos - scrollView.position;
+        //    Vector2 end = start - e.mousePosition;
+        //    selectionBox = new Rect(start, -end);
+        //    DrawHelper.DrawBoxOutline(selectionBox, NodeGUIStyles.HIGHLIGHT_OUTLINE_COLOR);
+        //}
 
         private void DrawGrid(float gridSpacing, Color gridColor)
         {
@@ -222,15 +278,15 @@ namespace Utils.Core.Flow
                 EditorUI.StateMachineData.CreateNewState(centre);
             }
 
-            GUI.enabled = EditorUI.Selection != null && EditorUI.Selection is StateRenderer;
+            GUI.enabled = EditorUI.CurrentSelected != null && EditorUI.CurrentSelected is StateRenderer;
             if (GUILayout.Button("Delete State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                EditorUI.StateMachineData.RemoveStateEditor((EditorUI.Selection as StateRenderer).Node);
+                EditorUI.StateMachineData.RemoveStateEditor((EditorUI.CurrentSelected as StateRenderer).Node);
             }
 
             if (GUILayout.Button("Reset State", EditorStyles.toolbarButton, GUILayout.MaxWidth(maxTabWidth)))
             {
-                (EditorUI.Selection as StateRenderer).Node.ClearActions(EditorUI.StateMachineData);
+                (EditorUI.CurrentSelected as StateRenderer).Node.ClearActions(EditorUI.StateMachineData);
             }
             GUI.enabled = true;
 

@@ -11,7 +11,7 @@ namespace Utils.Core.Flow
     /// </summary>
     public class StateMachineLayerRenderer
     {
-        public ISelectable Selection { get; private set; }
+        public ISelectable CurrentSelected { get; private set; }
         public IStateMachineData StateMachineData { get; private set; }
         public StateMachine StateMachine { get; private set; }
         public List<INodeRenderer<State>> NodeRenderers { get; private set; }
@@ -88,14 +88,14 @@ namespace Utils.Core.Flow
                 EditorGUILayout.LabelField("entry state " + StateMachineData.EntryState.Title);
             }
 
-            if (Selection != null)
+            if (CurrentSelected != null)
             {
-                EditorGUILayout.LabelField("selection " + Selection);
+                EditorGUILayout.LabelField("selection " + CurrentSelected);
 
-                if (Selection is StateRenderer)
+                if (CurrentSelected is StateRenderer)
                 {
-                    EditorGUILayout.LabelField("selection pos " + (Selection as StateRenderer).Node.Position);
-                    EditorGUILayout.LabelField("selection rect " + (Selection as StateRenderer).Rect);
+                    EditorGUILayout.LabelField("selection pos " + (CurrentSelected as StateRenderer).Node.Position);
+                    EditorGUILayout.LabelField("selection rect " + (CurrentSelected as StateRenderer).Rect);
                 }
             }
             EditorGUILayout.EndVertical();
@@ -131,7 +131,7 @@ namespace Utils.Core.Flow
                     NodeRenderers.Remove(renderer);
                     renderer.OnDestroy();
 
-                    if (Selection == renderer as ISelectable )
+                    if (CurrentSelected != null && CurrentSelected == renderer as ISelectable )
                     {
                         Deselect(renderer as ISelectable);
                     }
@@ -156,24 +156,30 @@ namespace Utils.Core.Flow
 
         public void Select(ISelectable selectable)
         {
-            if (Selection != selectable)
+            if (CurrentSelected != selectable)
             {
-                Selection = selectable;
+                CurrentSelected = selectable;
+
+                IInspectable inspectable = selectable as IInspectable;
+                if (inspectable != null)
+                {
+                    Inspector.Inspect(inspectable.CreateInspectorBehaviour());
+                }
             }
         }
 
         public void Deselect(ISelectable selectable)
         {
-            if(Selection == selectable)
+            if(CurrentSelected != null && CurrentSelected == selectable)
             {
-                Selection = null;
+                CurrentSelected = null;
                 Inspector.Clear();
             }
         }
 
         public void Refresh()
         {
-            Selection = null;
+            CurrentSelected = null;
             NodeRenderers.Clear();
             Inspector.Refresh();
 

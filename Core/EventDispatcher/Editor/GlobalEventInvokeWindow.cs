@@ -10,24 +10,24 @@ namespace Utils.Core
 	/// Editor window for manually invoking events of type <see cref="IEvent"/>
 	/// Will throw an error if the event does not have an empty constructor
 	/// </summary>
-    public class EventInvokeWindow
+    public class GlobalEventInvokeWindow
     {
         protected static TypeFilterWindow window;
-        protected static EventInvokeWindow instance;
-        protected static EventDispatcher eventDispatcher;
+        protected static GlobalEventInvokeWindow instance;
+        protected static GlobalEventDispatcher eventDispatcher;
 
         [MenuItem("Utils/EventInvokeWindow")]
         private static void Open()
         {
-            instance = new EventInvokeWindow();
+            instance = new GlobalEventInvokeWindow();
             instance.OpenFilterWindow<IEvent>();
 
-            eventDispatcher = GlobalServiceLocator.Instance.Get<EventDispatcher>();
+            eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
         }
 
         public virtual void OpenFilterWindow<T>() where T : IEvent
         {
-            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "EventInvokeWindow - Select an event to manually invoke (only types with default donstructors are supported)");
+            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke (only types with default donstructors are supported)");
             window.RetrieveTypesWithDefaultConstructors<T>(OnTypeSelectedEvent);
         }
 
@@ -40,12 +40,12 @@ namespace Utils.Core
 			try
 			{
 				@event = Activator.CreateInstance(type) as IEvent;
-				Debug.Log("EventInvokeWindow: invoking event of type: " + @event.GetType());
+				Debug.Log("GlobalEventInvokeWindow: invoking global event of type: " + @event.GetType());
 				eventDispatcher.Invoke(@event);
 			}
 			catch (Exception e)
 			{
-				Debug.LogErrorFormat("EventInvokeWindow: {0}", e);
+				Debug.LogErrorFormat("GlobalEventInvokeWindow: {0}", e);
 			}
         }
     }

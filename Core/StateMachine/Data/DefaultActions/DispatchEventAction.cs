@@ -12,17 +12,19 @@ namespace Utils.Core.Flow.DefaultActions
     public class DispatchEventAction : StateAction
     {
         [ClassTypeImplements(typeof(IEvent)), SerializeField] private ClassTypeReference eventType = null;
-
+        [SerializeField] private bool global = false;
         [Tooltip("Optional delay in seconds")]
         [SerializeField] private float delayInSeconds = 0;
 
         private EventDispatcher eventDispatcher;
         private CoroutineService coroutineService;
+        private GlobalEventDispatcher globalEventDispatcher;
 
-        public void InjectDependencies(EventDispatcher eventDispatcher, CoroutineService coroutineService)
+        public void InjectDependencies(EventDispatcher eventDispatcher, CoroutineService coroutineService, GlobalEventDispatcher globalEventDispatcher)
         {
             this.eventDispatcher = eventDispatcher;
             this.coroutineService = coroutineService;
+            this.globalEventDispatcher = globalEventDispatcher;
         }
 
         public override void OnStarted()
@@ -46,6 +48,11 @@ namespace Utils.Core.Flow.DefaultActions
         private void InvokeEvent()
         {
             eventDispatcher.Invoke((IEvent)Activator.CreateInstance(eventType));
+
+            if (global)
+            {
+                globalEventDispatcher.Invoke((IEvent)Activator.CreateInstance(eventType));
+            }
         }
     }
 }

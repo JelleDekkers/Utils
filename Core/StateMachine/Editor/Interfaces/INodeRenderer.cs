@@ -2,7 +2,7 @@
 
 namespace Utils.Core.Flow
 {
-    public interface INodeRenderer<T> : ISelectable, IDraggable where T : INode
+    public interface INodeRenderer<T> where T : INode
     {
         Rect Rect { get; }
         T Node { get; }

@@ -31,14 +31,14 @@ namespace Utils.Core.Flow.Inspector
             uiBehaviour?.OnInspectorGUI(e);
         }
 
-        public void Inspect(object target, IInspectorUIBehaviour uiBehaviour)
+        public void Inspect(IInspectorUIBehaviour uiBehaviour = null)
         {
             // This is needed to prevent UI errors 
             void InspectOnLayoutEvent()
             {
-                if (editorUI.ShowDebug)
+                if (editorUI.ShowDebug || uiBehaviour == null)
                 {
-                    this.uiBehaviour = new InspectorUIFallbackBehaviour(editorUI, new SerializedObject(editorUI.StateMachineData.SerializedObject));
+                    this.uiBehaviour = new InspectorUIFallbackBehaviour(editorUI.StateMachineData, new SerializedObject(editorUI.StateMachineData.SerializedObject));
                 }
                 else
                 {

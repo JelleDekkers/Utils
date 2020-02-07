@@ -14,11 +14,13 @@ namespace Utils.Core.Flow.DefaultRules
         public override string DisplayName => (eventType != null && eventType.Type != null) ? "On " + eventType.Name : "No Event Picked!";
 
         [ClassTypeImplements(typeof(IEvent)), SerializeField] private ClassTypeReference eventType = null;
+        [SerializeField] private bool globalEvent = false;
+
         private EventDispatcher eventDispatcher;
 
-        public void InjectDependencies(EventDispatcher eventDispatcher)
+        public void InjectDependencies(EventDispatcher eventDispatcher, GlobalEventDispatcher globalEventDispatcher)
         {
-            this.eventDispatcher = eventDispatcher;
+            this.eventDispatcher = (globalEvent) ? globalEventDispatcher : eventDispatcher;
         }
 
         public override void OnActivate()

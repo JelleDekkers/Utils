@@ -88,6 +88,11 @@ namespace Utils.Core.Flow
                 RefreshStatesTable();
             }
 
+            if(!statesLookupTable.ContainsKey(id))
+            {
+                RefreshStatesTable();
+            }
+
             return statesLookupTable[id];
         }
 

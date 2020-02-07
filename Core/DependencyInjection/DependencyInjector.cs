@@ -121,7 +121,7 @@ namespace Utils.Core.Injection
         /// <typeparam name="T"></typeparam>
         /// <param name="prefab"></param>
         /// <returns></returns>
-        private T InstantiateGameObject<T>(T prefab) where T : MonoBehaviour
+        public T InstantiateGameObject<T>(T prefab) where T : MonoBehaviour
         {
             bool wasActive = prefab.gameObject.activeSelf;
             prefab.gameObject.SetActive(false);

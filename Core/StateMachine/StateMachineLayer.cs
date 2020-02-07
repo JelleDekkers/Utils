@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils.Core.Events;
 using Utils.Core.Injection;
 
 namespace Utils.Core.Flow
@@ -14,21 +15,22 @@ namespace Utils.Core.Flow
         public IStateMachineData Data { get; private set; }
         public State CurrentState { get; private set; }
 
-        private readonly StateMachine manager;
+        private readonly StateMachine stateMachineInstance;
         private readonly DependencyInjector dependencyInjector;
 
-        public StateMachineLayer(StateMachine manager, IStateMachineData data, DependencyInjector injector = null)
+        public StateMachineLayer(StateMachine stateMachineInstance, IStateMachineData data, DependencyInjector injector = null)
         {
             Data = data.Copy();
-            this.manager = manager;
+            this.stateMachineInstance = stateMachineInstance;
 
             if (Data.EntryState != null)
             {
                 CurrentState = Data.EntryState;
             }
 
-            dependencyInjector = (injector != null) ? injector : new DependencyInjector();
+            dependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
             dependencyInjector.RegisterInstance<StateMachineLayer>(this);
+            dependencyInjector.RegisterInstance<EventDispatcher>(new EventDispatcher("SM Layer: " + data.Name));
         }
 
         public void Start(State prevCurrentState = null)
@@ -82,12 +84,12 @@ namespace Utils.Core.Flow
 
         public void AddNewLayer(StateMachineScriptableObjectData data)
         {
-            WaitUntillTransitionDone(() => manager.AddNewLayerToStack(data));
+            WaitUntillTransitionDone(() => stateMachineInstance.AddNewLayerToStack(data));
         }
 
         public void Close()
         {
-            WaitUntillTransitionDone(manager.PopCurrentLayer);
+            WaitUntillTransitionDone(stateMachineInstance.PopCurrentLayer);
         }
 
         private void WaitUntillTransitionDone(Action onDone)
@@ -107,7 +109,7 @@ namespace Utils.Core.Flow
             {
                 if (ruleGroup.AllRulesAreValid())
                 {
-                    newState = manager.CurrentLayer.Data.GetStateByID(ruleGroup.DestinationID);
+                    newState = stateMachineInstance.CurrentLayer.Data.GetStateByID(ruleGroup.DestinationID);
                     validRuleGroup = ruleGroup;
                     return true;
                 }

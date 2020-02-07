@@ -17,7 +17,7 @@ namespace Utils.Core.Events.Testing
         [Test]
         public void Subscribe_To_Event()
         {
-            EventDispatcher eventDispatcher = new EventDispatcher();
+            EventDispatcher eventDispatcher = new EventDispatcher("UnitTest Event Dispatcher");
             bool received = false;
             Action<TestEvent> callback = (e) => received = true;
             eventDispatcher.Subscribe(callback);
@@ -32,7 +32,7 @@ namespace Utils.Core.Events.Testing
         [Test]
         public void Unsubscribe_From_Event()
         {
-            EventDispatcher eventDispatcher = new EventDispatcher();
+            EventDispatcher eventDispatcher = new EventDispatcher("UnitTest Event Dispatcher");
             bool received = false;
             Action<TestEvent> callback = (e) => received = true;
 
@@ -49,7 +49,7 @@ namespace Utils.Core.Events.Testing
         [Test]
         public void Subscribe_To_Type()
         {
-            EventDispatcher eventDispatcher = new EventDispatcher();
+            EventDispatcher eventDispatcher = new EventDispatcher("UnitTest Event Dispatcher");
             bool received = false;
             Action<IEvent> callback = (e) => received = true;
 
@@ -65,7 +65,7 @@ namespace Utils.Core.Events.Testing
         [Test]
         public void Unsubscribe_From_Type()
         {
-            EventDispatcher eventDispatcher = new EventDispatcher();
+            EventDispatcher eventDispatcher = new EventDispatcher("UnitTest Event Dispatcher");
             bool received = false;
             Action<object> callback = (e) => received = true;
 
@@ -82,7 +82,7 @@ namespace Utils.Core.Events.Testing
         [Test]
         public void Subscribe_To_Any_Event()
         {
-            EventDispatcher eventDispatcher = new EventDispatcher();
+            EventDispatcher eventDispatcher = new EventDispatcher("UnitTest Event Dispatcher");
             bool received = false;
             Action<object> callback = (e) => received = true;
 
@@ -99,7 +99,7 @@ namespace Utils.Core.Events.Testing
         [Test]
         public void Unsubscribe_From_Any_Event()
         {
-            EventDispatcher eventDispatcher = new EventDispatcher();
+            EventDispatcher eventDispatcher = new EventDispatcher("UnitTest Event Dispatcher");
             bool received = false;
             Action<object> callback = (e) => received = true;
 

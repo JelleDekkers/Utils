@@ -9,7 +9,7 @@ namespace Utils.Core.Flow
     /// <summary>
     /// Renders the <see cref="State"/> node on the <see cref="StateMachineScriptableObjectData"/> window
     /// </summary>
-    public class StateRenderer : INodeRenderer<State>
+    public class StateRenderer : INodeRenderer<State>, ISelectable, IDraggable, IInspectable
     {
         public const float WIDTH = 160;
         public const float HEADER_HEIGHT = 20;
@@ -23,7 +23,6 @@ namespace Utils.Core.Flow
         private const float DragRounding = 20;
 
         public State Node { get; private set; }
-
         public Rect Rect
         {
             get
@@ -176,7 +175,7 @@ namespace Utils.Core.Flow
             return layerRenderer.StateMachine != null && layerRenderer.StateMachine.CurrentLayer.CurrentState == Node;
         }
 
-        #region Drawing
+        #region Rendering
         public void Draw()
         {
             if (IsEntryState)
@@ -218,9 +217,6 @@ namespace Utils.Core.Flow
 
             Color prevColor = GUI.backgroundColor;
             GUI.backgroundColor = (Application.isPlaying && StateIsActive()) ? RuntimeCurrentStateHeaderBackgroundColor : HeaderBackgroundColor;
-
-            if(Application.isPlaying)
-                label += " " + StateIsActive();
 
             GUI.Box(Rect, label, NodeGUIStyles.StateHeaderStyle);
             GUI.backgroundColor = prevColor;
@@ -351,7 +347,6 @@ namespace Utils.Core.Flow
             IsSelected = true;
 
             layerRenderer.Select(this);
-            layerRenderer.Inspector.Inspect(Node, new StateInspectorUI(layerRenderer, Node));
             layerRenderer.ReorderNodeRendererToBottom(this);
         }
 
@@ -439,7 +434,7 @@ namespace Utils.Core.Flow
 
         public void OnStateResetEvent(State state)
         {
-            if (layerRenderer.Selection == state as ISelectable)
+            if (layerRenderer.CurrentSelected == state as ISelectable)
             {
                 layerRenderer.Inspector.Refresh();
             }
@@ -467,6 +462,11 @@ namespace Utils.Core.Flow
 
             StateMachineEditorUtility.RuleGroupAddedEvent -= OnRuleGroupAddedEvent;
             StateMachineEditorUtility.RuleGroupRemovedEvent -= OnRuleGroupRemovedEvent;
+        }
+
+        public IInspectorUIBehaviour CreateInspectorBehaviour()
+        {
+            return new StateInspectorUIBehaviour(layerRenderer.StateMachineData, Node);
         }
     }
 }

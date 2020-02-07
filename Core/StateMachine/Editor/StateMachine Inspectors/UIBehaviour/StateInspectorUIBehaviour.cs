@@ -6,19 +6,20 @@ using Utils.Core.Extensions;
 namespace Utils.Core.Flow.Inspector
 {
     [CustomInspectorUI(typeof(State))]
-    public class StateInspectorUI : IInspectorUIBehaviour
+    public class StateInspectorUIBehaviour : IInspectorUIBehaviour
     {
         private const string ACTIONS_PROPERTY_NAME = "TemplateActions"; 
         private const string STATES_PROPERTY_NAME = "states";
 
-        private StateMachineLayerRenderer editorUI;
-        private State state;
+        private readonly IStateMachineData stateMachineData;
+        private readonly State state;
+
         private SerializedObject serializedStateMachine;
         private SerializedProperty actionsProperty;
 
-        public StateInspectorUI(StateMachineLayerRenderer editorUI, State state)
+        public StateInspectorUIBehaviour(IStateMachineData stateMachineData, State state)
         {
-            this.editorUI = editorUI;
+            this.stateMachineData = stateMachineData;
             this.state = state;
 
             Refresh();
@@ -26,9 +27,9 @@ namespace Utils.Core.Flow.Inspector
 
         public void Refresh()
         {
-            serializedStateMachine = new SerializedObject(editorUI.StateMachineData.SerializedObject);
+            serializedStateMachine = new SerializedObject(stateMachineData.SerializedObject);
 
-            int stateIndex = editorUI.StateMachineData.States.IndexOf(state);
+            int stateIndex = stateMachineData.States.IndexOf(state);
             SerializedProperty stateProperty = (serializedStateMachine.targetObject is StateMachineMonoBehaviour)
                 ? serializedStateMachine.FindProperty("Data").FindPropertyRelative(STATES_PROPERTY_NAME).GetArrayElementAtIndex(stateIndex)
                 : serializedStateMachine.FindProperty(STATES_PROPERTY_NAME).GetArrayElementAtIndex(stateIndex);
@@ -62,12 +63,12 @@ namespace Utils.Core.Flow.Inspector
 
             if (newName != state.Title)
             {
-                Undo.RecordObject(editorUI.StateMachineData.SerializedObject, "Change State Name");
+                Undo.RecordObject(stateMachineData.SerializedObject, "Change State Name");
                 state.Title = newName;
                 EditorUtility.SetDirty(serializedStateMachine.targetObject);
             }
 
-            GUI.enabled = editorUI.StateMachineData.EntryState != state;
+            GUI.enabled = stateMachineData.EntryState != state;
             string tooltip = (GUI.enabled) ? "Make entry state" : "Is already entry state";
             if (GUILayout.Button(new GUIContent("Entry State", tooltip), buttonStyle, GUILayout.Width(90)))
             {
@@ -82,7 +83,7 @@ namespace Utils.Core.Flow.Inspector
         private void OnSetEntryStateButtonPressedEvent()
         {
             Undo.RecordObject(serializedStateMachine.targetObject, "Set Entry State");
-            editorUI.StateMachineData.SetEntryState(state);
+            stateMachineData.SetEntryState(state);
             EditorUtility.SetDirty(serializedStateMachine.targetObject);
         }
 
@@ -93,7 +94,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            state.AddStateAction(type, editorUI.StateMachineData);
+            state.AddStateAction(type, stateMachineData);
             Refresh();
         }
 
@@ -124,12 +125,11 @@ namespace Utils.Core.Flow.Inspector
         private void OnEditScriptButtonPressed(ContextMenu.Result result)
         {
             InspectorUIUtility.OpenScript(result.Obj);
-            editorUI.Inspector.Refresh();
         }
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            state.RemoveStateAction(state.TemplateActions[result.Index], editorUI.StateMachineData);
+            state.RemoveStateAction(state.TemplateActions[result.Index], stateMachineData);
             Refresh();
         }
 
@@ -141,7 +141,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnReorderButtonPressed(ContextMenu.Result result, ContextMenu.ReorderDirection direction)
         {
-            Undo.RegisterCompleteObjectUndo(editorUI.StateMachineData.SerializedObject, "Reorder Actions");
+            Undo.RegisterCompleteObjectUndo(stateMachineData.SerializedObject, "Reorder Actions");
 
             int newIndex = result.Index + (int)direction;
             if (newIndex >= 0 && newIndex < state.TemplateActions.Count)

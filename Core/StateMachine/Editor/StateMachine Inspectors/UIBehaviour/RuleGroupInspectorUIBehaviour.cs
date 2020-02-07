@@ -6,24 +6,24 @@ using Utils.Core.Extensions;
 namespace Utils.Core.Flow.Inspector
 {
     [CustomInspectorUI(typeof(RuleGroup))]
-    public class RuleGroupInspector : IInspectorUIBehaviour
+    public class RuleGroupInspectorUIBehaviour : IInspectorUIBehaviour
     {
-        private const string RULES_PROPERTY_NAME = "TemplateRules"; // TODO: change this during playmode?
+        private const string RULES_PROPERTY_NAME = "TemplateRules"; 
         private const string STATES_PROPERTY_NAME = "states";
         private const string RULEGROUPS_PROPERTY_NAME = "RuleGroups";
 
-        private StateMachineLayerRenderer editorUI;
+        private readonly IStateMachineData stateMachineData;
+        private readonly State state;
+        private readonly RuleGroup ruleGroup;
+
         private SerializedObject serializedStateMachine;
         private SerializedProperty ruleGroupProperty;
-        private State state;
-        private RuleGroup ruleGroup;
-
         private SerializedProperty rulesProperty;
         private int ruleGroupIndex;
 
-        public RuleGroupInspector(StateMachineLayerRenderer editorUI, State state, RuleGroup ruleGroup)
+        public RuleGroupInspectorUIBehaviour(IStateMachineData stateMachineData, State state, RuleGroup ruleGroup)
         {
-            this.editorUI = editorUI;
+            this.stateMachineData = stateMachineData;
             this.state = state;
             this.ruleGroup = ruleGroup;
 
@@ -32,10 +32,10 @@ namespace Utils.Core.Flow.Inspector
 
         public void Refresh()
         {
-            serializedStateMachine = new SerializedObject(editorUI.StateMachineData.SerializedObject);
+            serializedStateMachine = new SerializedObject(stateMachineData.SerializedObject);
 
             SerializedProperty statesProperty = serializedStateMachine.FindProperty(STATES_PROPERTY_NAME);
-            int stateIndex = editorUI.StateMachineData.States.IndexOf(state);
+            int stateIndex = stateMachineData.States.IndexOf(state);
             SerializedProperty correctStateProperty = statesProperty.GetArrayElementAtIndex(stateIndex);
             SerializedProperty ruleGroupsProperty = correctStateProperty.FindPropertyRelative(RULEGROUPS_PROPERTY_NAME);
 
@@ -65,7 +65,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void CreateNewType(Type type)
         {
-            ruleGroup.AddNewRule(type, editorUI.StateMachineData);
+            ruleGroup.AddNewRule(type, stateMachineData);
             Refresh();
         }
 
@@ -100,7 +100,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)
         {
-            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], editorUI.StateMachineData); 
+            ruleGroup.RemoveRule(ruleGroup.TemplateRules[result.Index], stateMachineData); 
             Refresh();
         }
 

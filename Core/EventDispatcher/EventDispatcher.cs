@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using Utils.Core.Services;
 
 namespace Utils.Core.Events
 {
     /// <summary>
-    /// Service class for handling subscribing, unsubscribing and invoking events of type <see cref="IEvent"/>. 
+    /// Class for handling subscribing, unsubscribing and invoking events of type <see cref="IEvent"/>. 
     /// </summary>
-    public class EventDispatcher : IService
+    public class EventDispatcher
     {
+        /// <summary>
+        /// Name used for debugging purposes
+        /// </summary>
+        public string Name { get; protected set; }
+
         private readonly Dictionary<Type, Action<object>> eventCallbackMap = new Dictionary<Type, Action<object>>();
         private readonly Dictionary<object, Action<object>> anonymousDelegateLookup = new Dictionary<object, Action<object>>();
         private readonly List<Action<object>> subscribeToAnyList = new List<Action<object>>();
+
+        public EventDispatcher(string name)
+        {
+            Name = name;
+        }
 
         public void Subscribe<T>(Action<T> callback) where T : IEvent
         {
