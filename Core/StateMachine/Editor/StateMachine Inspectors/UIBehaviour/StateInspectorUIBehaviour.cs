@@ -40,17 +40,21 @@ namespace Utils.Core.Flow.Inspector
         {
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
             DrawHeader("State Actions");
+			InspectorUIUtility.DrawHorizontalLine();
 
-            if (actionsProperty.arraySize > 0)
-            {
-                InspectorUIUtility.DrawHorizontalLine();
-            }
-
-            for (int i = 0; i < actionsProperty.arraySize; i++)
-            {
-                InspectorUIUtility.DrawArrayPropertyField(actionsProperty, i, OnContextMenuButtonPressed);
-            }
-
+			if (actionsProperty.arraySize == 0)
+			{
+				GUIStyle style = new GUIStyle("Label");
+				style.alignment = TextAnchor.UpperLeft;
+				GUILayout.Label("Empty", style);
+			}
+			else
+			{
+				for (int i = 0; i < actionsProperty.arraySize; i++)
+				{
+					InspectorUIUtility.DrawArrayPropertyField(actionsProperty, i, OnContextMenuButtonPressed);
+				}
+			}
             EditorGUILayout.EndVertical();
         }
 

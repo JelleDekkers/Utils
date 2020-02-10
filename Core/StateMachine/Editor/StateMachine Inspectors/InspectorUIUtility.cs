@@ -21,7 +21,7 @@ namespace Utils.Core.Flow.Inspector
 
             if (property.arraySize > 0)
             {
-                property = property.GetArrayElementAtIndex(index);
+				property = property.GetArrayElementAtIndex(index);
                 if (property.objectReferenceValue == null) { return; }
 
                 Rect header = EditorGUILayout.BeginHorizontal(NodeGUIStyles.InspectorStyle);
@@ -71,6 +71,7 @@ namespace Utils.Core.Flow.Inspector
             }
             else
             {
+				Debug.Log(" Empty");
                 GUIStyle style = new GUIStyle("Label");
                 style.alignment = TextAnchor.UpperLeft;
                 GUILayout.Label("Empty", style);

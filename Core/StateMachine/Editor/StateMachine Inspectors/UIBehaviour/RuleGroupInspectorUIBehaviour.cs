@@ -17,7 +17,6 @@ namespace Utils.Core.Flow.Inspector
         private readonly RuleGroup ruleGroup;
 
         private SerializedObject serializedStateMachine;
-        private SerializedProperty ruleGroupProperty;
         private SerializedProperty rulesProperty;
         private int ruleGroupIndex;
 
@@ -54,7 +53,21 @@ namespace Utils.Core.Flow.Inspector
             EditorGUILayout.BeginVertical("Box", GUILayout.ExpandWidth(true));
             InspectorUIUtility.DrawHeader("Rules", () => InspectorUIUtility.DrawAddNewButton(OnAddNewButtonPressedEvent, "Add new Rule"));
             InspectorUIUtility.DrawHorizontalLine();
-            InspectorUIUtility.DrawArrayPropertyField(rulesProperty, ruleGroupIndex, OnContextMenuButtonPressed);
+
+			if (rulesProperty.arraySize == 0)
+			{
+				GUIStyle style = new GUIStyle("Label");
+				style.alignment = TextAnchor.UpperLeft;
+				GUILayout.Label("Empty", style);
+			}
+			else
+			{
+				for (int i = 0; i < rulesProperty.arraySize; i++)
+				{
+					InspectorUIUtility.DrawArrayPropertyField(rulesProperty, i, OnContextMenuButtonPressed);
+				}
+			}
+
             EditorGUILayout.EndVertical();
         }
 
