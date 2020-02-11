@@ -29,11 +29,13 @@ namespace Utils.Core.Flow
             }
 
             dependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
+		
             dependencyInjector.RegisterInstance<StateMachineLayer>(this);
-            dependencyInjector.RegisterInstance<EventDispatcher>(new EventDispatcher("SM Layer: " + data.Name));
-        }
+			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
+			dependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);
+		}
 
-        public void Start(State prevCurrentState = null)
+		public void Start(State prevCurrentState = null)
         {
             CurrentState.OnStart();
 
@@ -82,9 +84,9 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void AddNewLayer(StateMachineScriptableObjectData data)
+        public void CreateNewLayer(StateMachineScriptableObjectData data)
         {
-            WaitUntillTransitionDone(() => stateMachineInstance.AddNewLayerToStack(data));
+            WaitUntillTransitionDone(() => stateMachineInstance.PushNewLayerToStack(data));
         }
 
         public void Close()

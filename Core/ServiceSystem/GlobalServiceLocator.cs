@@ -30,8 +30,8 @@ namespace Utils.Core.Services
         private Dictionary<Type, IService> InstantiatedServices = new Dictionary<Type, IService>();
         private Dictionary<Type, Type> serviceFactories = new Dictionary<Type, Type>();
 
-		private UnityCallbackModule callbackModule;
-		private DependencyInjector dependencyInjector;
+		private readonly UnityCallbackModule callbackModule;
+		private readonly DependencyInjector dependencyInjector;
 
         public GlobalServiceLocator()
         {

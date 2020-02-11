@@ -15,7 +15,7 @@ namespace Utils.Core.Flow.DefaultActions
 
         public override void OnStarted()
         {
-            layer.AddNewLayer(stateMachine);
+            layer.CreateNewLayer(stateMachine);
         }
     }
 }

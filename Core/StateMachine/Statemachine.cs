@@ -37,16 +37,16 @@ namespace Utils.Core.Flow
 
         public void Update()
         {
-            CurrentLayer?.Update();
+            CurrentLayer.Update();
         }
 
-        public StateMachineLayer AddNewLayerToStack(StateMachineScriptableObjectData data)
+        public StateMachineLayer PushNewLayerToStack(StateMachineScriptableObjectData data)
         {
-            StateMachineLayer prevLayer = LayerStack.Peek();
+			StateMachineLayer prevLayer = CurrentLayer;
             StateMachineLayer newLayer = new StateMachineLayer(this, data);
             LayerStack.Push(newLayer);
-            newLayer.Start(prevLayer.CurrentState);
 
+            newLayer.Start(prevLayer.CurrentState);
             PrintDebug(string.Format("ADDING NEW LAYER, from {0}, {1} TO: {2}, {3}", prevLayer.Data.Name, prevLayer.CurrentState.Title, CurrentLayer.Data.Name, CurrentLayer.CurrentState.Title));
             LayerChangedEvent?.Invoke(prevLayer, newLayer);
 

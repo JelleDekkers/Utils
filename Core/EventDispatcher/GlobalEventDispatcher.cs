@@ -1,4 +1,5 @@
-﻿using Utils.Core.Services;
+﻿using System;
+using Utils.Core.Services;
 
 namespace Utils.Core.Events
 {
@@ -9,7 +10,7 @@ namespace Utils.Core.Events
     {
         public GlobalEventDispatcher(string name) : base(name)
         {
-
-        }
+			
+		}
     }
 }

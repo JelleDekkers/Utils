@@ -96,6 +96,11 @@ namespace Utils.Core.Injection
                 ParameterInfo parameterInfo = parameters[i];
                 Type type = parameters[i].ParameterType;
 
+				if(type.IsPrimitive || type == typeof(string))
+				{
+					continue;
+				}
+
                 if (type.GetInterfaces().Contains(typeof(IService)))
                 {
                     objects[i] = GlobalServiceLocator.Instance.Get(type);
@@ -107,6 +112,11 @@ namespace Utils.Core.Injection
                     objects[i] = typeInstancePairs[type];
                     continue;
                 }
+
+				foreach(var pair in typeInstancePairs)
+				{
+					Debug.Log(pair.Key + "  "  + pair.Key);
+				}
 
 				objects[i] = null;
             }
