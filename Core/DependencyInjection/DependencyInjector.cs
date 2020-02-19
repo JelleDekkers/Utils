@@ -145,6 +145,26 @@ namespace Utils.Core.Injection
             return instance;
         }
 
+        /// <summary>
+        /// Spawns and injects a new gameobject. 
+        /// Use this function to ensure the injection happens before Awake, Start and OnEnable functions.
+        /// </summary>
+        /// <param name="prefab"></param>
+        /// <returns></returns>
+        public GameObject InstantiateGameObject(GameObject prefab) 
+        {
+            bool wasActive = prefab.gameObject.activeSelf;
+            prefab.gameObject.SetActive(false);
+            GameObject instance = UnityEngine.Object.Instantiate(prefab);
+
+            InjectGameObject(instance.gameObject);
+
+            prefab.gameObject.SetActive(wasActive);
+            instance.gameObject.SetActive(wasActive);
+
+            return instance;
+        }
+
         public object Clone()
 		{
 			return MemberwiseClone();

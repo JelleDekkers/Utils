@@ -7,27 +7,19 @@ namespace Utils.Core.Flow.DefaultActions
     /// <summary>
     /// Spawns a prefab within a scope, meaning that if the next State also has this StateAction and references the same prefab, it will not destroy the prefab instance
     /// </summary>
-    public class SpawnScopedPrefabAction : StateAction
+    public class SpawnScopedPrefabAction : SpawnPrefabAction
     {
-        [SerializeField] private GameObject prefab = null;
-
-		protected GameObject instance;
-
-        protected DependencyInjector injector;
         protected ScopedGameObjectService scopedGameObjectManager;
 
         public void InjectDependencies(DependencyInjector injector, ScopedGameObjectService scopedGameObjectManager)
         {
+            Debug.Log("child inj deps");
+
             this.injector = injector;
             this.scopedGameObjectManager = scopedGameObjectManager;
         }
 
-        public override void OnStarted()
-        {
-			SpawnScopedPrefab();
-        }
-
-		protected virtual void SpawnScopedPrefab()
+		protected override void SpawnPrefab()
 		{
 			// disable so that the dependencyinjector gets called before Awake, Start and OnEnable
 			bool wasActive = prefab.activeSelf;
