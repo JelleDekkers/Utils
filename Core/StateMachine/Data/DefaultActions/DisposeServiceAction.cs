@@ -12,7 +12,7 @@ namespace Utils.Core.Services
 	{
 		[ClassTypeImplements(typeof(IService)), SerializeField] private ClassTypeReference service = null;
 
-		public override void OnStarting()
+		public override void OnStarted()
 		{
 			if (GlobalServiceLocator.Instance.Contains(service.Type) && typeof(IDisposable).IsAssignableFrom(service.Type))
 			{

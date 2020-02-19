@@ -18,7 +18,7 @@ namespace Utils.Core.SceneManagement
 			this.eventDispatcher = eventDispatcher;
 		}
 
-		public override void OnStarting()
+		public override void OnStarted()
 		{
             LoadScene();
 		}

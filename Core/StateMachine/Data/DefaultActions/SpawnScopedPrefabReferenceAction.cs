@@ -22,7 +22,7 @@ namespace Utils.Core.Flow.DefaultActions
 			this.scopedGameObjectManager = scopedGameObjectManager;
 		}
 
-		public override void OnStarting()
+		public override void OnStarted()
 		{
 			SpawnScopedPrefab();
 		}

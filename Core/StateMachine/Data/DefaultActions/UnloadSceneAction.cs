@@ -15,7 +15,7 @@ namespace Utils.Core.SceneManagement
 			this.sceneService = sceneService;
 		}
 
-		public override void OnStarting()
+		public override void OnStarted()
 		{
 			sceneService.UnLoadScene(scene);
 		}
