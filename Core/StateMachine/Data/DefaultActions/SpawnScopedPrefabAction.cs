@@ -13,8 +13,6 @@ namespace Utils.Core.Flow.DefaultActions
 
         public void InjectDependencies(DependencyInjector injector, ScopedGameObjectService scopedGameObjectManager)
         {
-            Debug.Log("child inj deps");
-
             this.injector = injector;
             this.scopedGameObjectManager = scopedGameObjectManager;
         }

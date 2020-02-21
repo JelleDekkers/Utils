@@ -22,13 +22,7 @@ namespace Utils.Core.Flow.DefaultActions
 
         protected virtual void SpawnPrefab()
         {
-            bool wasActive = prefab.activeSelf;
-            prefab.SetActive(false);
-
             instance = injector.InstantiateGameObject(prefab);
-
-            prefab.SetActive(wasActive);
-            instance.SetActive(wasActive);
         }
     }
 }
