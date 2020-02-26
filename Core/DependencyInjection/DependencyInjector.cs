@@ -113,11 +113,6 @@ namespace Utils.Core.Injection
                     continue;
                 }
 
-				foreach(var pair in typeInstancePairs)
-				{
-					Debug.Log(pair.Key + "  "  + pair.Key);
-				}
-
 				objects[i] = null;
             }
 
