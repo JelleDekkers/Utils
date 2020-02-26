@@ -48,7 +48,7 @@ namespace Utils.Core.Services
 
         public IService Get(Type type)
         {
-            if (InstantiatedServices.ContainsKey(type))
+            if (Contains(type))
             {
                 return InstantiatedServices[type];
             }
@@ -109,7 +109,7 @@ namespace Utils.Core.Services
 				}
             }
 
-            InstantiatedServices.Add(service.GetType(), service);
+            InstantiatedServices.Add(serviceType, service);
 			callbackModule.Add(service);
 
             return service;
