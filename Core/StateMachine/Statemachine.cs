@@ -43,7 +43,7 @@ namespace Utils.Core.Flow
         public StateMachineLayer PushNewLayerToStack(StateMachineScriptableObjectData data)
         {
 			StateMachineLayer prevLayer = CurrentLayer;
-            StateMachineLayer newLayer = new StateMachineLayer(this, data);
+            StateMachineLayer newLayer = new StateMachineLayer(this, data, prevLayer.DependencyInjector);
             LayerStack.Push(newLayer);
 
             newLayer.Start(prevLayer.CurrentState);

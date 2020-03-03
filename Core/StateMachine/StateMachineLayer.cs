@@ -15,8 +15,9 @@ namespace Utils.Core.Flow
         public IStateMachineData Data { get; private set; }
         public State CurrentState { get; private set; }
 
+        public readonly DependencyInjector DependencyInjector;
+
         private readonly StateMachine stateMachineInstance;
-        private readonly DependencyInjector dependencyInjector;
 
         public StateMachineLayer(StateMachine stateMachineInstance, IStateMachineData data, DependencyInjector injector = null)
         {
@@ -28,11 +29,13 @@ namespace Utils.Core.Flow
                 CurrentState = Data.EntryState;
             }
 
-            dependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
-		
-            dependencyInjector.RegisterInstance<StateMachineLayer>(this);
+            DependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
+            if (injector != null)
+                DependencyInjector.RegisterInstance<DependencyInjector>(DependencyInjector);
+
+            DependencyInjector.RegisterInstance<StateMachineLayer>(this);
 			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
-			dependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);
+			DependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);
 		}
 
 		public void Start(State prevCurrentState = null)
@@ -41,7 +44,7 @@ namespace Utils.Core.Flow
 
             foreach (StateAction action in CurrentState.RuntimeActions)
             {
-                dependencyInjector.InjectMethod(action);
+                DependencyInjector.InjectMethod(action);
                 action.OnStarting();
             }
 
@@ -56,7 +59,7 @@ namespace Utils.Core.Flow
 
                 foreach (Rule rule in group.RuntimeRules)
                 {
-                    dependencyInjector.InjectMethod(rule);
+                    DependencyInjector.InjectMethod(rule);
                     rule.OnActivate();
                 }
             }
@@ -138,7 +141,7 @@ namespace Utils.Core.Flow
                 // newState OnStarting
                 foreach (StateAction action in newState.RuntimeActions)
                 {
-                    dependencyInjector.InjectMethod(action);
+                    DependencyInjector.InjectMethod(action);
                     action.OnStarting();
                 }
             }
@@ -167,7 +170,7 @@ namespace Utils.Core.Flow
 
                     foreach (Rule rule in group.RuntimeRules)
                     {
-                        dependencyInjector.InjectMethod(rule);
+                        DependencyInjector.InjectMethod(rule);
                         rule.OnActivate();
                     }
                 }
