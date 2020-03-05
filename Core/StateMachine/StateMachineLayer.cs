@@ -29,9 +29,15 @@ namespace Utils.Core.Flow
                 CurrentState = Data.EntryState;
             }
 
-            DependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
-            if (injector != null)
-                DependencyInjector.RegisterInstance<DependencyInjector>(DependencyInjector);
+			if (injector != null)
+			{
+				DependencyInjector = injector.Clone() as DependencyInjector;
+				DependencyInjector.RegisterInstance<DependencyInjector>(DependencyInjector);
+			}
+			else
+			{
+				DependencyInjector = new DependencyInjector();
+			}
 
             DependencyInjector.RegisterInstance<StateMachineLayer>(this);
 			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
