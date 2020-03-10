@@ -12,17 +12,30 @@ namespace Utils.Core.Injection
     /// Dependencies of type <see cref="IService>"/> are resolved by <see cref="GlobalServiceLocator"/> automatically, 
 	/// otherwise an instance has to be registered using RegisterInstance()
     /// </summary>
-    public class DependencyInjector : ICloneable
+    public class DependencyInjector
     {
         public const string DEFAULT_INJECTION_METHOD_NAME = "InjectDependencies";
 
-        private readonly string injectionMethodName;
-        private Dictionary<Type, object> typeInstancePairs = new Dictionary<Type, object>();
+        /// <summary>
+        /// Name used for debugging purposes
+        /// </summary>
+        public readonly string Name;
+        public Dictionary<Type, object> TypeInstancePairs { get; private set; }
 
-        public DependencyInjector(string injectionMethodName = DEFAULT_INJECTION_METHOD_NAME)
+        private readonly string injectionMethodName;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">Name for debugging purposes</param>
+        /// <param name="typeInstancePairs">Optional parameter for using already existing typeInstancePairs</param>
+        /// <param name="injectionMethodName"></param>
+        public DependencyInjector(string name, Dictionary<Type, object> typeInstancePairs = null, string injectionMethodName = DEFAULT_INJECTION_METHOD_NAME)
         {
+            Name = name;
             this.injectionMethodName = injectionMethodName;
 
+            TypeInstancePairs = (typeInstancePairs != null) ? new Dictionary<Type, object>(typeInstancePairs) : new Dictionary<Type, object>();
             RegisterInstance<DependencyInjector>(this);
         }
 
@@ -33,12 +46,14 @@ namespace Utils.Core.Injection
 
         public void RegisterInstance(Type type, object instance)
         {
-            if(typeInstancePairs.ContainsKey(type))
+            if (TypeInstancePairs.ContainsKey(type))
             {
-                typeInstancePairs.Remove(type);
+                TypeInstancePairs[type] = instance;
             }
-
-            typeInstancePairs.Add(type, instance);
+            else
+            {
+                TypeInstancePairs.Add(type, instance);
+            }
         }
 
         public void UnRegisterInstance<T>()
@@ -48,9 +63,9 @@ namespace Utils.Core.Injection
 
         public void UnRegisterInstance(Type type)
         {
-            if(typeInstancePairs.ContainsKey(type))
+            if(TypeInstancePairs.ContainsKey(type))
             {
-                typeInstancePairs.Remove(type);
+                TypeInstancePairs.Remove(type);
             }
         }
 
@@ -107,9 +122,9 @@ namespace Utils.Core.Injection
                     continue;
                 }
 
-                if(typeInstancePairs.ContainsKey(type))
+                if(TypeInstancePairs.ContainsKey(type))
                 {
-                    objects[i] = typeInstancePairs[type];
+                    objects[i] = TypeInstancePairs[type];
                     continue;
                 }
 
@@ -160,19 +175,9 @@ namespace Utils.Core.Injection
             return instance;
         }
 
-        public object Clone()
-		{
-			return MemberwiseClone();
-		}
-
-		public Dictionary<Type, object> CopyTest()
-		{
-			return typeInstancePairs;
-		}
-
-		public void SetInstances(Dictionary<Type, object> pairs)
-		{
-			typeInstancePairs = pairs;
-		}
-	}
+        public override string ToString()
+        {
+            return "DependencyInjector " + Name;
+        }
+    }
 }

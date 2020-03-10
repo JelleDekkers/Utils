@@ -29,12 +29,7 @@ namespace Utils.Core.Flow
 				CurrentState = Data.EntryState;
 			}
 
-			// bug: new dependencyinjector werkt flow wel, met clone() niet
-			DependencyInjector = new DependencyInjector();
-			if (injector != null)
-				DependencyInjector.SetInstances(injector.CopyTest());
-
-			//DependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
+            DependencyInjector = (injector != null) ? new DependencyInjector(data.SerializedObject.name, injector.TypeInstancePairs) : new DependencyInjector(data.SerializedObject.name);
             DependencyInjector.RegisterInstance<StateMachineLayer>(this);
 			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
 			DependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);

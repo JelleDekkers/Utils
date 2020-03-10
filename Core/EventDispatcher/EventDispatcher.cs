@@ -11,7 +11,7 @@ namespace Utils.Core.Events
         /// <summary>
         /// Name used for debugging purposes
         /// </summary>
-        public string Name { get; protected set; }
+        public readonly string Name;
 
         private readonly Dictionary<Type, Action<object>> eventCallbackMap = new Dictionary<Type, Action<object>>();
         private readonly Dictionary<object, Action<object>> anonymousDelegateLookup = new Dictionary<object, Action<object>>();
@@ -126,6 +126,11 @@ namespace Utils.Core.Events
                 callback = subscribeToAnyList[i];
                 callback.Invoke(eventObject);
             }
+        }
+
+        public override string ToString()
+        {
+            return "EventDispatcher " + Name;
         }
     }
 }

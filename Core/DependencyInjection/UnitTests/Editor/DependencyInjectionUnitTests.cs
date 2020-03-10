@@ -74,7 +74,7 @@ namespace Utils.Core.Injection.Testing
         [SetUp]
         public void Setup()
         {
-            injector = new DependencyInjector();
+            injector = new DependencyInjector("DependencyInjectionUnitTest");
         }
 
         [Test]

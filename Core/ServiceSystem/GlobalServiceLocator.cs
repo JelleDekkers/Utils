@@ -38,7 +38,7 @@ namespace Utils.Core.Services
             serviceFactories = GetAllServiceFactories();
 
 			callbackModule = new UnityCallbackModule(this);
-			dependencyInjector = new DependencyInjector();
+			dependencyInjector = new DependencyInjector("GlobalServiceLocator");
 		}
 
         public T Get<T>() where T : IService
