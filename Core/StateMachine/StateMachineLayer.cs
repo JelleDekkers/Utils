@@ -19,26 +19,22 @@ namespace Utils.Core.Flow
 
         private readonly StateMachine stateMachineInstance;
 
-        public StateMachineLayer(StateMachine stateMachineInstance, IStateMachineData data, DependencyInjector injector = null)
-        {
-            Data = data.Copy();
-            this.stateMachineInstance = stateMachineInstance;
+		public StateMachineLayer(StateMachine stateMachineInstance, IStateMachineData data, DependencyInjector injector = null)
+		{
+			Data = data.Copy();
+			this.stateMachineInstance = stateMachineInstance;
 
-            if (Data.EntryState != null)
-            {
-                CurrentState = Data.EntryState;
-            }
+			if (Data.EntryState != null)
+			{
+				CurrentState = Data.EntryState;
+			}
 
+			// bug: new dependencyinjector werkt flow wel, met clone() niet
+			DependencyInjector = new DependencyInjector();
 			if (injector != null)
-			{
-				DependencyInjector = injector.Clone() as DependencyInjector;
-				DependencyInjector.RegisterInstance<DependencyInjector>(DependencyInjector);
-			}
-			else
-			{
-				DependencyInjector = new DependencyInjector();
-			}
+				DependencyInjector.SetInstances(injector.CopyTest());
 
+			//DependencyInjector = (injector != null) ? injector.Clone() as DependencyInjector : new DependencyInjector();
             DependencyInjector.RegisterInstance<StateMachineLayer>(this);
 			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
 			DependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);

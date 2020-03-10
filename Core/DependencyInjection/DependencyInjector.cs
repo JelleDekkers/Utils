@@ -164,5 +164,15 @@ namespace Utils.Core.Injection
 		{
 			return MemberwiseClone();
 		}
+
+		public Dictionary<Type, object> CopyTest()
+		{
+			return typeInstancePairs;
+		}
+
+		public void SetInstances(Dictionary<Type, object> pairs)
+		{
+			typeInstancePairs = pairs;
+		}
 	}
 }
