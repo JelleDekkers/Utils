@@ -29,7 +29,7 @@ namespace Utils.Core.Flow
 				CurrentState = Data.EntryState;
 			}
 
-            DependencyInjector = (injector != null) ? new DependencyInjector(data.SerializedObject.name, injector.TypeInstancePairs) : new DependencyInjector(data.SerializedObject.name);
+            DependencyInjector = (injector != null) ? new DependencyInjector(data.SerializedObject.name, injector) : new DependencyInjector(data.SerializedObject.name);
             DependencyInjector.RegisterInstance<StateMachineLayer>(this);
 			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
 			DependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);

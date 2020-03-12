@@ -28,14 +28,14 @@ namespace Utils.Core.Injection
         /// 
         /// </summary>
         /// <param name="name">Name for debugging purposes</param>
-        /// <param name="typeInstancePairs">Optional parameter for using already existing typeInstancePairs</param>
+        /// <param name="injector">Wxisting instance of another DependencyInjector, will copy over it's data into this one</param>
         /// <param name="injectionMethodName"></param>
-        public DependencyInjector(string name, Dictionary<Type, object> typeInstancePairs = null, string injectionMethodName = DEFAULT_INJECTION_METHOD_NAME)
+        public DependencyInjector(string name, DependencyInjector injector = null, string injectionMethodName = DEFAULT_INJECTION_METHOD_NAME)
         {
             Name = name;
             this.injectionMethodName = injectionMethodName;
 
-            TypeInstancePairs = (typeInstancePairs != null) ? new Dictionary<Type, object>(typeInstancePairs) : new Dictionary<Type, object>();
+            TypeInstancePairs = (injector != null) ? new Dictionary<Type, object>(injector.TypeInstancePairs) : new Dictionary<Type, object>();
             RegisterInstance<DependencyInjector>(this);
         }
 
