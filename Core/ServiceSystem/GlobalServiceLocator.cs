@@ -96,16 +96,7 @@ namespace Utils.Core.Services
 				}
 				else
 				{
-					ConstructorInfo[] constructors = serviceType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-					if (constructors.Length == 0)
-					{
-						service = (IService)Activator.CreateInstance(serviceType);
-					}
-					else
-					{
-						service = (IService)Activator.CreateInstance(serviceType, dependencyInjector.ResolveParameters(constructors[0], serviceType));
-					}
+                    service = dependencyInjector.CreateType<IService>(serviceType);
 				}
             }
 

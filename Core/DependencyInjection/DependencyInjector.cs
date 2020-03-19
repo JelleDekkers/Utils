@@ -135,6 +135,27 @@ namespace Utils.Core.Injection
         }
 
         /// <summary>
+        /// Creates a new class and resolves it's dependencies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objType"></param>
+        /// <returns></returns>
+        public T CreateType<T>(Type type = null) where T : class
+        {
+            Type objType = (type == null) ? typeof(T) : type;
+            ConstructorInfo[] constructors = objType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            if (constructors.Length == 0)
+            {
+                return (T)Activator.CreateInstance(objType);
+            }
+            else
+            {
+                return (T)Activator.CreateInstance(objType, ResolveParameters(constructors[0], objType));
+            }
+        }
+
+        /// <summary>
         /// Spawns and injects a new gameobject. 
         /// Use this function to ensure the injection happens before Awake, Start and OnEnable functions.
         /// </summary>
