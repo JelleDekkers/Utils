@@ -96,7 +96,7 @@ namespace Utils.Core.Services
 				}
 				else
 				{
-                    service = dependencyInjector.CreateType<IService>(serviceType);
+                    service = dependencyInjector.CreateType(serviceType) as IService;
 				}
             }
 

@@ -140,18 +140,28 @@ namespace Utils.Core.Injection
         /// <typeparam name="T"></typeparam>
         /// <param name="objType"></param>
         /// <returns></returns>
-        public T CreateType<T>(Type type = null) where T : class
+        public T CreateType<T>() where T : class
         {
-            Type objType = (type == null) ? typeof(T) : type;
+            return (T)CreateType(typeof(T));
+        }
+
+        /// <summary>
+        /// Creates a new class and resolves it's dependencies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objType"></param>
+        /// <returns></returns>
+        public object CreateType(Type objType)
+        {
             ConstructorInfo[] constructors = objType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
             if (constructors.Length == 0)
             {
-                return (T)Activator.CreateInstance(objType);
+                return Activator.CreateInstance(objType);
             }
             else
             {
-                return (T)Activator.CreateInstance(objType, ResolveParameters(constructors[0], objType));
+                return Activator.CreateInstance(objType, ResolveParameters(constructors[0], objType));
             }
         }
 
