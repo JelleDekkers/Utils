@@ -83,7 +83,12 @@ namespace Utils.Core.Flow
 
         public State GetStateByID(int id)
         {
-            if(statesLookupTable == null)
+            if (id == -1)
+            {
+                return null;
+            }
+
+            if (statesLookupTable == null)
             {
                 RefreshStatesTable();
             }

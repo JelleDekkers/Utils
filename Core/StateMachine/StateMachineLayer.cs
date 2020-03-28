@@ -75,12 +75,12 @@ namespace Utils.Core.Flow
 
             if (IsStateValidForTransition(CurrentState, out State newState, out RuleGroup ruleGroup))
             {
-                TransitionToState(CurrentState, newState);
-
                 if (newState == null)
                 {
-                    StateMachine.PrintDebug(string.Format("{0} Has no destination state!", CurrentState));
+                    UnityEngine.Debug.LogWarningFormat("{0} Has no destination state! Flow is halted.", CurrentState);
                 }
+
+                TransitionToState(CurrentState, newState);
             }
         }
 
