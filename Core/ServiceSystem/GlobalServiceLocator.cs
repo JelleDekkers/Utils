@@ -92,7 +92,7 @@ namespace Utils.Core.Services
             {
 				if (serviceType.IsSubclassOf(typeof(MonoBehaviour)))
 				{
-					service = new GameObject().AddComponent(serviceType) as IService;
+					service = new GameObject("[Service] " + serviceType).AddComponent(serviceType) as IService;
 				}
 				else
 				{
