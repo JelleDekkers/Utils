@@ -19,21 +19,25 @@ namespace Utils.Core.Flow
 
         private readonly StateMachine stateMachineInstance;
 
-		public StateMachineLayer(StateMachine stateMachineInstance, IStateMachineData data, DependencyInjector injector = null)
-		{
-			Data = data.Copy();
-			this.stateMachineInstance = stateMachineInstance;
+        public StateMachineLayer(StateMachine stateMachineInstance, IStateMachineData data, DependencyInjector injector = null, bool useLocalEventDispatcher = true)
+        {
+            Data = data.Copy();
+            this.stateMachineInstance = stateMachineInstance;
 
-			if (Data.EntryState != null)
-			{
-				CurrentState = Data.EntryState;
-			}
+            if (Data.EntryState != null)
+            {
+                CurrentState = Data.EntryState;
+            }
 
             DependencyInjector = (injector != null) ? new DependencyInjector(data.SerializedObject.name, injector) : new DependencyInjector(data.SerializedObject.name);
             DependencyInjector.RegisterInstance<StateMachineLayer>(this);
-			EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
-			DependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);
-		}
+
+            if (useLocalEventDispatcher)
+            {
+                EventDispatcher eventDispatcher = new EventDispatcher("SM Layer: " + data.SerializedObject.name);
+                DependencyInjector.RegisterInstance<EventDispatcher>(eventDispatcher);
+            }
+        }
 
 		public void Start(State prevCurrentState = null)
         {
@@ -84,9 +88,9 @@ namespace Utils.Core.Flow
             }
         }
 
-        public void CreateNewLayer(StateMachineScriptableObjectData data)
+        public void CreateNewLayer(StateMachineScriptableObjectData data, bool useLocalEventDispatcher = true)
         {
-            WaitUntillTransitionDone(() => stateMachineInstance.PushNewLayerToStack(data));
+            WaitUntillTransitionDone(() => stateMachineInstance.PushNewLayerToStack(data, useLocalEventDispatcher));
         }
 
         public void Close()

@@ -6,6 +6,9 @@ namespace Utils.Core.Flow.DefaultActions
     {
         [SerializeField] private StateMachineScriptableObjectData stateMachine = null;
 
+        [Tooltip("Should this layer have it's own local EventDispatcher or reuse the current one")]
+        [SerializeField] private bool createLocalEventDispatcher = true;
+
         private StateMachineLayer layer;
 
         public void InjectDependencies(StateMachineLayer layer)
@@ -15,7 +18,7 @@ namespace Utils.Core.Flow.DefaultActions
 
         public override void OnStarted()
         {
-            layer.CreateNewLayer(stateMachine);
+            layer.CreateNewLayer(stateMachine, createLocalEventDispatcher);
         }
     }
 }

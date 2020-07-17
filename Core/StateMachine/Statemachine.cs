@@ -40,10 +40,10 @@ namespace Utils.Core.Flow
             CurrentLayer.Update();
         }
 
-        public StateMachineLayer PushNewLayerToStack(StateMachineScriptableObjectData data)
+        public StateMachineLayer PushNewLayerToStack(StateMachineScriptableObjectData data, bool useLocalEventDispatcher = true)
         {
 			StateMachineLayer prevLayer = CurrentLayer;
-			StateMachineLayer newLayer = new StateMachineLayer(this, data, prevLayer.DependencyInjector);
+			StateMachineLayer newLayer = new StateMachineLayer(this, data, prevLayer.DependencyInjector, useLocalEventDispatcher);
             LayerStack.Push(newLayer);
 
             newLayer.Start(prevLayer.CurrentState);
