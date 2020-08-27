@@ -4,7 +4,7 @@ using UnityEngine;
 using Utils.Core.Events;
 using Utils.Core.Services;
 
-namespace Utils.Core
+namespace Utils.Core.Events
 {
 	/// <summary>
 	/// Editor window for manually invoking events of type <see cref="IEvent"/>
@@ -16,7 +16,7 @@ namespace Utils.Core
         protected static GlobalEventInvokeWindow instance;
         protected static GlobalEventDispatcher eventDispatcher;
 
-        [MenuItem("Utils/EventInvokeWindow")]
+        [MenuItem("Utils/Events/EventInvokeWindow")]
         private static void Open()
         {
             instance = new GlobalEventInvokeWindow();
@@ -27,7 +27,7 @@ namespace Utils.Core
 
         public virtual void OpenFilterWindow<T>() where T : IEvent
         {
-            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke (only types with default donstructors are supported)");
+            window = EditorWindow.GetWindow<TypeFilterWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke globally (only types with default donstructors are supported)");
             window.RetrieveTypesWithDefaultConstructors<T>(OnTypeSelectedEvent);
         }
 

@@ -108,7 +108,7 @@ namespace Utils.Core.Flow.Inspector
 
         private void OnEditScriptButtonPressed(ContextMenu.Result result)
         {
-            InspectorUIUtility.OpenScript(result.Obj);
+            EditorUtil.OpenScript(result.Obj);
         }
 
         private void OnDeleteButtonPressed(ContextMenu.Result result)

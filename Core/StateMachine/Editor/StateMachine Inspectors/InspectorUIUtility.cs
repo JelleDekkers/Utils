@@ -170,12 +170,5 @@ namespace Utils.Core.Flow.Inspector
             };
             window.RetrieveTypes(type, func);
         }
-
-        public static void OpenScript(ScriptableObject obj)
-        {
-            MonoScript script = MonoScript.FromScriptableObject(obj);
-            string filePath = AssetDatabase.GetAssetPath(script);
-            UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, 1);
-        }
     }
 }
