@@ -35,7 +35,6 @@ namespace Utils.Core.Attributes
 
             EditorGUI.PropertyField(position, property, label, true);
 
-            property.serializedObject.Update();
             if (isPropertyValueNull)
             {
                 var type = property.GetPropertyType().StringToType();
