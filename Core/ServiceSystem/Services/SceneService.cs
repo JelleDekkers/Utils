@@ -8,9 +8,9 @@ namespace Utils.Core.SceneManagement
 {
 	public class SceneService : IService
 	{
-		private CoroutineService coroutineService;
+		private readonly CoroutineService coroutineService;
 
-		public void InjectDependencies(CoroutineService coroutineService)
+		public SceneService(CoroutineService coroutineService)
 		{
 			this.coroutineService = coroutineService;
 		}
