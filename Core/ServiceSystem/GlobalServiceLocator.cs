@@ -58,7 +58,12 @@ namespace Utils.Core.Services
             }
         }
 
-		public bool Contains(Type type)
+        public void Add(IService service)
+        {
+            InstantiatedServices.Add(service.GetType(), service);
+        }
+
+        public bool Contains(Type type)
 		{
 			return InstantiatedServices.ContainsKey(type);
 		}
