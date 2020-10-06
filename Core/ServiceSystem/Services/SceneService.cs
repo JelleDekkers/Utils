@@ -8,7 +8,22 @@ namespace Utils.Core.SceneManagement
 {
 	public class SceneService : IService
 	{
-		private readonly CoroutineService coroutineService;
+        /// <summary>
+        /// Represents the scene loading progress when using LoadSceneAsync.
+        /// </summary>
+        public virtual float LoadingProgress
+        {
+            get
+            {
+                if (sceneLoadOperation != null)
+                    return sceneLoadOperation.progress;
+                else 
+                    return 1;
+            }
+        }
+
+        private readonly CoroutineService coroutineService;
+        private AsyncOperation sceneLoadOperation;
 
 		public SceneService(CoroutineService coroutineService)
 		{
@@ -20,35 +35,36 @@ namespace Utils.Core.SceneManagement
 			return SceneManager.GetSceneByName(sceneName).isLoaded; 
 		}
 
-		public void LoadScene(string scenePath, Action<string> onDone = null)
+        public virtual void LoadScene(string scenePath, Action<string> onDone = null)
 		{
 			SceneManager.LoadScene(scenePath, LoadSceneMode.Single);
 		}
 
-		public void LoadSceneAdditive(string scene, Action<string> onDone = null)
+        public virtual void LoadSceneAdditive(string scene, Action<string> onDone = null)
 		{
 			SceneManager.LoadScene(scene, LoadSceneMode.Additive);
 		}
 
-		public void UnLoadScene(string scene, Action<string> onDone = null)
+        public virtual void UnLoadScene(string scene, Action<string> onDone = null)
 		{
 			SceneManager.UnloadSceneAsync(scene);
 		}
 
-		public void LoadSceneAsync(string scene, Action<string> onDone = null)
+        public virtual void LoadSceneAsync(string scene, Action<string> onDone = null)
 		{
-			coroutineService.StartCoroutine(LoadSceneCoroutine(scene, onDone));
+			coroutineService.StartCoroutine(LoadSceneAsyncCoroutine(scene, onDone));
 		}
 
-		private IEnumerator LoadSceneCoroutine(string scene, Action<string> onDone = null)
+        public virtual IEnumerator LoadSceneAsyncCoroutine(string scene, Action<string> onDone = null)
 		{
-			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(scene);
+			sceneLoadOperation = SceneManager.LoadSceneAsync(scene);
 
-			while (!asyncLoad.isDone)
+			while (!sceneLoadOperation.isDone)
 			{
 				yield return null;
 			}
 
+            sceneLoadOperation = null;
 			onDone?.Invoke(scene);
 		}
 	}
