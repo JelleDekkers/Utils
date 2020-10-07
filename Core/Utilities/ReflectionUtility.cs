@@ -28,7 +28,12 @@ namespace Utils.Core
 			return t.IsValueType || t.GetConstructor(Type.EmptyTypes) != null;
 		}
 
-		public static IEnumerable<Type> GetDerivedTypes(Assembly assembly, Type type, bool includeAbstract = false)
+        public static IEnumerable<Type> GetDerivedTypes(Type type, bool includeAbstract = false)
+        {
+            return GetDerivedTypes(typeof(ReflectionUtility).Assembly, type, includeAbstract);
+        }
+
+        public static IEnumerable<Type> GetDerivedTypes(Assembly assembly, Type type, bool includeAbstract = false)
         {
             return assembly.GetTypes().Where(
                 t =>
