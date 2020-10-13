@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEngine;
 
 namespace Utils.Core.Extensions
 {
@@ -6,7 +7,7 @@ namespace Utils.Core.Extensions
     {
         public static T GetRandom<T>(this T[] arr)
         {
-            return arr[UnityEngine.Random.Range(0, arr.Length)];
+            return arr[Random.Range(0, arr.Length)];
         }
 
         public static void ReorderItem(this IList collection, int currentIndex, int desiredIndex)
@@ -45,5 +46,17 @@ namespace Utils.Core.Extensions
             return finalArray;
         }
 
+        /// <summary>
+        /// Returns a 'looped' index using modulo
+        /// Example: index of 9 and array count of 8 will return 1
+        /// Example: index of -1 and array count of 8 will return 7
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="newIndex"></param>
+        /// <returns></returns>
+        public static int GetCirculairIndex(this IList collection, int index)
+        {
+            return (int)MathExtensions.Modulo(index, collection.Count);
+        }
     }
 }

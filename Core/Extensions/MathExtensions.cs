@@ -1,4 +1,7 @@
-﻿namespace Utils.Core.Extensions
+﻿
+using UnityEngine;
+
+namespace Utils.Core.Extensions
 {
     public static class MathExtensions
     {
@@ -21,6 +24,15 @@
             if (result > toMax) return toMax;
             if (result < toMin) return toMin;
             return result;
+        }
+
+        /// <summary>
+        /// Returns a proper modulo which works with negative numbers
+        /// </summary>
+        /// <returns></returns>
+        public static float Modulo(float a, float b)
+        {
+            return a - b * Mathf.Floor(a / b);
         }
     }
 }
