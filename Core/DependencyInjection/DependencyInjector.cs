@@ -90,7 +90,7 @@ namespace Utils.Core.Injection
 
         public void InjectGameObject(GameObject go)
         {
-            MonoBehaviour[] monoBehaviours = go.GetComponentsInChildren<MonoBehaviour>();
+            MonoBehaviour[] monoBehaviours = go.GetComponentsInChildren<MonoBehaviour>(true);
             for (int i = 0; i < monoBehaviours.Length; i++)
             {
                 InjectMethod(monoBehaviours[i]);
