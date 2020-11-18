@@ -54,7 +54,7 @@ namespace Utils.Core.Extensions
         /// <param name="collection"></param>
         /// <param name="newIndex"></param>
         /// <returns></returns>
-        public static int GetCirculairIndex(this IList collection, int index)
+        public static int GetLoopingIndex(this IList collection, int index)
         {
             return (int)MathExtensions.Modulo(index, collection.Count);
         }
