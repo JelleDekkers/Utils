@@ -8,6 +8,8 @@ namespace Utils.Core.SceneManagement
 {
 	public class SceneService : IService
 	{
+        public Scene ActiveScene => SceneManager.GetActiveScene();
+
         /// <summary>
         /// Represents the scene loading progress when using LoadSceneAsync.
         /// </summary>

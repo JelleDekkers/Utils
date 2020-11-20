@@ -46,7 +46,7 @@ public class TagsLayersScenesBuilder : EditorWindow
     private static string GetClassContent(string className, string[] labelsArray)
     {
         string output = "";
-        output += "//This class is auto-generated do not modify (TagsLayersScenesBuilder.cs) - blog.almostlogical.com\n";
+        output += "//This class is auto-generated do not modify (TagsLayersScenesBuilder.cs)\n";
         output += "public class " + className + "\n";
         output += "{\n";
         foreach (string label in labelsArray)
@@ -60,7 +60,7 @@ public class TagsLayersScenesBuilder : EditorWindow
     private static string GetLayerClassContent(string className, string[] labelsArray)
     {
         string output = "";
-        output += "//This class is auto-generated do not modify (TagsLayersScenesBuilder.cs) - blog.almostlogical.com\n";
+        output += "//This class is auto-generated do not modify (TagsLayersScenesBuilder.cs)\n";
         output += "public class " + className + "\n";
         output += "{\n";
         foreach (string label in labelsArray)
