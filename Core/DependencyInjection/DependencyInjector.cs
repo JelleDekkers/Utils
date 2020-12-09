@@ -135,6 +135,16 @@ namespace Utils.Core.Injection
         }
 
         /// <summary>
+        /// Simple get function for resolving a single type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public object Get<T>()  
+        {
+            return TypeInstancePairs[typeof(T)];
+        }
+
+        /// <summary>
         /// Creates a new class and resolves it's dependencies
         /// </summary>
         /// <typeparam name="T"></typeparam>
