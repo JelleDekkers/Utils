@@ -24,7 +24,7 @@ namespace Utils.Core.SceneManagement
             }
         }
 
-        private readonly CoroutineService coroutineService;
+        protected readonly CoroutineService coroutineService;
         private AsyncOperation sceneLoadOperation;
 
 		public SceneService(CoroutineService coroutineService)
