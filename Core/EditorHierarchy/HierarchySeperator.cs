@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 
-namespace Utils.Core
+namespace Utils.Core.EditorHierarchy
 {
     /// <summary>
     /// Draws a distinctive divider in the scene hierachy with changeable color. Used for grouping together objects in the hierarchy.
     /// </summary>
-    public class HierarchyDivider : MonoBehaviour
+    public class HierarchySeperator : MonoBehaviour
     {
-        public Color backgroundColor = new Color(0.6f, 0.6f, 0.6f, 1);
+#if UNITY_EDITOR
+        public Color titleBackgroundColor;
+        public Color childBackgroundColor;
+#endif
     }
 }

@@ -34,3 +34,7 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# Utils
+Core/EditorHierarchy/Resources/Settings.asset
+Core/EditorHierarchy/Resources/Settings.asset.meta
