@@ -4,7 +4,8 @@ using UnityEngine;
 namespace Utils.Core.EditorHierarchy
 {
     [InitializeOnLoad]
-    public class HierarchySeperatorEditor
+    [CustomEditor(typeof(HierarchySeperator)), CanEditMultipleObjects]
+    public class HierarchySeperatorEditor : Editor
     {
 
         [MenuItem("GameObject/Hierarchy Seperator", false, -1)]

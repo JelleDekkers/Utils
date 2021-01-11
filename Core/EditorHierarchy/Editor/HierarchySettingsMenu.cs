@@ -6,8 +6,6 @@ namespace Utils.Core.EditorHierarchy
 {
     public static class HierarchySettingsMenu
     {
-        private static readonly Color branchFallbackColor = new Color(0.35f, 0.35f, 0.35f, 0.24f);
-
         [SettingsProvider]
         public static SettingsProvider CreateMyCustomSettingsProvider()
         {
@@ -54,7 +52,7 @@ namespace Utils.Core.EditorHierarchy
                     GUI.enabled = settings.drawChildBranches;
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("childBranchColors"), new GUIContent("Colors"));
                     if (settings.childBranchColors != null && settings.childBranchColors.Count == 0)
-                        settings.childBranchColors.Add(branchFallbackColor);
+                        settings.childBranchColors.Add(HierarchySettings.BranchFallbackColor);
                     GUI.enabled = settings.enabled;
 
                     GUI.enabled = true;

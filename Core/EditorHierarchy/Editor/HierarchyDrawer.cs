@@ -228,6 +228,7 @@ namespace Utils.Core.EditorHierarchy
 
             if (drawAlternatingBG)
             {
+                //rect = new Rect(60, rect.y, rect.width + (rect.x - 60), rect.height);
                 ColorizeLabel(rect, Settings.alternateBackgroundColor);
                 drawAlternatingBG = false;
             }
