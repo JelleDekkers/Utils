@@ -181,6 +181,7 @@ namespace Utils.Core.EditorHierarchy
             fontColor.a = (go.activeInHierarchy) ? 1 : seperatorGroupDisabledTransparency;
             Color backgroundColor = seperator.titleBackgroundColor;
             backgroundColor.a = (go.activeSelf) ? 1 : seperatorGroupDisabledTransparency;
+            rect.height -= 1;
             EditorGUI.DrawRect(rect, backgroundColor);
 
             var style = new GUIStyle(GUI.skin.label)
