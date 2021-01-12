@@ -17,7 +17,7 @@ namespace Utils.Core.EditorHierarchy
         }
         private static HierarchySettings instance;
 
-        public const string AssetPath = "Assets/Utils/Core/EditorHierarchy/Resources/Settings.asset";
+        public const string AssetPath = "Assets/Utils/Core/EditorHierarchy/Editor/Settings.asset";
         public static readonly Color BranchFallbackColor = new Color(0.35f, 0.35f, 0.35f, 0.24f);
 
         public bool enabled = true;

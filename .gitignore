@@ -36,5 +36,5 @@ sysinfo.txt
 *.unitypackage
 
 # Utils
-Core/EditorHierarchy/Resources/Settings.asset
-Core/EditorHierarchy/Resources/Settings.asset.meta
+Core/EditorHierarchy/Editor/Settings.asset
+Core/EditorHierarchy/Editor/Settings.asset.meta
