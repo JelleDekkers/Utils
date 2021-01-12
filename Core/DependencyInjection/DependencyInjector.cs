@@ -76,15 +76,22 @@ namespace Utils.Core.Injection
 
         public void InjectMethod(object obj, string methodName)
         {
-            Type type = obj.GetType();
-            MethodInfo[] methods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            foreach (MethodInfo method in methods)
+            try
             {
-                if (method.Name == methodName)
+                Type type = obj.GetType();
+                MethodInfo[] methods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                foreach (MethodInfo method in methods)
                 {
-                    Inject(method, obj);
-                    return;
+                    if (method.Name == methodName)
+                    {
+                        Inject(method, obj);
+                        return;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
             }
         }
 
