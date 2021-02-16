@@ -12,7 +12,7 @@ namespace Utils.Core.Injection
             Spawnprefab();
         }
 
-        protected virtual void Spawnprefab()
+        protected virtual GameObject Spawnprefab()
         {
             DependencyInjector injector = new DependencyInjector(prefab.name);
             EventDispatcher eventDispatcher = new EventDispatcher(prefab.name);
@@ -21,6 +21,7 @@ namespace Utils.Core.Injection
             GameObject instance = injector.InstantiateGameObject(prefab);
             instance.transform.position = transform.position;
             instance.transform.rotation = transform.rotation;
+            return instance;
         }
     }
 }
