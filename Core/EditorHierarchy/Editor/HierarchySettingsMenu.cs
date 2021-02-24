@@ -20,7 +20,7 @@ namespace Utils.Core.EditorHierarchy
                     GUILayout.Label("General", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("enabled"), new GUIContent("Enabled"));
                     GUI.enabled = settings.enabled;
-                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("updateInPlayMode"), new GUIContent("UpdateInPlayMode"));
+                    //EditorGUILayout.PropertyField(serializedSettings.FindProperty("updateInPlayMode"), new GUIContent("UpdateInPlayMode"));
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("drawIcons"), new GUIContent("Draw Icons"));
 
                     EditorGUILayout.Space(10);

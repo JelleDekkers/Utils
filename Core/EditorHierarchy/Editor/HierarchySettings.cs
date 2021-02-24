@@ -21,7 +21,7 @@ namespace Utils.Core.EditorHierarchy
         public static readonly Color BranchFallbackColor = new Color(0.35f, 0.35f, 0.35f, 0.24f);
 
         public bool enabled = true;
-        public bool updateInPlayMode = true;
+        public bool updateInPlayMode = false;
         public bool drawIcons = true;
 
         public bool drawAlternatingBackgrounds = true;

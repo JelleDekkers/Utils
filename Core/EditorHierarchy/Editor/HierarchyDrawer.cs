@@ -74,7 +74,8 @@ namespace Utils.Core.EditorHierarchy
         /// </summary>
         static void RetrieveDataFromScene()
         {
-            if (!Settings.updateInPlayMode && Application.isPlaying)
+            // Commented this for now as changing transform parent causes a lag spike during playmode
+            if (/*!Settings.updateInPlayMode && */Application.isPlaying)
                 return;
 
             sceneGameObjects.Clear();
