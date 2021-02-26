@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using Utils.Core.Attributes;
 using Utils.Core.Flow;
 
 namespace Utils.Core.SceneManagement
 {
-	public class UnloadSceneAction : StateAction
+    public class UnloadSceneAction : StateAction
 	{
-		[SerializeField, ScenePath] private string scene = string.Empty;
+        [SerializeField] private SceneField scene = null;
 
 		private SceneService sceneService;
 

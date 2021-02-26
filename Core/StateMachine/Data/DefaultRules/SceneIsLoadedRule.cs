@@ -21,7 +21,7 @@ namespace Utils.Core.SceneManagement
 		}
 		private string sceneName = string.Empty;
 
-		[SerializeField, ScenePath] private string scene = string.Empty;
+		[SerializeField] private SceneField scene = null;
 
 		private SceneService sceneService;
 

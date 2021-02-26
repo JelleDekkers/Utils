@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
-using Utils.Core.Attributes;
 using Utils.Core.Events;
 using Utils.Core.Flow;
 
 namespace Utils.Core.SceneManagement
 {
-	public class LoadSceneAction : StateAction
+    public class LoadSceneAction : StateAction
 	{
-		[SerializeField, ScenePath] private string scene = string.Empty;
+		[SerializeField] private SceneField scene = null;
 
 		protected SceneService sceneService;
 		protected EventDispatcher eventDispatcher;
