@@ -11,7 +11,8 @@ namespace Utils.Core.SceneManagement
     {
         [SerializeField] private Object sceneAsset = null;
 
-        public string SceneName => sceneAsset.name;
+        [SerializeField] private string sceneAssetString;
+        public string SceneName => sceneAssetString;
 
         // makes it work with the existing Unity methods (LoadLevel/LoadScene)
         public static implicit operator string(SceneField sceneField)

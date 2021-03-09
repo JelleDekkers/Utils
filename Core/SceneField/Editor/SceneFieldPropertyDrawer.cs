@@ -12,15 +12,18 @@ namespace Utils.Core.SceneManagement
         {
             EditorGUI.BeginProperty(position, GUIContent.none, property);
             SerializedProperty sceneAsset = property.FindPropertyRelative("sceneAsset");
+            SerializedProperty sceneAssetString = property.FindPropertyRelative("sceneAssetString");
 
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
             position.width -= BackLabelWidth;
             EditorGUI.BeginChangeCheck();
-            var sceneField = EditorGUI.ObjectField(position, sceneAsset.objectReferenceValue, typeof(SceneAsset), false);
+            Object sceneField = EditorGUI.ObjectField(position, sceneAsset.objectReferenceValue, typeof(SceneAsset), false);
 
             if (EditorGUI.EndChangeCheck())
             {
                 sceneAsset.objectReferenceValue = sceneField;
+                sceneAssetString.stringValue = (sceneAsset.objectReferenceValue == null) ? "" : sceneField.name;
+                property.serializedObject.ApplyModifiedProperties();
             }
 
             if (sceneAsset.objectReferenceValue != null)
