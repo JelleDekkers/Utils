@@ -17,7 +17,7 @@ namespace Utils.Core.SceneManagement
 #if UNITY_EDITOR
         [SerializeField] private Object sceneAsset = null;
 #endif
-        [SerializeField] private string sceneName;
+        [SerializeField] private string sceneName = string.Empty;
 
         public string SceneName => sceneName;
 
