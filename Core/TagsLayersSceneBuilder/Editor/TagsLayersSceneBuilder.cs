@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -86,6 +88,12 @@ public class TagsLayersScenesBuilder : EditorWindow
     private static string ToUpperCaseWithUnderscores(string input)
     {
         string output = "" + input[0];
+
+        // variables are not allowed to start with a digit, so if it does, start the output with an underscore.
+        if (char.IsDigit(input[0]))
+        {
+            output = "_" + output;
+        }
 
         for (int n = 1; n < input.Length; n++)
         {
