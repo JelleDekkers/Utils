@@ -15,7 +15,9 @@ namespace Utils.Core.SceneManagement
     public class SceneField
     {
 #if UNITY_EDITOR
+#pragma warning disable CS0414
         [SerializeField] private Object sceneAsset = null;
+#pragma warning disable CS0414
 #endif
         [SerializeField] private string sceneName = string.Empty;
 
