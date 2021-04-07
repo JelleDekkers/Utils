@@ -23,6 +23,12 @@ namespace Utils.Core.SceneManagement
 
         public string SceneName => sceneName;
 
+        public SceneField(Object sceneAsset)
+        {
+            this.sceneAsset = sceneAsset;
+            sceneName = sceneAsset.name;
+        }
+
         public static implicit operator string(SceneField sceneField)
         {
             return sceneField.SceneName;
