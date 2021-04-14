@@ -25,7 +25,9 @@ namespace Utils.Core.SceneManagement
 
         public SceneField(Object sceneAsset)
         {
+#if UNITY_EDITOR
             this.sceneAsset = sceneAsset;
+#endif
             sceneName = sceneAsset.name;
         }
 
