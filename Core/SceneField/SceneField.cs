@@ -23,15 +23,19 @@ namespace Utils.Core.SceneManagement
 
         public string SceneName => sceneName;
 
+#if UNITY_EDITOR
         public SceneField(Object sceneAsset)
         {
-#if UNITY_EDITOR
             this.sceneAsset = sceneAsset;
-#endif
             sceneName = sceneAsset.name;
         }
+#endif
+		public SceneField(string name)
+		{
+			sceneName = name;
+		}
 
-        public static implicit operator string(SceneField sceneField)
+		public static implicit operator string(SceneField sceneField)
         {
             return sceneField.SceneName;
         }
