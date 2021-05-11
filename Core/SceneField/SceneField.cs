@@ -30,12 +30,12 @@ namespace Utils.Core.SceneManagement
             sceneName = sceneAsset.name;
         }
 #endif
-		public SceneField(string name)
-		{
-			sceneName = name;
-		}
+        public SceneField(string name)
+        {
+            sceneName = name;
+        }
 
-		public static implicit operator string(SceneField sceneField)
+        public static implicit operator string(SceneField sceneField)
         {
             return sceneField.SceneName;
         }
