@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace Utils.Core.SceneManagement
 {
@@ -21,7 +23,12 @@ namespace Utils.Core.SceneManagement
 #endif
         [SerializeField] private string sceneName = string.Empty;
 
-        public string SceneName => sceneName;
+		public string actualName = "";
+		public Vector2 dimensionsForChecks = new Vector2();
+		public string dimensionsInMeters = "";
+		public string dimensionsInImperial = "";
+
+		public string SceneName => sceneName;
 
 #if UNITY_EDITOR
         public SceneField(Object sceneAsset)
@@ -35,7 +42,46 @@ namespace Utils.Core.SceneManagement
             sceneName = name;
         }
 
-        public static implicit operator string(SceneField sceneField)
+		public SceneField(string fileName, string sceneName)
+		{
+			this.sceneName = sceneName;
+			AnalyzeName(fileName);
+		}
+
+		public void AnalyzeName(string levelName)
+		{
+			actualName = levelName.Substring(levelName.IndexOf("_") + 1, levelName.Length - (levelName.IndexOf("_") + 1));
+			actualName = actualName.Replace(" ", "");
+			actualName = actualName.Replace("_", " ");
+			char space = ' ';
+			while(actualName[actualName.Length - 1] == space)
+				actualName = actualName.Substring(0, actualName.Length - 1);
+			while(actualName[0] == space)
+				actualName = actualName.Substring(1, actualName.Length - 1);
+
+			Regex reg = new Regex("[ ]{2,}", RegexOptions.None);
+			actualName = reg.Replace(actualName, " ");
+			actualName = string.Join(" ", actualName.Split(' ').ToList().ConvertAll(word => word.Substring(0, 1).ToUpper() + word.Substring(1)));
+
+			string dimensions = levelName.Substring(0, levelName.IndexOf("_"));
+
+			string xDimCountStr = dimensions.Substring(0, dimensions.IndexOf("x"));
+			xDimCountStr = new string(xDimCountStr.Where(c => char.IsDigit(c)).ToArray());
+			int xDimCount = int.Parse(xDimCountStr);
+
+			string yDimCountStr = dimensions.Substring(dimensions.IndexOf("x") + 1, dimensions.Length - (dimensions.IndexOf("x") + 1));
+			yDimCountStr = new string(yDimCountStr.Where(c => char.IsDigit(c)).ToArray());
+			int yDimCount = int.Parse(yDimCountStr);
+
+			dimensionsForChecks = new Vector2(xDimCount, yDimCount);
+
+			dimensionsInMeters = xDimCount.ToString() + "x" + yDimCount.ToString() + "m";
+			int xDimImp = Mathf.RoundToInt((float)xDimCount * 3.281f);
+			int yDimImp = Mathf.RoundToInt((float)yDimCount * 3.281f);
+			dimensionsInImperial = xDimImp.ToString() + "x" + yDimImp.ToString() + "ft";
+		}
+
+		public static implicit operator string(SceneField sceneField)
         {
             return sceneField.SceneName;
         }

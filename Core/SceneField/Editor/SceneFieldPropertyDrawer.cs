@@ -18,7 +18,7 @@ namespace Utils.Core.SceneManagement
             position.width -= BackLabelWidth;
             EditorGUI.BeginChangeCheck();
             Object sceneField = EditorGUI.ObjectField(position, sceneAsset.objectReferenceValue, typeof(SceneAsset), false);
-            sceneName.stringValue = (sceneAsset.objectReferenceValue == null) ? "" : sceneField.name;
+            //sceneName.stringValue = (sceneAsset.objectReferenceValue == null) ? "" : sceneField.name;
 
             if (EditorGUI.EndChangeCheck())
             {
