@@ -2,6 +2,6 @@
 {
     public interface IContextEvent : IEvent 
     {
-        public object Sender { get; }
+        object Sender { get; }
     }
 }
