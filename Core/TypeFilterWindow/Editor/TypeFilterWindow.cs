@@ -14,7 +14,8 @@ namespace Utils.Core
         private const float DOUBLE_CLICK_TIME_DELAY = 0.5f;
 
         public delegate void SelectHandler(Type type);
-        private SelectHandler selectionCallback;
+        public SelectHandler typeDoubleClickedEvent;
+        public SelectHandler selectionChangedEvent;
 
         private const string DEFAULT_NAMESPACE_NAME = "No Namespace";
         private const int TEXT_FONT_SIZE = 12;
@@ -24,28 +25,41 @@ namespace Utils.Core
         private const string SEARCHBOX_CANCEL_BUTTON_EMPTY_GUI_STYLE = "SearchCancelButtonEmpty";
         private const string SEARCH_FIELD_CONTROL_NAME = "SearchField";
 
-        private readonly Color32 selectionBackgroundColor = new Color32(62, 125, 231, 128);
+        private readonly Color32 selectionBackgroundColor = new Color32(66, 135, 245, 255);
 
-        private Type HighlightedType
+        protected Type HighlightedType
         {
             get
             {
-                if (highlightIndex >= 0)
-                    return filteredTypes[highlightIndex];
+                if (HighlightIndex >= 0)
+                    return filteredTypes[HighlightIndex];
                 else
                     return null;
             }
         }
 
+        protected int HighlightIndex
+        {
+            get => highlightIndex;
+            private set
+            {
+                bool newValue = (highlightIndex != value);
+                highlightIndex = value;
+                if(newValue)
+                    selectionChangedEvent?.Invoke(HighlightedType);
+            }
+        }
+
+        protected Type[] allTypes;
+        protected Type[] filteredTypes;
+
         private string searchTerm;
         private int highlightIndex = -1;
-        private Type[] allTypes;
-        private Type[] filteredTypes;
         private Vector2 scrollPosition;
         private double timeLastClicked;
         private bool isFocusedOnInit;
 
-        protected void OnGUI()
+        protected virtual void OnGUI()
         {
             ProcessUserInput(Event.current);
 
@@ -53,69 +67,46 @@ namespace Utils.Core
             DrawContent();
         }
 
-        private void ProcessUserInput(Event e)
+        protected void ProcessUserInput(Event e)
         {
             if (e.type == EventType.KeyDown)
             {
-                if (e.keyCode == KeyCode.DownArrow || e.keyCode == KeyCode.S)
-                {
-                    highlightIndex++;
-                }
-                else if (e.keyCode == KeyCode.UpArrow || e.keyCode == KeyCode.W)
-                {
-                    highlightIndex--;
-                }
-                else if (e.keyCode == KeyCode.Return)
-                {
-                    OnTypeSelectedEvent(HighlightedType);
-                }
-                else if (e.keyCode == KeyCode.Escape)
+                //if (e.keyCode == KeyCode.DownArrow || e.keyCode == KeyCode.S)
+                //{
+                //    HighlightIndex++;
+                //}
+                //else if (e.keyCode == KeyCode.UpArrow || e.keyCode == KeyCode.W)
+                //{
+                //    HighlightIndex--;
+                //}
+                //else if (e.keyCode == KeyCode.Return)
+                //{
+                //    OnTypeDoubleClicked(HighlightedType);
+                //}
+                if (e.keyCode == KeyCode.Escape)
                 {
                     Close();
                 }
 
-                highlightIndex = Mathf.Clamp(highlightIndex, 0, filteredTypes.Length - 1);
+                HighlightIndex = Mathf.Clamp(HighlightIndex, 0, filteredTypes.Length - 1);
                 Repaint();
             }
         }
 
-        public void RetrieveTypes(Type type, SelectHandler onSelection)
+        public void RetrieveTypes(Type type, SelectHandler onDoubleClick)
         {
             allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
 			filteredTypes = allTypes;
 			Array.Sort(filteredTypes, delegate (Type x, Type y) { return x.Name.CompareTo(y.Name); });
-			selectionCallback = onSelection;
+			typeDoubleClickedEvent = onDoubleClick;
         }
 
-        public void RetrieveTypes<T>(SelectHandler onSelection)
+        public void RetrieveTypes<T>(SelectHandler onDoubleClick)
         {
-            RetrieveTypes(typeof(T), onSelection);
+            RetrieveTypes(typeof(T), onDoubleClick);
         }
-
-		public void RetrieveTypesWithDefaultConstructors(Type type, SelectHandler onSelection)
-		{
-			allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
-			List<Type> temp = new List<Type>();
-
-			foreach (Type t in allTypes)
-			{
-				if (t.HasDefaultConstructor())
-				{
-					temp.Add(t);
-				}
-			}
-
-			filteredTypes = temp.ToArray();
-			Array.Sort(filteredTypes, delegate (Type x, Type y) { return x.Name.CompareTo(y.Name); });
-			selectionCallback = onSelection;
-		}
-
-		public void RetrieveTypesWithDefaultConstructors<T>(SelectHandler onSelection)
-		{
-			RetrieveTypesWithDefaultConstructors(typeof(T), onSelection);
-		}
 		
-        private void DrawHeader()
+        protected virtual void DrawHeader()
         {
             GUILayout.BeginHorizontal();
 
@@ -189,10 +180,10 @@ namespace Utils.Core
             {
                 if (HighlightedType == type && EditorApplication.timeSinceStartup - timeLastClicked < DOUBLE_CLICK_TIME_DELAY)
                 {
-                    OnTypeSelectedEvent(type);
+                    OnTypeDoubleClicked(type);
                 }
 
-                highlightIndex = index;
+                HighlightIndex = index;
                 timeLastClicked = EditorApplication.timeSinceStartup;
             }
 
@@ -202,9 +193,9 @@ namespace Utils.Core
             return rect;
         }
 
-        private void OnTypeSelectedEvent(Type type)
+        private void OnTypeDoubleClicked(Type type)
         {
-            selectionCallback.Invoke(type);
+            typeDoubleClickedEvent.Invoke(type);
         }
 
         private void FilterTypes(string searchTerm)
@@ -216,7 +207,7 @@ namespace Utils.Core
             }
 
             filteredTypes = GetFilteredTypes(searchTerm);
-            highlightIndex = Mathf.Clamp(highlightIndex, 0, filteredTypes.Length - 1);
+            HighlightIndex = Mathf.Clamp(HighlightIndex, 0, filteredTypes.Length - 1);
         }
 
         private Type[] GetFilteredTypes(string searchTerm)
