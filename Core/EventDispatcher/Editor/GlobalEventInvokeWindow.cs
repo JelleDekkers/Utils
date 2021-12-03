@@ -4,15 +4,13 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using Utils.Core.Events;
 using Utils.Core.Services;
 
 namespace Utils.Core.Events
 {
-	/// <summary>
-	/// Editor window for manually invoking events of type <see cref="IEvent"/>
-	/// Will throw an error if the event does not have an empty constructor
-	/// </summary>
+    /// <summary>
+    /// Editor window for manually invoking events of type <see cref="IEvent"/>
+    /// </summary>
     public class GlobalEventInvokeWindow : TypeFilterWindow
     {
         protected static TypeFilterWindow window;
@@ -22,27 +20,31 @@ namespace Utils.Core.Events
 		private Type selectedEventType;
 		private ParameterInfo[] selectedEventParameters;
 		private object[] parameterValues;
+		private Vector2 scrollPosition;
+		private bool hasUnresolveableTypes;
 
 		[MenuItem("Utils/Events/EventInvokeWindow")]
         private static void Open()
         {
             instance = new GlobalEventInvokeWindow();
             instance.OpenFilterWindow<IEvent>();
+			instance.titleContent = new GUIContent("GlobalEventInvokeWindow");
 
-            eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
+
+			eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
         }
 
         public virtual void OpenFilterWindow<T>() where T : IEvent
         {
             window = GetWindow<GlobalEventInvokeWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke globally (only types with default donstructors are supported)");
-			window.RetrieveTypes<T>(CreateAndInvokeEvent);
+			window.RetrieveTypes<T>();
 			window.selectionChangedEvent += OnTypeSelectedEvent;
         }
 
         private void OnDestroy()
         {
 			if(window != null)
-				window.selectionChangedEvent -= OnTypeSelectedEvent;
+				window.selectionChangedEvent -= OnTypeSelectedEvent; 
 		}
 
 		protected override void OnGUI()
@@ -59,7 +61,7 @@ namespace Utils.Core.Events
 
 		private void DrawInfoPanel()
 		{
-			EditorGUILayout.BeginVertical(GUILayout.MaxWidth(400));
+			EditorGUILayout.BeginVertical(GUILayout.MaxWidth(350));
 
 			if (HighlightedType == null || selectedEventParameters == null)
 			{
@@ -69,78 +71,115 @@ namespace Utils.Core.Events
 			}
 
 			EditorGUILayout.BeginHorizontal();
-			GUIStyle style = EditorStyles.boldLabel;
-			style.fontSize = 17;
-			GUILayout.Label(HighlightedType.Name, style);
+			GUILayout.Label(HighlightedType.Name, EditorStyles.largeLabel); 
 			EditorGUILayout.EndHorizontal();
 
-            for (int i = 0; i < selectedEventParameters.Length; i++)
+			scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+			hasUnresolveableTypes = false;
+
+			if (selectedEventParameters.Length > 0)
+			{
+				for (int i = 0; i < selectedEventParameters.Length; i++)
+				{
+					DrawField(i);
+				}
+			}
+			else
             {
-				DrawField(i);
-            }
+				GUILayout.Label("No parameters", EditorStyles.label);
+			}
+
+			EditorGUILayout.EndScrollView();
+			GUILayout.Space(15);
+
+			if (hasUnresolveableTypes)
+			{
+				GUILayout.BeginHorizontal();
+				GUILayout.Label("No property field found for one or more variables, these will be null");
+				GUILayout.EndHorizontal();
+			}
+
+			GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			if (GUILayout.Button("Invoke Event", GUILayout.MaxWidth(200), GUILayout.MinWidth(60)))
+				CreateAndInvokeEvent(selectedEventType);
+			GUILayout.FlexibleSpace();
+			GUILayout.EndHorizontal();
+			GUILayout.FlexibleSpace();
 
 			EditorGUILayout.EndVertical();
 		}
-
+	
 		private void DrawField(int index)
         {
-			// TODO: make it generic for every field possible
-			// else draw label with parameter name, cant resolve, will return null
 			ParameterInfo parameter = selectedEventParameters[index];
-			EditorGUILayout.BeginVertical();
+			EditorGUILayout.BeginHorizontal();
 			Type parameterType = parameter.ParameterType;
+			object parameterValue = parameterValues[index];
 
-			if(parameterType == typeof(string))
-				parameterValues[index] = EditorGUILayout.TextField(parameter.Name, (string)parameterValues[index]);
+			if (parameterType == typeof(string))
+				parameterValue = EditorGUILayout.TextField(parameter.Name, (string)parameterValue);
 			else if (parameterType == typeof(int))
-				parameterValues[index] = EditorGUILayout.IntField(parameter.Name, (int)parameterValues[index]);
+				parameterValue = EditorGUILayout.IntField(parameter.Name, (int)parameterValue);
 			else if (parameterType == typeof(float))
-				parameterValues[index] = EditorGUILayout.FloatField(parameter.Name, (float)parameterValues[index]);
+				parameterValue = EditorGUILayout.FloatField(parameter.Name, (float)parameterValue);
+			else if (parameterType == typeof(double))
+				parameterValue = EditorGUILayout.DoubleField(parameter.Name, (double)parameterValue);
+			else if (parameterType == typeof(long))
+				parameterValue = EditorGUILayout.LongField(parameter.Name, (long)parameterValue);
+			else if (parameterType == typeof(bool))
+				parameterValue= EditorGUILayout.Toggle(parameter.Name, (bool)parameterValue);
+			else if (parameterType == typeof(Vector2))
+				parameterValue = EditorGUILayout.Vector2Field(parameter.Name, (Vector2)parameterValue);
+			else if (parameterType == typeof(Vector3))
+				parameterValue = EditorGUILayout.Vector3Field(parameter.Name, (Vector3)parameterValue);
+			else if (parameterType == typeof(Vector4))
+				parameterValue = EditorGUILayout.Vector4Field(parameter.Name, (Vector4)parameterValue);
+			else if (parameterType.IsEnum)
+				parameterValue = EditorGUILayout.EnumPopup(parameter.Name, (Enum)parameterValue);
+			else if (parameterType == typeof(GameObject))
+				parameterValue = EditorGUILayout.ObjectField(parameter.Name, (GameObject)parameterValue, typeof(GameObject), true);
+			else if (parameterType == typeof(Color))
+				parameterValue = EditorGUILayout.ColorField(parameter.Name, (Color)parameterValue);
+			else if (parameterType == typeof(Bounds))
+				parameterValue = EditorGUILayout.BoundsField(parameter.Name, (Bounds)parameterValue);
+			else if (parameterType == typeof(Rect))
+				parameterValue = EditorGUILayout.RectField(parameter.Name, (Rect)parameterValue);
+			else if (parameterType.IsAssignableFrom(typeof(UnityEngine.Object)) || parameterType.IsSubclassOf(typeof(UnityEngine.Object)))
+			{
+				parameterValue = EditorGUILayout.ObjectField(parameter.Name, (UnityEngine.Object)parameterValue, typeof(UnityEngine.Object), true);
 
-
-			//switch (parameterType.GetType())
-			//{
-			//	case typeof(int):
-			//		parameterValues[0] = EditorGUILayout.TextField("text", parameterValues[0] as string);
-			//		break;
-			//	case SerializedPropertyType.Float:
-			//		field.SetValue(EditorGUILayout.FloatField(field.Name, (float)field.GetValue(), emptyOptions));
-			//		break;
-			//	case SerializedPropertyType.Boolean:
-			//		field.SetValue(EditorGUILayout.Toggle(field.Name, (bool)field.GetValue(), emptyOptions));
-			//		break;
-			//	case SerializedPropertyType.String:
-			//		field.SetValue(EditorGUILayout.TextField(field.Name, (String)field.GetValue(), emptyOptions));
-			//		break;
-			//	case SerializedPropertyType.Vector2:
-			//		field.SetValue(EditorGUILayout.Vector2Field(field.Name, (Vector2)field.GetValue(), emptyOptions));
-			//		break;
-			//	case SerializedPropertyType.Vector3:
-			//		field.SetValue(EditorGUILayout.Vector3Field(field.Name, (Vector3)field.GetValue(), emptyOptions));
-			//		break;
-			//	case SerializedPropertyType.Enum:
-			//		field.SetValue(EditorGUILayout.EnumPopup(field.Name, (Enum)field.GetValue(), emptyOptions));
-			//		break;
-			//	case SerializedPropertyType.ObjectReference:
-			//		field.SetValue(EditorGUILayout.ObjectField(field.Name, (UnityEngine.Object)field.GetValue(), field.GetPropertyType(), true, emptyOptions));
-			//		break;
-			//	default:
-			//		break;
-			//}
-
-			EditorGUILayout.EndVertical();
+				// In case the parameter derives from MonoBehaviour, but specified object is a GameObject, retrieve the component
+				if (parameterValue is GameObject && selectedEventParameters[index].ParameterType.IsSubclassOf(typeof(MonoBehaviour)))
+					parameterValue = (parameterValue as GameObject).GetComponent(parameterType);
+			}
+			else
+			{
+				EditorGUILayout.LabelField("Unable to draw field for type '" + selectedEventParameters[index].ParameterType + "'");
+				hasUnresolveableTypes = true;
+			}
+			parameterValues[index] = parameterValue;
+			EditorGUILayout.EndHorizontal();
 		}
 
 		private void OnTypeSelectedEvent(Type eventType)
-        {
+		{
 			selectedEventType = eventType;
 			ConstructorInfo[] constructors = eventType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 			selectedEventParameters = constructors[0].GetParameters();
 			parameterValues = new object[selectedEventParameters.Length];
-            for (int i = 0; i < selectedEventParameters.Length; i++)
-            {
-				parameterValues[i] = null;
-            }
+			for (int i = 0; i < selectedEventParameters.Length; i++)
+			{
+				Type parameterType = selectedEventParameters[i].ParameterType;
+				if (parameterType == typeof(string))
+					parameterValues[i] = "";
+				else if (parameterType.IsValueType || parameterType.IsPrimitive)
+					parameterValues[i] = Activator.CreateInstance(selectedEventParameters[i].ParameterType);
+				else if (parameterType.IsSubclassOf(typeof(UnityEngine.Object)) || parameterType.IsAssignableFrom(typeof(UnityEngine.Object)))
+					parameterValues[i] = null;
+				else
+					parameterValues[i] = null;
+			}
 		}
 
 		private void CreateAndInvokeEvent(Type eventType)

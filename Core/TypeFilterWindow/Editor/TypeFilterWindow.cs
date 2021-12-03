@@ -31,7 +31,7 @@ namespace Utils.Core
         {
             get
             {
-                if (HighlightIndex >= 0)
+                if (HighlightIndex >= 0 && filteredTypes != null)
                     return filteredTypes[HighlightIndex];
                 else
                     return null;
@@ -93,15 +93,17 @@ namespace Utils.Core
             }
         }
 
-        public void RetrieveTypes(Type type, SelectHandler onDoubleClick)
+        public void RetrieveTypes(Type type, SelectHandler onDoubleClick = null)
         {
             allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
 			filteredTypes = allTypes;
 			Array.Sort(filteredTypes, delegate (Type x, Type y) { return x.Name.CompareTo(y.Name); });
-			typeDoubleClickedEvent = onDoubleClick;
+
+            if(onDoubleClick != null)
+			    typeDoubleClickedEvent = onDoubleClick;
         }
 
-        public void RetrieveTypes<T>(SelectHandler onDoubleClick)
+        public void RetrieveTypes<T>(SelectHandler onDoubleClick = null)
         {
             RetrieveTypes(typeof(T), onDoubleClick);
         }
@@ -195,7 +197,7 @@ namespace Utils.Core
 
         private void OnTypeDoubleClicked(Type type)
         {
-            typeDoubleClickedEvent.Invoke(type);
+            typeDoubleClickedEvent?.Invoke(type);
         }
 
         private void FilterTypes(string searchTerm)
