@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using Utils.Core.Extensions;
 using Utils.Core.Services;
 
 namespace Utils.Core.Events
@@ -20,7 +21,7 @@ namespace Utils.Core.Events
 		private Type selectedEventType;
 		private ParameterInfo[] selectedEventParameters;
 		private object[] parameterValues;
-		private Vector2 scrollPosition;
+		private Vector2 dataScrollPosition;
 		private bool hasUnresolveableTypes;
 
 		[MenuItem("Utils/Events/EventInvokeWindow")]
@@ -29,16 +30,19 @@ namespace Utils.Core.Events
             instance = new GlobalEventInvokeWindow();
             instance.OpenFilterWindow<IEvent>();
 			instance.titleContent = new GUIContent("GlobalEventInvokeWindow");
-
-
-			eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
         }
 
         public virtual void OpenFilterWindow<T>() where T : IEvent
         {
-            window = GetWindow<GlobalEventInvokeWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke globally (only types with default donstructors are supported)");
+			eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
+			window = GetWindow<GlobalEventInvokeWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke globally (only types with default donstructors are supported)");
 			window.RetrieveTypes<T>();
 			window.selectionChangedEvent += OnTypeSelectedEvent;
+		}
+
+		private void OnRecompileEvent()
+        {
+			Open();
         }
 
         private void OnDestroy()
@@ -74,7 +78,7 @@ namespace Utils.Core.Events
 			GUILayout.Label(HighlightedType.Name, EditorStyles.largeLabel); 
 			EditorGUILayout.EndHorizontal();
 
-			scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+			dataScrollPosition = EditorGUILayout.BeginScrollView(dataScrollPosition);
 			hasUnresolveableTypes = false;
 
 			if (selectedEventParameters.Length > 0)
@@ -128,7 +132,7 @@ namespace Utils.Core.Events
 			else if (parameterType == typeof(long))
 				parameterValue = EditorGUILayout.LongField(parameter.Name, (long)parameterValue);
 			else if (parameterType == typeof(bool))
-				parameterValue= EditorGUILayout.Toggle(parameter.Name, (bool)parameterValue);
+				parameterValue = EditorGUILayout.Toggle(parameter.Name, (bool)parameterValue);
 			else if (parameterType == typeof(Vector2))
 				parameterValue = EditorGUILayout.Vector2Field(parameter.Name, (Vector2)parameterValue);
 			else if (parameterType == typeof(Vector3))
@@ -145,17 +149,23 @@ namespace Utils.Core.Events
 				parameterValue = EditorGUILayout.BoundsField(parameter.Name, (Bounds)parameterValue);
 			else if (parameterType == typeof(Rect))
 				parameterValue = EditorGUILayout.RectField(parameter.Name, (Rect)parameterValue);
+			else if (parameterType.IsInterface)
+			{
+				parameterValue = EditorGUILayout.ObjectField(parameter.Name, (UnityEngine.Object)parameterValue, typeof(UnityEngine.Object), true);
+				if (parameterValue is GameObject)
+					parameterValue = (parameterValue as GameObject).GetInterface<MonoBehaviour>(parameterType);
+			}
 			else if (parameterType.IsAssignableFrom(typeof(UnityEngine.Object)) || parameterType.IsSubclassOf(typeof(UnityEngine.Object)))
 			{
 				parameterValue = EditorGUILayout.ObjectField(parameter.Name, (UnityEngine.Object)parameterValue, typeof(UnityEngine.Object), true);
 
 				// In case the parameter derives from MonoBehaviour, but specified object is a GameObject, retrieve the component
-				if (parameterValue is GameObject && selectedEventParameters[index].ParameterType.IsSubclassOf(typeof(MonoBehaviour)))
+				if (parameterValue is GameObject && parameterType.IsSubclassOf(typeof(MonoBehaviour)))
 					parameterValue = (parameterValue as GameObject).GetComponent(parameterType);
 			}
 			else
 			{
-				EditorGUILayout.LabelField("Unable to draw field for type '" + selectedEventParameters[index].ParameterType + "'");
+				EditorGUILayout.LabelField(selectedEventParameters[index].ParameterType.ToString(), "No corresponding propertyfield");
 				hasUnresolveableTypes = true;
 			}
 			parameterValues[index] = parameterValue;
@@ -164,6 +174,9 @@ namespace Utils.Core.Events
 
 		private void OnTypeSelectedEvent(Type eventType)
 		{
+			if (eventType == null)
+				return;
+
 			selectedEventType = eventType;
 			ConstructorInfo[] constructors = eventType.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 			selectedEventParameters = constructors[0].GetParameters();

@@ -14,6 +14,16 @@ namespace Utils.Core.Extensions
             return obj.GetComponent<T>() as T;
         }
 
+        public static T GetInterface<T>(this GameObject obj, System.Type type) where T : class
+        {
+            if (!type.IsInterface)
+            {
+                Debug.LogError(typeof(T).ToString() + ": is not an interface!");
+                return null;
+            }
+            return obj.GetComponent(type) as T;
+        }
+
         public static bool TryGetInterface<T>(this GameObject obj, out T @interface) where T : class
         {
             if (!typeof(T).IsInterface)

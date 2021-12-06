@@ -31,7 +31,7 @@ namespace Utils.Core
         {
             get
             {
-                if (HighlightIndex >= 0 && filteredTypes != null)
+                if (HighlightIndex >= 0 && filteredTypes != null && highlightIndex < filteredTypes.Length - 1)
                     return filteredTypes[HighlightIndex];
                 else
                     return null;
