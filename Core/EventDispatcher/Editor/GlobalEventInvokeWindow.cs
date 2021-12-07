@@ -14,8 +14,7 @@ namespace Utils.Core.Events
     /// </summary>
     public class GlobalEventInvokeWindow : TypeFilterWindow
     {
-        protected static TypeFilterWindow window;
-        protected static GlobalEventInvokeWindow instance;
+        protected static GlobalEventInvokeWindow window;
         protected static GlobalEventDispatcher eventDispatcher;
 
 		private Type selectedEventType;
@@ -27,23 +26,17 @@ namespace Utils.Core.Events
 		[MenuItem("Utils/Events/EventInvokeWindow")]
         private static void Open()
         {
-            instance = new GlobalEventInvokeWindow();
-            instance.OpenFilterWindow<IEvent>();
-			instance.titleContent = new GUIContent("GlobalEventInvokeWindow");
-        }
-
-        public virtual void OpenFilterWindow<T>() where T : IEvent
-        {
-			eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
-			window = GetWindow<GlobalEventInvokeWindow>(true, "GlobalEventInvokeWindow - Select an event to manually invoke globally (only types with default donstructors are supported)");
-			window.RetrieveTypes<T>();
-			window.selectionChangedEvent += OnTypeSelectedEvent;
+			window = GetWindow<GlobalEventInvokeWindow>(false, "GlobalEventInvokeWindow");
+            window.titleContent = new GUIContent("GlobalEventInvokeWindow");
+			window.RetrieveTypes<IEvent>(); 
+			window.Initialize();
 		}
 
-		private void OnRecompileEvent()
+		public void Initialize()
         {
-			Open();
-        }
+			eventDispatcher = GlobalServiceLocator.Instance.Get<GlobalEventDispatcher>();
+			selectionChangedEvent += OnTypeSelectedEvent; 
+		}
 
         private void OnDestroy()
         {
@@ -63,20 +56,29 @@ namespace Utils.Core.Events
 			EditorGUILayout.EndHorizontal();
 		}
 
+		private void DrawInfoTitle()
+        {
+			EditorGUILayout.BeginHorizontal();
+			GUILayout.Label(HighlightedType.Name, EditorStyles.largeLabel);
+			GUIStyle style = EditorStyles.miniButton;
+			style.margin = new RectOffset(0, 2, 7, 0);
+			if (GUILayout.Button("Edit Script", style, GUILayout.Width(75)))
+				EditorUtil.OpenScript(HighlightedType);
+			EditorGUILayout.EndHorizontal();
+		}
+
 		private void DrawInfoPanel()
 		{
-			EditorGUILayout.BeginVertical(GUILayout.MaxWidth(350));
+			EditorGUILayout.BeginVertical(GUILayout.MaxWidth(350), GUILayout.MinWidth(150));
 
 			if (HighlightedType == null || selectedEventParameters == null)
 			{
-				GUILayout.Label("");
+				GUILayout.Label("Select an event to invoke globally");
 				EditorGUILayout.EndVertical();
 				return;
 			}
 
-			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(HighlightedType.Name, EditorStyles.largeLabel); 
-			EditorGUILayout.EndHorizontal();
+			DrawInfoTitle();
 
 			dataScrollPosition = EditorGUILayout.BeginScrollView(dataScrollPosition);
 			hasUnresolveableTypes = false;
@@ -99,7 +101,7 @@ namespace Utils.Core.Events
 			if (hasUnresolveableTypes)
 			{
 				GUILayout.BeginHorizontal();
-				GUILayout.Label("No property field found for one or more variables, these will be null");
+				GUILayout.Label("No property field found for one or more variables, these will be null", EditorStyles.miniBoldLabel);
 				GUILayout.EndHorizontal();
 			}
 
