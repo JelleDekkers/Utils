@@ -1,13 +1,19 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Utils.Core.Extensions
 {
-    public static class ArrayExtensions
+    public static class CollectionExtensions
     {
         public static T GetRandom<T>(this T[] arr)
         {
             return arr[Random.Range(0, arr.Length)];
+        }
+
+        public static T GetRandom<T>(this List<T> arr)
+        {
+            return arr[Random.Range(0, arr.Count)];
         }
 
         public static void ReorderItem(this IList collection, int currentIndex, int desiredIndex)
