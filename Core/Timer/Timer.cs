@@ -6,14 +6,15 @@ using Utils.Core.Services;
 
 public class Timer
 {
+    public bool IsRunning { get; private set; }
     public float TimeStarted { get; private set; }
     public float Duration { get; private set; }
-
-    public float TimeRemaining => Mathf.Clamp(TimeStarted + Duration - Time.time, 0, Duration);
+    public float TimeRemaining => Mathf.Clamp(Duration - ElapsedTime, 0, Duration);
+    public float ElapsedTime { get; private set; }
+    public CoroutineTask Task { get; private set; }
     public Action onDone;
 
-    private CoroutineService coroutineService;
-    public CoroutineTask Task { get; private set; }
+    private readonly CoroutineService coroutineService;
 
     public Timer()
     {
@@ -22,22 +23,36 @@ public class Timer
 
     public IEnumerator TimerCoroutine()
     {
-        yield return new WaitForSeconds(Duration);
+        WaitForSeconds wait = new WaitForSeconds(Duration);
+        while(TimeRemaining > 0)
+        {
+            ElapsedTime += Time.deltaTime;
+            yield return null;
+        }
         onDone?.Invoke();
         Task = null;
     }
 
     public void Start(float durationInSeconds, Action onDoneEvent = null)
     {
+        if(IsRunning)
+            Stop();
+
         TimeStarted = Time.time;
+        ElapsedTime = 0;
         Duration = durationInSeconds;
+
         Task = coroutineService.StartCoroutine(TimerCoroutine());
         onDone += onDoneEvent;
+        IsRunning = true;
     }
 
     public void Stop()
     {
-        Task?.Stop();
-        Task = null;
+        if (Task != null)
+        {
+            Task.Stop();
+            Task = null;
+        }
     }
 }
