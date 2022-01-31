@@ -21,29 +21,29 @@ public class Timer
         coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
     }
 
-    public IEnumerator TimerCoroutine()
+    public void Set(float durationInSeconds)
     {
-        WaitForSeconds wait = new WaitForSeconds(Duration);
-        while(TimeRemaining > 0)
-        {
-            ElapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        onDone?.Invoke();
-        Task = null;
+        Duration = durationInSeconds;
     }
 
-    public void Start(float durationInSeconds, Action onDoneEvent = null)
+    public void Reset()
     {
+        ElapsedTime = 0;
+    }
+
+    public void Start(Action onDoneEvent = null)
+    {
+        if (Duration == 0)
+            throw new Exception("Duration is cannot be 0, did you call Set()?");
+
         if(IsRunning)
             Stop();
 
         TimeStarted = Time.time;
         ElapsedTime = 0;
-        Duration = durationInSeconds;
+        onDone += onDoneEvent;
 
         Task = coroutineService.StartCoroutine(TimerCoroutine());
-        onDone += onDoneEvent;
         IsRunning = true;
     }
 
@@ -54,5 +54,20 @@ public class Timer
             Task.Stop();
             Task = null;
         }
+        IsRunning = false;
+    }
+
+    private IEnumerator TimerCoroutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(Duration);
+        while (TimeRemaining > 0)
+        {
+            ElapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        onDone?.Invoke();
+        Task = null;
+        onDone = null;
+        IsRunning = false;
     }
 }
