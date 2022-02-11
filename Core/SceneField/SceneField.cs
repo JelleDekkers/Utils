@@ -21,12 +21,10 @@ namespace Utils.Core.SceneManagement
 #endif
 		public string SceneName => sceneAsset.name;
 
-#if UNITY_EDITOR
 		public SceneField(Object sceneAsset)
 		{
 			this.sceneAsset = sceneAsset;
 		}
-#endif
 
 		public static implicit operator string(SceneField sceneField)
 		{
