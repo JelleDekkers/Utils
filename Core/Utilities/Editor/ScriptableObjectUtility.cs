@@ -25,6 +25,7 @@ namespace Utils.Core
 
             string extensionType = ".Asset";
             string fullPath = path + "/" + assetName + extensionType;
+            
             fullPath = AssetDatabase.GenerateUniqueAssetPath(fullPath);
 
             AssetDatabase.CreateAsset(asset, fullPath);
@@ -53,9 +54,8 @@ namespace Utils.Core
         /// <summary>
         /// Returns selection folder path
         /// </summary>
-        /// <param name="fileName"></param>
         /// <returns></returns>
-        public static string GetSelectionAssetPath(string fileName)
+        public static string GetSelectionAssetPath()
         {
             Object selectedObject = Selection.objects.FirstOrDefault();
             string path = "Assets";

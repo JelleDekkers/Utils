@@ -30,7 +30,7 @@ namespace Utils.Core
             if (type == null)
                 throw new ArgumentNullException("type");
 
-            string path = ScriptableObjectUtility.GetSelectionAssetPath(type.Name);
+            string path = ScriptableObjectUtility.GetSelectionAssetPath();
 
             if (path == null)
                 throw new ArgumentNullException("path");
