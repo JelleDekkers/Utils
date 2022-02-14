@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Utils.Core.Events;
 using Utils.Core.Services;
 
 namespace Utils.Core.SceneManagement
@@ -10,6 +11,16 @@ namespace Utils.Core.SceneManagement
 	{
         public Scene ActiveScene => SceneManager.GetActiveScene();
 
+		/// <summary>
+		/// Is scene being loaded? Also see <see cref="LoadingSceneName"/>.
+		/// </summary>
+		public bool IsLoadingScene { get; protected set; }
+
+		/// <summary>
+		/// The name of the scene that is being loaded, null if nothing is being loaded.
+		/// </summary>
+		public string LoadingSceneName { get; protected set; }
+
         /// <summary>
         /// Represents the scene loading progress when using LoadSceneAsync.
         /// </summary>
@@ -17,57 +28,124 @@ namespace Utils.Core.SceneManagement
         {
             get
             {
-                if (sceneLoadOperation != null)
-                    return sceneLoadOperation.progress;
+                if (SceneLoadOperation != null)
+                    return SceneLoadOperation.progress;
                 else 
                     return 1;
             }
         }
 
-        protected readonly CoroutineService coroutineService;
-        private AsyncOperation sceneLoadOperation;
+		/// <summary>
+		/// Called when scene starts to load with delay
+		/// </summary>
+		public SceneLoadStartDelayHandler SceneLoadStartDelayEvent;
+		public delegate void SceneLoadStartDelayHandler(string sceneName, float delay);
 
-		public SceneService(CoroutineService coroutineService)
+		/// <summary>
+		/// Called when scene starts to load, independent of delay
+		/// </summary>
+		public Action<string> SceneLoadStartEvent;
+
+		/// <summary>
+		/// Called when scene is done loading
+		/// </summary>
+		public SceneLoadFinishEventHandler SceneLoadFinishEvent;
+		public delegate void SceneLoadFinishEventHandler(Scene scene, LoadSceneMode loadMode);
+
+		public AsyncOperation SceneLoadOperation { get; protected set; }
+
+		protected readonly CoroutineService coroutineService;
+		protected readonly GlobalEventDispatcher globalEventDispatcher;
+
+		public SceneService(CoroutineService coroutineService, GlobalEventDispatcher globalEventDispatcher)
 		{
 			this.coroutineService = coroutineService;
+			this.globalEventDispatcher = globalEventDispatcher;
+
+			SceneManager.sceneLoaded += OnSceneLoaded;
 		}
 
-		public bool IsSceneLoaded(string sceneName)
+        protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode loadMode)
+        {
+			SceneLoadFinishEvent?.Invoke(scene, loadMode);
+			IsLoadingScene = false;
+			LoadingSceneName = null;
+        }
+
+        public bool IsSceneLoaded(string sceneName)
 		{
 			return SceneManager.GetSceneByName(sceneName).isLoaded; 
 		}
 
-        public virtual void LoadScene(string scenePath, Action<string> onDone = null)
+        public virtual void LoadScene(string sceneName, Action<string> onDone = null)
 		{
-			SceneManager.LoadScene(scenePath, LoadSceneMode.Single);
+			SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+			IsLoadingScene = true;
+			LoadingSceneName = sceneName;
+			SceneLoadStartEvent?.Invoke(sceneName);
 		}
 
-        public virtual void LoadSceneAdditive(string scene, Action<string> onDone = null)
+		public virtual void LoadScene(string sceneName, float delay, Action<string> onDone = null)
 		{
-			SceneManager.LoadScene(scene, LoadSceneMode.Additive);
+			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => LoadScene(sceneName, onDone)));
 		}
 
-        public virtual void UnLoadScene(string scene, Action<string> onDone = null)
+		public virtual void LoadSceneAdditive(string sceneName, Action<string> onDone = null)
 		{
-			SceneManager.UnloadSceneAsync(scene);
+			SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
+			IsLoadingScene = true;
+			LoadingSceneName = sceneName;
+			SceneLoadStartEvent?.Invoke(sceneName);
 		}
 
-        public virtual void LoadSceneAsync(string scene, Action<string> onDone = null)
+		public virtual void LoadSceneAdditive(string sceneName, float delay, Action<string> onDone = null)
 		{
-			coroutineService.StartCoroutine(LoadSceneAsyncCoroutine(scene, onDone));
+			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => LoadSceneAdditive(sceneName, onDone)));
 		}
 
-        public virtual IEnumerator LoadSceneAsyncCoroutine(string scene, Action<string> onDone = null)
+		public virtual void UnLoadScene(string sceneName, Action<string> onDone = null)
 		{
-			sceneLoadOperation = SceneManager.LoadSceneAsync(scene);
+			SceneManager.UnloadSceneAsync(sceneName);
+		}
 
-			while (!sceneLoadOperation.isDone)
+		public virtual void UnLoadScene(string sceneName, float delay, Action<string> onDone = null)
+		{
+			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => UnLoadScene(sceneName, onDone)));
+		}
+
+		public virtual void LoadSceneAsync(string sceneName, Action<string> onDone = null)
+		{
+			coroutineService.StartCoroutine(LoadSceneAsyncCoroutine(sceneName, onDone));
+			IsLoadingScene = true;
+			LoadingSceneName = sceneName;
+			SceneLoadStartEvent?.Invoke(sceneName);
+		}
+
+		public virtual void LoadSceneAsync(string sceneName, float delay, Action<string> onDone = null)
+		{
+			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => LoadSceneAsync(sceneName, onDone)));
+		}
+
+		protected virtual IEnumerator StartDelay(string sceneName, float seconds, Action onDone = null)
+        {
+			globalEventDispatcher.Invoke(new StartDelayedSceneLoadEvent(sceneName, seconds));
+			IsLoadingScene = true;
+			LoadingSceneName = sceneName;
+			SceneLoadStartDelayEvent?.Invoke(sceneName, seconds);
+			yield return new WaitForSeconds(seconds);
+			onDone?.Invoke();
+        }
+
+		public virtual IEnumerator LoadSceneAsyncCoroutine(string sceneName, Action<string> onDone = null)
+		{
+			SceneLoadOperation = SceneManager.LoadSceneAsync(sceneName);
+			while (!SceneLoadOperation.isDone)
 			{
 				yield return null;
 			}
 
-            sceneLoadOperation = null;
-			onDone?.Invoke(scene);
+            SceneLoadOperation = null;
+			onDone?.Invoke(sceneName);
 		}
 	}
 }
