@@ -36,15 +36,10 @@ namespace Utils.Core.SceneManagement
         }
 
 		/// <summary>
-		/// Called when scene starts to load with delay
+		/// Called when scene starts to load
 		/// </summary>
-		public SceneLoadStartDelayHandler SceneLoadStartDelayEvent;
-		public delegate void SceneLoadStartDelayHandler(string sceneName, float delay);
-
-		/// <summary>
-		/// Called when scene starts to load, independent of delay
-		/// </summary>
-		public Action<string> SceneLoadStartEvent;
+		public SceneLoadStartEventHandler SceneLoadStartEvent;
+		public delegate void SceneLoadStartEventHandler(string sceneName);
 
 		/// <summary>
 		/// Called when scene is done loading
@@ -85,11 +80,6 @@ namespace Utils.Core.SceneManagement
 			SceneLoadStartEvent?.Invoke(sceneName);
 		}
 
-		public virtual void LoadScene(string sceneName, float delay, Action<string> onDone = null)
-		{
-			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => LoadScene(sceneName, onDone)));
-		}
-
 		public virtual void LoadSceneAdditive(string sceneName, Action<string> onDone = null)
 		{
 			SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
@@ -98,19 +88,9 @@ namespace Utils.Core.SceneManagement
 			SceneLoadStartEvent?.Invoke(sceneName);
 		}
 
-		public virtual void LoadSceneAdditive(string sceneName, float delay, Action<string> onDone = null)
-		{
-			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => LoadSceneAdditive(sceneName, onDone)));
-		}
-
 		public virtual void UnLoadScene(string sceneName, Action<string> onDone = null)
 		{
 			SceneManager.UnloadSceneAsync(sceneName);
-		}
-
-		public virtual void UnLoadScene(string sceneName, float delay, Action<string> onDone = null)
-		{
-			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => UnLoadScene(sceneName, onDone)));
 		}
 
 		public virtual void LoadSceneAsync(string sceneName, Action<string> onDone = null)
@@ -120,21 +100,6 @@ namespace Utils.Core.SceneManagement
 			LoadingSceneName = sceneName;
 			SceneLoadStartEvent?.Invoke(sceneName);
 		}
-
-		public virtual void LoadSceneAsync(string sceneName, float delay, Action<string> onDone = null)
-		{
-			coroutineService.StartCoroutine(StartDelay(sceneName, delay, () => LoadSceneAsync(sceneName, onDone)));
-		}
-
-		protected virtual IEnumerator StartDelay(string sceneName, float seconds, Action onDone = null)
-        {
-			globalEventDispatcher.Invoke(new StartDelayedSceneLoadEvent(sceneName, seconds));
-			IsLoadingScene = true;
-			LoadingSceneName = sceneName;
-			SceneLoadStartDelayEvent?.Invoke(sceneName, seconds);
-			yield return new WaitForSeconds(seconds);
-			onDone?.Invoke();
-        }
 
 		public virtual IEnumerator LoadSceneAsyncCoroutine(string sceneName, Action<string> onDone = null)
 		{
