@@ -21,7 +21,9 @@ namespace Utils.Core.FPSCounter
         /// </summary>
         public static FPSCounter CreateCounterInstance()
         {
-            return new GameObject("FPS Counter", typeof(FPSCounter)).GetComponent<FPSCounter>();
+            FPSCounter counter = new GameObject("FPS Counter", typeof(FPSCounter)).GetComponent<FPSCounter>();
+            DontDestroyOnLoad(counter);
+            return counter;
         }
 
         protected virtual void Awake()
