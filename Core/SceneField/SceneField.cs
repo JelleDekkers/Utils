@@ -16,7 +16,7 @@ namespace Utils.Core.SceneManagement
 	{
 #if UNITY_EDITOR
 		// Objects of type SceneAsset are not compiled with builds, and needs to be put in UNITY_EDITOR directives
-		[SerializeField] private Object sceneAsset = null;
+		[SerializeField] protected Object sceneAsset = null;
 #endif
 		public string SceneName => sceneName;
 		[SerializeField] private string sceneName;
