@@ -19,7 +19,7 @@ namespace Utils.Core.SceneManagement
 		[SerializeField] protected Object sceneAsset = null;
 #endif
 		public string SceneName => sceneName;
-		[SerializeField] private string sceneName;
+		[SerializeField] protected string sceneName;
 
 #if UNITY_EDITOR
 		public SceneField(Object sceneAsset)
