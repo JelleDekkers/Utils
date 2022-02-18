@@ -12,7 +12,7 @@ namespace Utils.Core.SceneManagement
     /// therefore a seperate string is needed
     /// </summary>
     [System.Serializable]
-	public class SceneField
+	public class SceneField : ISerializationCallbackReceiver
 	{
 #if UNITY_EDITOR
 		// Objects of type SceneAsset are not compiled with builds, and needs to be put in UNITY_EDITOR directives
@@ -38,5 +38,18 @@ namespace Utils.Core.SceneManagement
 		{
 			return sceneField.SceneName;
 		}
-	}
+
+        public void OnBeforeSerialize()
+        {
+#if UNITY_EDITOR
+            if (sceneAsset != null)
+                sceneName = sceneAsset.name;
+#endif
+        }
+
+        public void OnAfterDeserialize()
+        {
+
+        }
+    }
 }
