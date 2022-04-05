@@ -6,12 +6,12 @@ using Utils.Core.Services;
 
 public class Timer
 {
-    public bool IsRunning { get; private set; }
-    public float TimeStarted { get; private set; }
-    public float Duration { get; private set; }
+    public bool IsRunning { get; protected set; }
+    public float TimeStarted { get; protected set; }
+    public float Duration { get; protected set; }
     public float TimeRemaining => Mathf.Clamp(Duration - ElapsedTime, 0, Duration);
-    public float ElapsedTime { get; private set; }
-    public CoroutineTask Task { get; private set; }
+    public float ElapsedTime { get; protected set; }
+    public CoroutineTask Task { get; protected set; }
     public Action onDone;
 
     private readonly CoroutineService coroutineService;
