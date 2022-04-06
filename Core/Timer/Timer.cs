@@ -21,17 +21,17 @@ public class Timer
         coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
     }
 
-    public void Set(float durationInSeconds)
+    public virtual void Set(float durationInSeconds)
     {
         Duration = durationInSeconds;
     }
 
-    public void Reset()
+    public virtual void Reset()
     {
         ElapsedTime = 0;
     }
 
-    public void Start(Action onDoneEvent = null)
+    public virtual void Start(Action onDoneEvent = null)
     {
         if (Duration == 0)
             throw new Exception("Duration is cannot be 0, did you call Set()?");
@@ -47,7 +47,7 @@ public class Timer
         IsRunning = true;
     }
 
-    public void Stop()
+    public virtual void Stop()
     {
         if (Task != null)
         {
