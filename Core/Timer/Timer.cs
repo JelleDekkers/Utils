@@ -41,7 +41,9 @@ public class Timer
 
         TimeStarted = Time.time;
         ElapsedTime = 0;
-        onDone += onDoneEvent;
+
+        if(onDoneEvent != null)
+            onDone += onDoneEvent;
 
         Task = coroutineService.StartCoroutine(TimerCoroutine());
         IsRunning = true;
@@ -55,6 +57,19 @@ public class Timer
             Task = null;
         }
         IsRunning = false;
+    }
+
+    public virtual void Resume()
+    {
+        if (IsRunning)
+        {
+            Debug.LogWarning("Cant resume a timer thats still running!");
+            return;
+        }
+
+
+        Task = coroutineService.StartCoroutine(TimerCoroutine());
+        IsRunning = true;
     }
 
     private IEnumerator TimerCoroutine()
