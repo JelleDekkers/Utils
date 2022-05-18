@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -10,10 +11,19 @@ namespace Utils.Core
     /// </summary>
     public class MissingComponentsFinder : EditorWindow
     {
+        enum SearchType
+        {
+            Scene,
+            Prefabs
+        }
+
         private readonly Color32 selectionBackgroundColor = new Color32(6, 13, 38, 255);
         private const int TEXT_FONT_SIZE = 12;
         private const int SUBTEXT_FONT_SIZE = 9;
+        private readonly string[] searchTypeTexts = new string[] { "Scene", "Prefabs" };
 
+        private SearchType CurrentSearchType => (SearchType)searchTypeIndex;
+        private int searchTypeIndex;
         private List<MissingComponentInfo> missingComponentInfos = new List<MissingComponentInfo>();
         private int totalMissingComponentCount;
 
@@ -24,26 +34,12 @@ namespace Utils.Core
         private static void Open()
         {
             MissingComponentsFinder instance = GetWindow<MissingComponentsFinder>(true, "Missing Components Finder");
-            instance.FindMissingComponents();
+            instance.FindMissingComponentsInScene();
         }
 
         private void OnFocus()
         {
-            FindMissingComponents();
-        }
-
-        private void FindMissingComponents()
-        {
-            missingComponentInfos.Clear();
-            totalMissingComponentCount = 0;
-
-            Transform[] transforms = FindObjectsOfType<Transform>(true);
-            missingComponentInfos = new List<MissingComponentInfo>();
-
-            foreach (Transform item in transforms)
-            {
-                CheckMissingComponents(item.gameObject);
-            }
+            FindMissingComponents(CurrentSearchType);
         }
 
         protected virtual void OnGUI()
@@ -52,12 +48,66 @@ namespace Utils.Core
             DrawContent();
         }
 
+        private void FindMissingComponents(SearchType searchType)
+        {
+            switch (searchType)
+            {
+                case SearchType.Scene:
+                    FindMissingComponentsInScene();
+                    break;
+                case SearchType.Prefabs:
+                    FindMissingComponentsInAssets();
+                    break;
+                default:
+                    throw new System.NotImplementedException(searchType.ToString());
+            }
+        }
+
+        private void FindMissingComponentsInScene()
+        {
+            missingComponentInfos.Clear();
+            totalMissingComponentCount = 0;
+
+            Transform[] transforms = FindObjectsOfType<Transform>(true);
+            missingComponentInfos = new List<MissingComponentInfo>();
+            foreach (Transform item in transforms)
+            {
+                CheckForMissingComponents(item.gameObject);
+            }
+        }
+
+        private void FindMissingComponentsInAssets()
+        {
+            missingComponentInfos.Clear();
+            totalMissingComponentCount = 0;
+
+            string path = "Assets";
+            DirectoryInfo directory = new DirectoryInfo(path);
+            FileInfo[] files = directory.GetFiles("*.prefab", SearchOption.AllDirectories);
+            foreach (FileInfo file in files)
+            {
+                string fileDirectory = file.Directory.ToString().Substring(file.Directory.ToString().IndexOf("Assets"));
+                string fullPath = fileDirectory + "/" + file.Name;
+
+                GameObject prefab = AssetDatabase.LoadAssetAtPath(fullPath, typeof(GameObject)) as GameObject;
+                CheckForMissingComponents(prefab);
+            }
+        }
+
         protected virtual void DrawHeader()
         {
             EditorGUILayout.BeginHorizontal();
-            if(GUILayout.Button(EditorGUIUtility.IconContent("d_Refresh"), GUILayout.MaxWidth(30)))
+            int prevIndex = searchTypeIndex;
+            searchTypeIndex = GUILayout.Toolbar(searchTypeIndex, searchTypeTexts);
+            EditorGUILayout.EndHorizontal();
+
+            if (searchTypeIndex != prevIndex)
+                FindMissingComponents(CurrentSearchType);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button(EditorGUIUtility.IconContent("d_Refresh"), GUILayout.MaxWidth(30)))
             {
-                FindMissingComponents();
+                FindMissingComponents(CurrentSearchType);
             }
 
             if (missingComponentInfos.Count == 0)
@@ -71,7 +121,7 @@ namespace Utils.Core
             }
 
             GUI.enabled = missingComponentInfos.Count > 0;
-            if(GUILayout.Button("Select All"))
+            if (GUILayout.Button("Select All", GUILayout.MaxWidth(100)))
             {
                 Selection.objects = missingComponentInfos.Select(info => info.gameObject).ToArray();
                 selectedInfo = null;
@@ -148,7 +198,7 @@ namespace Utils.Core
             EditorGUIUtility.PingObject(Selection.activeObject);
         }
 
-        private void CheckMissingComponents(GameObject gameObject)
+        private void CheckForMissingComponents(GameObject gameObject)
         {
             Component[] components = gameObject.GetComponents<Component>();
             MissingComponentInfo info = null;
