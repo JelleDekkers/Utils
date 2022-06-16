@@ -31,7 +31,12 @@ public class Timer
         ElapsedTime = 0;
     }
 
-    public virtual void Start(Action onDoneEvent = null)
+    /// <summary>
+    /// Starts the timer
+    /// </summary>
+    /// <param name="onDoneEvent">Callback when the timer runs out</param>
+    /// <param name="elapsedTime">How much time has already elapsed before starting? Useful when synchronizing a timer over network that is already running.</param>
+    public virtual void Start(Action onDoneEvent = null, float elapsedTime = 0)
     {
         if (Duration == 0)
             throw new Exception("Duration is cannot be 0, did you call Set()?");
@@ -40,7 +45,7 @@ public class Timer
             Stop();
 
         TimeStarted = Time.time;
-        ElapsedTime = 0;
+        ElapsedTime = elapsedTime;
 
         if(onDoneEvent != null)
             onDone += onDoneEvent;
