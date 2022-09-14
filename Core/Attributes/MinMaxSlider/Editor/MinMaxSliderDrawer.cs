@@ -22,14 +22,19 @@ namespace Utils.Core.Attributes
 
                 EditorGUI.MinMaxSlider(valueRect, ref minValue, ref maxValue, minMax.minLimit, minMax.maxLimit);
 
-                property.vector2Value = new Vector2(minValue, maxValue);
+                if(GUI.changed)
+                    property.vector2Value = new Vector2(minValue, maxValue);
 
                 leftRect.width -= 5;
-                EditorGUI.FloatField(leftRect, minValue);
+                float x = EditorGUI.FloatField(leftRect, minValue);
+                if (x != minValue)
+                    property.vector2Value = new Vector2(x, maxValue);
 
                 rightRect.width -= 5;
                 rightRect.x += 5;
-                EditorGUI.FloatField(rightRect, maxValue);
+                float y = EditorGUI.FloatField(rightRect, maxValue);
+                if (y != maxValue)
+                    property.vector2Value = new Vector2(minValue, y);
             }
             else
             {
