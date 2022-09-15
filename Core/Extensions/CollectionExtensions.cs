@@ -16,6 +16,32 @@ namespace Utils.Core.Extensions
             return arr[Random.Range(0, arr.Count)];
         }
 
+        /// <summary>
+        /// Returns a random value, except for excludeIndex"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="excludeIndex"></param>
+        /// <returns></returns>
+        public static T GetRandom<T>(this T[] arr, int excludeIndex)
+        {
+            int index = (excludeIndex + Random.Range(1, arr.Length - 1)) % arr.Length;
+            return arr[index];
+        }
+
+        /// <summary>
+        /// Returns a random value, except for excludeIndex"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="excludeIndex"></param>
+        /// <returns></returns>
+        public static T GetRandom<T>(this List<T> arr, int excludeIndex)
+        {
+            int index = (excludeIndex + Random.Range(1, arr.Count - 1)) % arr.Count;
+            return arr[index];
+        }
+
         public static void ReorderItem(this IList collection, int currentIndex, int desiredIndex)
         {
             if (desiredIndex < 0)
