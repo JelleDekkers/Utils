@@ -11,6 +11,7 @@ public class Timer
     public float Duration { get; protected set; }
     public float TimeRemaining => Mathf.Clamp(Duration - ElapsedTime, 0, Duration);
     public float ElapsedTime { get; protected set; }
+    public float SpeedMultiplier { get; set; } = 1;
     public CoroutineTask Task { get; protected set; }
     public Action onDone;
 
@@ -77,12 +78,12 @@ public class Timer
         IsRunning = true;
     }
 
-    private IEnumerator TimerCoroutine()
+    protected virtual IEnumerator TimerCoroutine()
     {
         WaitForSeconds wait = new WaitForSeconds(Duration);
         while (TimeRemaining > 0)
         {
-            ElapsedTime += Time.deltaTime;
+            ElapsedTime += Time.deltaTime * SpeedMultiplier;
             yield return null;
         }
         onDone?.Invoke();
