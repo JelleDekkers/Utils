@@ -29,9 +29,9 @@ public class TagsLayersScenesBuilder
         if (!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
 
-        scriptBuilder.CreateScript(folderPath, TAGS_FILE_NAME, scriptBuilder.GetClassContent(TAGS_FILE_NAME, UnityEditorInternal.InternalEditorUtility.tags));
-        scriptBuilder.CreateScript(folderPath, LAYERS_FILE_NAME, GetLayerClassContent(LAYERS_FILE_NAME, UnityEditorInternal.InternalEditorUtility.layers));
-        scriptBuilder.CreateScript(folderPath, SCENES_FILE_NAME, scriptBuilder.GetClassContent(SCENES_FILE_NAME, EditorBuildSettingsScenesToNameStrings(EditorBuildSettings.scenes)));
+        scriptBuilder.CreateScript(TAGS_FILE_NAME, scriptBuilder.GetClassContent(TAGS_FILE_NAME, UnityEditorInternal.InternalEditorUtility.tags), folderPath);
+        scriptBuilder.CreateScript(LAYERS_FILE_NAME, GetLayerClassContent(LAYERS_FILE_NAME, UnityEditorInternal.InternalEditorUtility.layers), folderPath);
+        scriptBuilder.CreateScript(SCENES_FILE_NAME, scriptBuilder.GetClassContent(SCENES_FILE_NAME, EditorBuildSettingsScenesToNameStrings(EditorBuildSettings.scenes)), folderPath);
         AssetDatabase.Refresh();
         Debug.Log("Rebuild Complete");
     }
