@@ -15,7 +15,8 @@ namespace Utils.Core.SceneManagement
 	public class SceneField : ISerializationCallbackReceiver
 	{
 #if UNITY_EDITOR
-		// Objects of type SceneAsset are not compiled with builds, and needs to be put in UNITY_EDITOR directives
+        // Objects of type SceneAsset are not compiled with builds, and needs to be put in UNITY_EDITOR directives
+        public Object SceneAsset => sceneAsset;
 		[SerializeField] protected Object sceneAsset = null;
 #endif
 		public string SceneName => sceneName;

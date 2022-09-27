@@ -20,7 +20,10 @@ namespace Utils.Core.SceneManagement
             Object sceneField = EditorGUI.ObjectField(position, sceneAsset.objectReferenceValue, typeof(SceneAsset), false);
 
             // Enforce sceneName every frame:
-            sceneName.stringValue = (sceneAsset.objectReferenceValue == null) ? "" : sceneField.name;
+            if (sceneAsset.objectReferenceValue != null && sceneField != null)
+                sceneName.stringValue = sceneField.name;
+            else
+                sceneName.stringValue = "";
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -31,24 +34,11 @@ namespace Utils.Core.SceneManagement
             {
                 position.x += position.width;
                 position.width = BackLabelWidth;
-                bool isAddedInBuild = IsSceneAddedToBuild(sceneAsset.objectReferenceValue as SceneAsset);
+                bool isAddedInBuild = SceneFieldHelper.IsSceneAddedToBuild(sceneAsset.objectReferenceValue as SceneAsset);
                 string text = isAddedInBuild ? "In build" : "Not in build";
                 EditorGUI.LabelField(position, new GUIContent(text, "Shows if this scene is added to the build list and will load when switching scenes"), EditorStyles.miniLabel);
             }
             EditorGUI.EndProperty();
-        }
-
-        private bool IsSceneAddedToBuild(SceneAsset scene)
-        {
-            for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(EditorBuildSettings.scenes[i].guid.ToString());
-                SceneAsset asset = AssetDatabase.LoadAssetAtPath(path, typeof(SceneAsset)) as SceneAsset;
-
-                if (asset == scene)
-                    return true;
-            }
-            return false;
         }
     }
 }
