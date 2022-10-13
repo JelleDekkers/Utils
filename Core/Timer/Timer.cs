@@ -22,9 +22,10 @@ public class Timer
         coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
     }
 
-    public virtual void Set(float durationInSeconds)
+    public virtual void Set(float durationInSeconds, float elapsedTime = 0)
     {
         Duration = durationInSeconds;
+        ElapsedTime = elapsedTime;
     }
 
     public virtual void Reset()
