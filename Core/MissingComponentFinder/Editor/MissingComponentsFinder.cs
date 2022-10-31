@@ -68,7 +68,11 @@ namespace Utils.Core
             missingComponentInfos.Clear();
             totalMissingComponentCount = 0;
 
+#if UNITY_2020_1_OR_NEWER
             Transform[] transforms = FindObjectsOfType<Transform>(true);
+#else
+            Transform[] transforms = FindObjectsOfType<Transform>();
+#endif
             missingComponentInfos = new List<MissingComponentInfo>();
             foreach (Transform item in transforms)
             {
