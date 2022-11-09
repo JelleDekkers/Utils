@@ -50,11 +50,9 @@ namespace Utils.Core
         /// Draws a <see cref="Gizmos.DrawCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
         /// </summary>
         /// <param name="translation"></param>
-        /// <param name="center"></param>
-        /// <param name="size"></param>
-        public static void DrawBox(Transform translation, Vector3 center, Vector3 size)
+        public static void DrawBox(Transform translation)
         {
-            DrawBox(translation, center, size, Gizmos.color);
+            DrawBox(translation, translation.position, translation.lossyScale);
         }
 
         /// <summary>
@@ -66,15 +64,34 @@ namespace Utils.Core
         /// <param name="color"></param>
         public static void DrawBox(Transform translation, Vector3 center, Vector3 size, Color color)
         {
-            Matrix4x4 prevMatrix = Gizmos.matrix;
-            Gizmos.matrix = Matrix4x4.TRS(translation.TransformPoint(-translation.position), translation.rotation, translation.lossyScale);
-
             Color prevColor = Gizmos.color;
             Gizmos.color = color;
-            Gizmos.DrawCube(center, size);
+            DrawBox(translation, center, size);
             Gizmos.color = prevColor;
+        }
 
+        /// <summary>
+        /// Draws a <see cref="Gizmos.DrawCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
+        /// </summary>
+        /// <param name="translation"></param>
+        /// <param name="center"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        public static void DrawBox(Transform translation, Vector3 center, Vector3 size)
+        {
+            Matrix4x4 prevMatrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.TRS(center, translation.rotation, size);
+            Gizmos.DrawCube(Vector3.zero, Vector3.one);
             Gizmos.matrix = prevMatrix;
+        }
+
+        /// <summary>
+        /// Draws a <see cref="Gizmos.DrawCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
+        /// </summary>
+        /// <param name="translation"></param>
+        public static void DrawWireBox(Transform translation)
+        {
+            DrawWireBox(translation, translation.position, translation.lossyScale);
         }
 
         /// <summary>
@@ -86,14 +103,24 @@ namespace Utils.Core
         /// <param name="color"></param>
         public static void DrawWireBox(Transform translation, Vector3 center, Vector3 size, Color color)
         {
-            Matrix4x4 prevMatrix = Gizmos.matrix;
-            Gizmos.matrix = Matrix4x4.TRS(translation.TransformPoint(-translation.position), translation.rotation, translation.lossyScale);
-
             Color prevColor = Gizmos.color;
             Gizmos.color = color;
-            Gizmos.DrawWireCube(center, size);
+            DrawWireBox(translation, center, size);
             Gizmos.color = prevColor;
+        }
 
+        /// <summary>
+        /// Draws a <see cref="Gizmos.DrawWireCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
+        /// </summary>
+        /// <param name="translation"></param>
+        /// <param name="center"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        public static void DrawWireBox(Transform translation, Vector3 center, Vector3 size)
+        {
+            Matrix4x4 prevMatrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.TRS(center, translation.rotation, size);
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
             Gizmos.matrix = prevMatrix;
         }
     }
