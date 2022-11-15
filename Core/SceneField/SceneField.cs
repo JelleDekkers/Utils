@@ -4,7 +4,8 @@ namespace Utils.Core.SceneManagement
 {
     /// <summary>
     /// IMPORTANT: Known issue: should the SceneAsset's name change, this variable needs to be focused in order to update the sceneName string
-	/// 
+	/// USE <see cref="SceneReference"/> INSTEAD!!!
+    /// 
     /// Class for properly displaying a scene in the inspector. Won't lose track of the scene when changing folders
     /// Conveniently shows wether the scene is added to the build list in the inspector
     /// 
