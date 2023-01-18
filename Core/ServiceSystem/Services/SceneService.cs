@@ -47,7 +47,7 @@ namespace Utils.Core.SceneManagement
 		public SceneLoadFinishEventHandler SceneLoadFinishEvent;
 		public delegate void SceneLoadFinishEventHandler(Scene scene, LoadSceneMode loadMode);
 
-		public AsyncOperation SceneLoadOperation { get; protected set; }
+		public virtual AsyncOperation SceneLoadOperation { get; protected set; }
 
 		protected readonly CoroutineService coroutineService;
 		protected readonly GlobalEventDispatcher globalEventDispatcher;
