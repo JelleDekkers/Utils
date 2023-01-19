@@ -1,14 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
-public class LogHelperEditorButton : Editor
+namespace Utils.Core
 {
-	[MenuItem("Utils/Open Editor Log")]
-	private static void Open()
+	public class LogHelperEditorButton : Editor
 	{
-		LogHelper.OpenLog();
+		[MenuItem("Utils/Open Editor Log")]
+		private static void Open()
+		{
+			LogHelper.OpenLog();
+		}
 	}
-
 }
