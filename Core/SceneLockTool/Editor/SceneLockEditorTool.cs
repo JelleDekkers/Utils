@@ -70,14 +70,21 @@ namespace Utils.Core.SceneLockTool
 
 		private static Vector2 scrollPos = new Vector2();
 
+		[SerializeField]
+		private static bool hasDonePopup = false;
+
 		static SceneLockEditorTool()
 		{
 			BGInitialized = false;
 			EditorSceneManager.sceneOpened += SceneLoadEvent;
 			EditorSceneManager.sceneClosing += SceneCloseEvent;
 
+			EditorSceneManager.sceneSaving += OnSceneSavingEvent;
+
 			EditorApplication.update += DoFirstInit;
 		}
+
+		
 
 		private static void DoFirstInit()
 		{
@@ -106,6 +113,8 @@ namespace Utils.Core.SceneLockTool
 
 		private static void SceneLoadEvent(Scene scene, OpenSceneMode mode)
 		{
+			if (Application.isPlaying)
+				return;
 			BGInitialized = false;
 			if (!BGInitialized)
 			{
@@ -116,9 +125,36 @@ namespace Utils.Core.SceneLockTool
 			EditorApplication.update += WaitUntillSceneLockRequestsAreDone;
 		}
 
+		private static void OnSceneSavingEvent(Scene scene, string path)
+		{
+			SetHasDonePopup(false);
+			DoPopupOnSceneSaveWhenNotLockOwner();
+		}
+
 		private static void SceneCloseEvent(Scene scene, bool removingScene)
 		{
+			if (Application.isPlaying)
+				return;
+			SetHasDonePopup(false);
 			previousScenePath = scene.path;
+		}
+
+		private static bool HasDonePopup()
+		{
+			if(EditorPrefs.HasKey("hasDonePopup"))
+			{
+				return EditorPrefs.GetBool("hasDonePopup");
+			}
+			else
+			{
+				SetHasDonePopup(false);
+				return false;
+			}
+		}
+
+		private static void SetHasDonePopup(bool val)
+		{
+			EditorPrefs.SetBool("hasDonePopup", val);
 		}
 
 		private static void WaitUntillSceneLockRequestsAreDone()
@@ -137,27 +173,67 @@ namespace Utils.Core.SceneLockTool
 						string text = $"{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
 						if (previousScenePath != string.Empty && previousScenePath.Length > 2)
 						{
-							if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
+							if(!HasDonePopup())
 							{
-								// proceed as expected
-							}
-							else
-							{
-								EditorSceneManager.OpenScene(previousScenePath, OpenSceneMode.Single);
+								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
+								{
+									// proceed as expected
+								}
+								else
+								{
+									EditorSceneManager.OpenScene(previousScenePath, OpenSceneMode.Single);
+								}
+								SetHasDonePopup(true);
 							}
 						}
 						else
 						{
-							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
+							if (!HasDonePopup())
+							{
+								EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
+								SetHasDonePopup(true);
+							}
+								
 						}
 					}
 					else if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID == GetDeviceID())
 					{
 						string text = $"{currentScene} has an active scene lock that is owned by you. \nYou claimed the lock at {scl.SceneLock.LockTime}. \nPlease remember to lift the scene lock when you're done with it.";
-						EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
+						if(!HasDonePopup())
+						{
+							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
+							SetHasDonePopup(true);
+						}
 					}
 				}
 				EditorApplication.update -= WaitUntillSceneLockRequestsAreDone;
+			}
+		}
+
+		private static void DoPopupOnSceneSaveWhenNotLockOwner()
+		{
+			if (sceneLockDictionary != null)
+			{
+				string currentScene = EditorSceneManager.GetActiveScene().name;
+				if (sceneLockDictionary.ContainsKey(currentScene))
+				{
+					// spawn popup
+					SceneLockSceneObject scl = sceneLockDictionary[currentScene];
+					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
+					{
+						string text = $"You just saved a scene where you are not the owner of the current active lock. Please do not commit the changes before the lock is lifted by the current owner. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
+						
+							if (!HasDonePopup())
+							{
+								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
+								{
+									// proceed as expected
+								}
+								SetHasDonePopup(true);
+							}
+						
+					}
+				}
 			}
 		}
 
