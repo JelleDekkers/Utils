@@ -264,6 +264,8 @@ namespace Utils.Core.SceneLockTool
 			{
 				if (shouldCreateNewUser && !submittedNewUserData)
 				{
+					GUILayout.Label("First time setup: ");
+					GUILayout.Space(10);
 					GUILayout.Label("Create new user");
 					GUI.enabled = false;
 					EditorGUILayout.BeginHorizontal();
@@ -312,6 +314,8 @@ namespace Utils.Core.SceneLockTool
 					//GUILayout.Label("project is not known");
 					if (shouldCreateNewProject && !submittedNewProjectData)
 					{
+						GUILayout.Label("First time setup: ");
+						GUILayout.Space(10);
 						GUILayout.Label("Submit new project");
 						GUI.enabled = false;
 						EditorGUILayout.BeginHorizontal();
