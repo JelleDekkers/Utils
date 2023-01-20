@@ -35,6 +35,7 @@ namespace Utils.Core.SceneLockTool
 		private List<string> projectScenes = new List<string>();
 		private bool hasRequestedProjectScenes = false;
 		private RunningWebRequest GetProjectScenesRequest = null;
+		private string searchText = "";
 
 		private bool allScenesFoldoutIsOpen = false;
 
@@ -235,6 +236,18 @@ namespace Utils.Core.SceneLockTool
 
 			EditorGUILayout.BeginHorizontal();
 			{
+				EditorGUILayout.BeginHorizontal();
+				{
+					GUILayout.Label("Filter: ");
+					searchText = GUILayout.TextField(searchText, GUILayout.MinWidth(300));
+					if(GUILayout.Button("Clear filter"))
+					{
+						searchText = "";
+					}
+					GUILayout.FlexibleSpace();
+				}
+				EditorGUILayout.EndHorizontal();
+
 				GUILayout.FlexibleSpace();
 				if (GUILayout.Button("Refresh interface"))
 				{
@@ -516,97 +529,101 @@ namespace Utils.Core.SceneLockTool
 		private void DrawSceneDisplay(string path, int index)
 		{
 			string sceneName = Path.GetFileNameWithoutExtension(path);
-			// cross reference to existing project scenes
-			EditorGUILayout.BeginVertical(GUI.skin.box);
+			bool contentContains = sceneName.IndexOf(Sanitize(searchText), StringComparison.OrdinalIgnoreCase) >= 0;
+			if (searchText == "" || searchText.Length <= 0 || contentContains)
 			{
-				EditorGUILayout.BeginHorizontal();
-				{
-					bool hasScene = projectScenes.Contains(Sanitize(sceneName));
-
-					GUILayout.Label(index.ToString());
-					GUILayout.FlexibleSpace();
-					GUILayout.Label(sceneName);
-					GUILayout.FlexibleSpace();
-					GUILayout.Label(path);
-					GUILayout.FlexibleSpace();
-
-					// something here to quantify lock
-
-					if (!projectScenes.Contains(sceneName))
-					{
-						if (GUILayout.Button("Submit " + sceneName + " to database"))
-						{
-							SubmitIndividualScene((status, result) =>
-							{
-								hasRequestedProjectScenes = false;
-							},
-							sceneName);
-						}
-					}
-					else
-					{
-						GUI.enabled = !hasScene;
-						GUILayout.Label("Scene already in database");
-						GUI.enabled = true;
-					}
-					//IndentedLabel(item.path);
-				}
-				EditorGUILayout.EndHorizontal();
-				if (sceneLockDictionary.TryGetValue(sceneName, out SceneLockSceneObject _lock))
+				// cross reference to existing project scenes
+				EditorGUILayout.BeginVertical(GUI.skin.box);
 				{
 					EditorGUILayout.BeginHorizontal();
 					{
-						GUILayout.Space(INDENT_SPACE);
-						EditorGUILayout.BeginHorizontal();
-						{
-							GUILayout.Label("Locked: ");
-							EditorGUILayout.BeginHorizontal();
-							{
-								GUI.enabled = false;
-								GUILayout.Toggle(_lock.HasSceneLock, "");
-								GUI.enabled = true;
-								GUILayout.FlexibleSpace();
-							}
-							EditorGUILayout.EndHorizontal();
-						}
-						EditorGUILayout.EndHorizontal();
-						if (_lock.HasSceneLock)
-						{
-							// locked
-							GUILayout.Label("Owner: " + _lock.SceneLock.OwnerName);
-							GUILayout.Label("Locked since " + _lock.SceneLock.LockTime);
+						bool hasScene = projectScenes.Contains(Sanitize(sceneName));
 
-							if (_lock.SceneLock.OwnerDeviceID == GetDeviceID())
+						GUILayout.Label(index.ToString());
+						GUILayout.FlexibleSpace();
+						GUILayout.Label(sceneName);
+						GUILayout.FlexibleSpace();
+						GUILayout.Label(path);
+						GUILayout.FlexibleSpace();
+
+						// something here to quantify lock
+
+						if (!projectScenes.Contains(sceneName))
+						{
+							if (GUILayout.Button("Submit " + sceneName + " to database"))
 							{
-								if (GUILayout.Button("Release scene lock"))
+								SubmitIndividualScene((status, result) =>
 								{
-									// delete lock
-									ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
-								}
-							}
-							else
-							{
-								if (GUILayout.Button("Force remove scene lock"))
-								{
-									// delete and claim lock
-									ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
-								}
+									hasRequestedProjectScenes = false;
+								},
+								sceneName);
 							}
 						}
 						else
 						{
-							// no lock
-							if (GUILayout.Button("Claim scene lock"))
-							{
-								// claim lock call
-								SubmitNewSceneLock((status, result) => { InitializeSceneLocks(); }, sceneName);
-							}
+							GUI.enabled = !hasScene;
+							GUILayout.Label("Scene already in database");
+							GUI.enabled = true;
 						}
+						//IndentedLabel(item.path);
 					}
 					EditorGUILayout.EndHorizontal();
+					if (sceneLockDictionary.TryGetValue(sceneName, out SceneLockSceneObject _lock))
+					{
+						EditorGUILayout.BeginHorizontal();
+						{
+							GUILayout.Space(INDENT_SPACE);
+							EditorGUILayout.BeginHorizontal();
+							{
+								GUILayout.Label("Locked: ");
+								EditorGUILayout.BeginHorizontal();
+								{
+									GUI.enabled = false;
+									GUILayout.Toggle(_lock.HasSceneLock, "");
+									GUI.enabled = true;
+									GUILayout.FlexibleSpace();
+								}
+								EditorGUILayout.EndHorizontal();
+							}
+							EditorGUILayout.EndHorizontal();
+							if (_lock.HasSceneLock)
+							{
+								// locked
+								GUILayout.Label("Owner: " + _lock.SceneLock.OwnerName);
+								GUILayout.Label("Locked since " + _lock.SceneLock.LockTime);
+
+								if (_lock.SceneLock.OwnerDeviceID == GetDeviceID())
+								{
+									if (GUILayout.Button("Release scene lock"))
+									{
+										// delete lock
+										ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
+									}
+								}
+								else
+								{
+									if (GUILayout.Button("Force remove scene lock"))
+									{
+										// delete and claim lock
+										ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
+									}
+								}
+							}
+							else
+							{
+								// no lock
+								if (GUILayout.Button("Claim scene lock"))
+								{
+									// claim lock call
+									SubmitNewSceneLock((status, result) => { InitializeSceneLocks(); }, sceneName);
+								}
+							}
+						}
+						EditorGUILayout.EndHorizontal();
+					}
 				}
+				EditorGUILayout.EndVertical();
 			}
-			EditorGUILayout.EndVertical();
 		}
 
 
@@ -820,6 +837,7 @@ namespace Utils.Core.SceneLockTool
 			newUserName = "username";
 			deviceID = "";
 			projectID = "";
+			searchText = "";
 			hasRequestedProjectScenes = false;
 			GetProjectScenesRequest = null;
 			ResetStatics();
