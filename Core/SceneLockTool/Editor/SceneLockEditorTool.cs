@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEditor.SceneManagement;
+using System.Linq;
 
 namespace Utils.Core.SceneLockTool
 {
@@ -19,6 +20,8 @@ namespace Utils.Core.SceneLockTool
 
 		public const string SceneLockUrl = "https://www.knucklehead-studios.com/SceneLockManagement/SceneLockInterfacer.php";
 		private readonly int INDENT_SPACE = 16;
+		private const int TEXT_FONT_SIZE = 12;
+		private readonly Color32 selectionBackgroundColor = new Color32(38, 38, 38, 255);
 
 		private bool userIsKnown = false;
 		private bool shouldCreateNewUser = false;
@@ -84,7 +87,7 @@ namespace Utils.Core.SceneLockTool
 			EditorApplication.update += DoFirstInit;
 		}
 
-		
+
 
 		private static void DoFirstInit()
 		{
@@ -141,7 +144,7 @@ namespace Utils.Core.SceneLockTool
 
 		private static bool HasDonePopup()
 		{
-			if(EditorPrefs.HasKey("hasDonePopup"))
+			if (EditorPrefs.HasKey("hasDonePopup"))
 			{
 				return EditorPrefs.GetBool("hasDonePopup");
 			}
@@ -173,7 +176,7 @@ namespace Utils.Core.SceneLockTool
 						string text = $"{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
 						if (previousScenePath != string.Empty && previousScenePath.Length > 2)
 						{
-							if(!HasDonePopup())
+							if (!HasDonePopup())
 							{
 								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
 								{
@@ -193,13 +196,13 @@ namespace Utils.Core.SceneLockTool
 								EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
 								SetHasDonePopup(true);
 							}
-								
+
 						}
 					}
 					else if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID == GetDeviceID())
 					{
 						string text = $"{currentScene} has an active scene lock that is owned by you. \nYou claimed the lock at {scl.SceneLock.LockTime}. \nPlease remember to lift the scene lock when you're done with it.";
-						if(!HasDonePopup())
+						if (!HasDonePopup())
 						{
 							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
 							SetHasDonePopup(true);
@@ -222,16 +225,16 @@ namespace Utils.Core.SceneLockTool
 					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
 					{
 						string text = $"You just saved a scene where you are not the owner of the current active lock. Please do not commit the changes before the lock is lifted by the current owner. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
-						
-							if (!HasDonePopup())
+
+						if (!HasDonePopup())
+						{
+							if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
 							{
-								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
-								{
-									// proceed as expected
-								}
-								SetHasDonePopup(true);
+								// proceed as expected
 							}
-						
+							SetHasDonePopup(true);
+						}
+
 					}
 				}
 			}
@@ -316,7 +319,7 @@ namespace Utils.Core.SceneLockTool
 				{
 					GUILayout.Label("Filter: ");
 					searchText = GUILayout.TextField(searchText, GUILayout.MinWidth(300));
-					if(GUILayout.Button("Clear filter"))
+					if (GUILayout.Button("Clear filter"))
 					{
 						searchText = "";
 					}
@@ -381,8 +384,8 @@ namespace Utils.Core.SceneLockTool
 					{
 						GetProjectKnown((status, result) =>
 						{
-						// empty
-					});
+							// empty
+						});
 						startedProjectCheck = true;
 					}
 
@@ -406,8 +409,8 @@ namespace Utils.Core.SceneLockTool
 						{
 							SubmitNewProject((status, result) =>
 							{
-							// left empty
-							Debug.Log($"new project submit result: {status}");
+								// left empty
+								Debug.Log($"new project submit result: {status}");
 							});
 						}
 					}
@@ -492,8 +495,8 @@ namespace Utils.Core.SceneLockTool
 							SubmitProjectScenes((status, result) =>
 							{
 								hasRequestedProjectScenes = false;
-							// empty
-						}, scenes);
+								// empty
+							}, scenes);
 						}
 
 						if (AllScenesInProject.Count > 0)
@@ -524,14 +527,14 @@ namespace Utils.Core.SceneLockTool
 										{
 											//string path = item;
 											//string sceneName = Path.GetFileNameWithoutExtension(path);
-											scenes += "?" + item;
+											scenes += "?" + PathToFile(item);
 										}
 										SubmitProjectScenes((status, result) =>
 										{
 											hasRequestedProjectScenes = false;
 											InitializeSceneLocks();
-										// empty
-									}, scenes);
+											// empty
+										}, scenes);
 									}
 								}
 							}
@@ -551,8 +554,8 @@ namespace Utils.Core.SceneLockTool
 			deviceID = GetDeviceID();
 			GetUserKnown((status, result) =>
 			{
-			// left empty
-		});
+				// left empty
+			});
 			InitializeSceneLocks();
 
 			initialized = true;
@@ -568,8 +571,8 @@ namespace Utils.Core.SceneLockTool
 				{
 					string scenePath = AssetDatabase.GUIDToAssetPath(guid);
 					string sceneName = Path.GetFileNameWithoutExtension(scenePath);
-					if (!scenePath.Contains("ThirdParty") && !AllScenesInProject.Contains(sceneName))
-						AllScenesInProject.Add(sceneName);
+					if (!scenePath.Contains("ThirdParty") && !AllScenesInProject.Contains(PathToFile(scenePath)))
+						AllScenesInProject.Add(scenePath);
 				}
 			}
 		}
@@ -582,16 +585,15 @@ namespace Utils.Core.SceneLockTool
 			{
 				GetSceneLockData((status, result) =>
 				{
-					//Debug.Log(result);
 					if (status == WebRequestResult.Success)
 					{
-						if (!sceneLockDictionary.ContainsKey(item))
+						if (!sceneLockDictionary.ContainsKey(PathToFile(item)))
 						{
 							SceneLockSceneObject sc = GetSceneLockSceneObjectFromPHPResult(result);
-							sceneLockDictionary.Add(item, sc);
+							sceneLockDictionary.Add(PathToFile(item), sc);
 						}
 					}
-				}, item);
+				}, PathToFile(item));
 
 			}
 		}
@@ -621,30 +623,46 @@ namespace Utils.Core.SceneLockTool
 
 						GUILayout.Label(index.ToString());
 						GUILayout.FlexibleSpace();
-						GUILayout.Label(sceneName);
-						GUILayout.FlexibleSpace();
-						GUILayout.Label(path);
-						GUILayout.FlexibleSpace();
 
-						// something here to quantify lock
-
-						if (!projectScenes.Contains(sceneName))
+						EditorGUILayout.BeginHorizontal();
 						{
-							if (GUILayout.Button("Submit " + sceneName + " to database"))
+							var obj = AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
+							DrawElement(obj);
+							GUILayout.FlexibleSpace();
+						}
+						EditorGUILayout.EndHorizontal();
+
+						//GUILayout.FlexibleSpace();
+						GUILayout.Label(path);
+						//GUILayout.FlexibleSpace();
+
+						EditorGUILayout.BeginHorizontal();
+						{
+							GUILayout.FlexibleSpace();
+							if (GUILayout.Button("Load scene"))
 							{
-								SubmitIndividualScene((status, result) =>
+								EditorSceneManager.OpenScene(path);
+							}
+
+							if (!projectScenes.Contains(sceneName))
+							{
+								if (GUILayout.Button("Submit " + sceneName + " to database"))
 								{
-									hasRequestedProjectScenes = false;
-								},
-								sceneName);
+									SubmitIndividualScene((status, result) =>
+									{
+										hasRequestedProjectScenes = false;
+									},
+									sceneName);
+								}
+							}
+							else
+							{
+								GUI.enabled = !hasScene;
+								GUILayout.Label("Scene already in database");
+								GUI.enabled = true;
 							}
 						}
-						else
-						{
-							GUI.enabled = !hasScene;
-							GUILayout.Label("Scene already in database");
-							GUI.enabled = true;
-						}
+						EditorGUILayout.EndHorizontal();
 						//IndentedLabel(item.path);
 					}
 					EditorGUILayout.EndHorizontal();
@@ -762,7 +780,7 @@ namespace Utils.Core.SceneLockTool
 			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
 			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_ID, GetProjectName()));
 
-			return CreateNewWebRequest(nameof(GetProjectID), "Getting project id...", wwwForm, callback, onSuccess: () => {  }, onFail: () => {  });
+			return CreateNewWebRequest(nameof(GetProjectID), "Getting project id...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
 		}
 
 		private RunningWebRequest GetProjectScenes(Action<WebRequestResult, string> callback)
@@ -942,6 +960,44 @@ namespace Utils.Core.SceneLockTool
 			}
 
 			return result;
+		}
+
+		protected Rect DrawElement(UnityEngine.Object go)
+		{
+			Color backgroundColor = GUI.backgroundColor;
+
+			GUI.backgroundColor = selectionBackgroundColor;
+
+			Rect rect = EditorGUILayout.BeginVertical(GUI.skin.box);
+
+			EditorGUILayout.BeginHorizontal();
+			GUIStyle textStyle = EditorStyles.label;
+			textStyle.fontSize = TEXT_FONT_SIZE;
+			string text = go != null ? go.name : "Object was destroyed";
+			GUILayout.Label(text, textStyle);
+
+			GUILayout.FlexibleSpace();
+
+			GUI.enabled = go != null;
+			if (GUI.Button(rect, GUIContent.none, GUIStyle.none))
+				SelectGameObject(go);
+			GUI.enabled = true;
+
+			EditorGUILayout.EndHorizontal();
+			EditorGUILayout.EndVertical();
+			GUI.backgroundColor = backgroundColor;
+
+			return rect;
+		}
+
+		private void SelectGameObject(UnityEngine.Object go)
+		{
+			EditorGUIUtility.PingObject(go);
+		}
+
+		private static string PathToFile(string path)
+		{
+			return Path.GetFileNameWithoutExtension(path);
 		}
 	}
 }

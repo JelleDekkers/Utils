@@ -64,12 +64,6 @@ namespace Utils.Core.SceneLockTool
 			{
 				string result = ConnectedWebRequest.downloadHandler.text;
 
-				//int keyLen = requestKey.Length;
-
-				//int additionalCount = result.Count(x => x == 'o') * 2;
-
-				//result = result.Remove(0, Mathf.Min(keyLen, result.Length));
-
 				result = result.Replace("\n", "");
 				result = result.Replace("\r", "");
 				Result = result;
