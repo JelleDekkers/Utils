@@ -286,6 +286,7 @@ namespace Utils.Core.SceneLockTool
 					}
 				}
 			}
+			toRemoves?.Invoke();
 			if (drawResults)
 			{
 				if (hasProcess)
@@ -295,7 +296,6 @@ namespace Utils.Core.SceneLockTool
 					window.Repaint();
 				}
 			}
-			toRemoves?.Invoke();
 		}
 
 		private void OnGUI()
