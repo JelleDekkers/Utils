@@ -641,7 +641,23 @@ namespace Utils.Core.SceneLockTool
 							GUILayout.FlexibleSpace();
 							if (GUILayout.Button("Load scene"))
 							{
-								EditorSceneManager.OpenScene(path);
+								if(EditorSceneManager.GetActiveScene().isDirty)
+								{
+									if (EditorUtility.DisplayDialog("Scene change warning", "Current scene has unsaved changes. Are you sure you want to leave?", "Save scene, then go", $"Cancel scene loading"))
+									{
+										// proceed as expected
+										EditorSceneManager.SaveOpenScenes();
+										EditorSceneManager.OpenScene(path);
+									}
+									else
+									{
+										// nothing
+									}
+								}
+								else
+								{
+									EditorSceneManager.OpenScene(path);
+								}
 							}
 
 							if (!projectScenes.Contains(sceneName))
