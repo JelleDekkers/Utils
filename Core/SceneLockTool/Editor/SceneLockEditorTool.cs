@@ -176,7 +176,7 @@ namespace Utils.Core.SceneLockTool
 						string text = $"{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
 						if (previousScenePath != string.Empty && previousScenePath.Length > 2)
 						{
-							if (!HasDonePopup())
+							if (!HasDonePopup() && !Application.isPlaying)
 							{
 								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
 								{
@@ -191,7 +191,7 @@ namespace Utils.Core.SceneLockTool
 						}
 						else
 						{
-							if (!HasDonePopup())
+							if (!HasDonePopup() && !Application.isPlaying)
 							{
 								EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
 								SetHasDonePopup(true);
@@ -202,7 +202,7 @@ namespace Utils.Core.SceneLockTool
 					else if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID == GetDeviceID())
 					{
 						string text = $"{currentScene} has an active scene lock that is owned by you. \nYou claimed the lock at {scl.SceneLock.LockTime}. \nPlease remember to lift the scene lock when you're done with it.";
-						if (!HasDonePopup())
+						if (!HasDonePopup() && !Application.isPlaying)
 						{
 							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
 							SetHasDonePopup(true);
@@ -226,7 +226,7 @@ namespace Utils.Core.SceneLockTool
 					{
 						string text = $"You just saved a scene where you are not the owner of the current active lock. Please do not commit the changes before the lock is lifted by the current owner. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
 
-						if (!HasDonePopup())
+						if (!HasDonePopup() && !Application.isPlaying)
 						{
 							if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
 							{
