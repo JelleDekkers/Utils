@@ -16,13 +16,42 @@ namespace Utils.Core.SceneLockTool
 	[InitializeOnLoad]
 	public class SceneLockEditorTool : EditorWindow
 	{
-		private static EditorWindow window = null;
 
 		public const string SceneLockUrl = "https://www.knucklehead-studios.com/SceneLockManagement/SceneLockInterfacer.php";
 		private readonly int INDENT_SPACE = 16;
 		private const int TEXT_FONT_SIZE = 12;
 		private readonly Color32 selectionBackgroundColor = new Color32(38, 38, 38, 255);
 
+		private static EditorWindow window = null;
+
+
+		private const string GET_REPLY_KEY = "get_reply_key";
+		private const string GET_USER_KNOWN = "get_user_known";
+		private const string SET_NEW_USER = "set_new_user";
+		private const string NEW_USERNAME = "new_username";
+		private const string GET_PROJECT_KNOWN = "get_project_known";
+		private const string SET_NEW_PROJECT = "set_new_project";
+		private const string GET_PROJECT_ID = "get_project_id";
+		private const string GET_PROJECT_SCENES = "get_project_scenes";
+		private const string SET_PROJECT_SCENES = "set_project_scenes";
+		private const string GET_SCENE_LOCK_DATA = "get_scene_lock_data";
+		private const string SUBMIT_NEW_SCENE_LOCK = "set_scene_lock";
+		private const string RELEASE_SCENE_LOCK = "release_scene_lock";
+		private const string PRODUCT_NAME = "product_name";
+
+		private static Dictionary<string, RunningWebRequest> runningRequests = new Dictionary<string, RunningWebRequest>();
+		private static List<RunningWebRequest> runningSceneLockRequests = new List<RunningWebRequest>();
+		private static Dictionary<string, SceneLockSceneObject> sceneLockDictionary = new Dictionary<string, SceneLockSceneObject>();
+		private static List<string> AllScenesInProject = new List<string>();
+
+		private static bool BGInitialized = false;
+		private static string previousScenePath = "";
+		private static Vector2 scrollPos = new Vector2();
+
+		[SerializeField]
+		private static bool hasDonePopup = false;
+
+		private bool initialized = false;
 		private bool userIsKnown = false;
 		private bool shouldCreateNewUser = false;
 		private bool submittedNewUserData = false;
@@ -39,42 +68,7 @@ namespace Utils.Core.SceneLockTool
 		private bool hasRequestedProjectScenes = false;
 		private RunningWebRequest GetProjectScenesRequest = null;
 		private string searchText = "";
-
 		private bool allScenesFoldoutIsOpen = false;
-
-		private const string GET_REPLY_KEY = "get_reply_key";
-
-		private const string GET_USER_KNOWN = "get_user_known";
-		private const string SET_NEW_USER = "set_new_user";
-		private const string NEW_USERNAME = "new_username";
-
-		// TODO
-		private const string GET_PROJECT_KNOWN = "get_project_known";
-		private const string SET_NEW_PROJECT = "set_new_project";
-		private const string GET_PROJECT_ID = "get_project_id";
-		private const string GET_PROJECT_SCENES = "get_project_scenes";
-		private const string SET_PROJECT_SCENES = "set_project_scenes";
-
-		private const string GET_SCENE_LOCK_DATA = "get_scene_lock_data";
-
-		private const string SUBMIT_NEW_SCENE_LOCK = "set_scene_lock";
-		private const string RELEASE_SCENE_LOCK = "release_scene_lock";
-
-		private const string PRODUCT_NAME = "product_name";
-
-		private static Dictionary<string, RunningWebRequest> runningRequests = new Dictionary<string, RunningWebRequest>();
-		private static List<RunningWebRequest> runningSceneLockRequests = new List<RunningWebRequest>();
-		private static Dictionary<string, SceneLockSceneObject> sceneLockDictionary = new Dictionary<string, SceneLockSceneObject>();
-		private static List<string> AllScenesInProject = new List<string>();
-
-		private bool initialized = false;
-		private static bool BGInitialized = false;
-		private static string previousScenePath = "";
-
-		private static Vector2 scrollPos = new Vector2();
-
-		[SerializeField]
-		private static bool hasDonePopup = false;
 
 		static SceneLockEditorTool()
 		{
@@ -85,18 +79,6 @@ namespace Utils.Core.SceneLockTool
 			EditorSceneManager.sceneSaving += OnSceneSavingEvent;
 
 			EditorApplication.update += DoFirstInit;
-		}
-
-
-
-		private static void DoFirstInit()
-		{
-			ResetStatics();
-			InitializeAllScenesList();
-			InitializeSceneLocks();
-			EditorApplication.update += WaitUntillSceneLockRequestsAreDone;
-
-			EditorApplication.update -= DoFirstInit;
 		}
 
 		[MenuItem("Scene lock tool/Open scene lock tool")]
@@ -112,190 +94,6 @@ namespace Utils.Core.SceneLockTool
 		{
 			ResetVariables();
 			RefreshInterface();
-		}
-
-		private static void SceneLoadEvent(Scene scene, OpenSceneMode mode)
-		{
-			if (Application.isPlaying)
-				return;
-			BGInitialized = false;
-			if (!BGInitialized)
-			{
-				ResetStatics();
-				InitializeAllScenesList();
-				InitializeSceneLocks();
-			}
-			EditorApplication.update += WaitUntillSceneLockRequestsAreDone;
-		}
-
-		private static void OnSceneSavingEvent(Scene scene, string path)
-		{
-			SetHasDonePopup(false);
-			DoPopupOnSceneSaveWhenNotLockOwner();
-		}
-
-		private static void SceneCloseEvent(Scene scene, bool removingScene)
-		{
-			if (Application.isPlaying)
-				return;
-			SetHasDonePopup(false);
-			previousScenePath = scene.path;
-		}
-
-		private static bool HasDonePopup()
-		{
-			if (EditorPrefs.HasKey("hasDonePopup"))
-			{
-				return EditorPrefs.GetBool("hasDonePopup");
-			}
-			else
-			{
-				SetHasDonePopup(false);
-				return false;
-			}
-		}
-
-		private static void SetHasDonePopup(bool val)
-		{
-			EditorPrefs.SetBool("hasDonePopup", val);
-		}
-
-		private static void WaitUntillSceneLockRequestsAreDone()
-		{
-			CheckRunningRequests(false);
-
-			if (SceneLocksAreInitialized())
-			{
-				string currentScene = EditorSceneManager.GetActiveScene().name;
-				if (sceneLockDictionary.ContainsKey(currentScene))
-				{
-					// spawn popup
-					SceneLockSceneObject scl = sceneLockDictionary[currentScene];
-					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
-					{
-						string text = $"{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
-						if (previousScenePath != string.Empty && previousScenePath.Length > 2)
-						{
-							if (!HasDonePopup() && !Application.isPlaying)
-							{
-								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
-								{
-									// proceed as expected
-								}
-								else
-								{
-									EditorSceneManager.OpenScene(previousScenePath, OpenSceneMode.Single);
-								}
-								SetHasDonePopup(true);
-							}
-						}
-						else
-						{
-							if (!HasDonePopup() && !Application.isPlaying)
-							{
-								EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
-								SetHasDonePopup(true);
-							}
-
-						}
-					}
-					else if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID == GetDeviceID())
-					{
-						string text = $"{currentScene} has an active scene lock that is owned by you. \nYou claimed the lock at {scl.SceneLock.LockTime}. \nPlease remember to lift the scene lock when you're done with it.";
-						if (!HasDonePopup() && !Application.isPlaying)
-						{
-							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
-							SetHasDonePopup(true);
-						}
-					}
-				}
-				EditorApplication.update -= WaitUntillSceneLockRequestsAreDone;
-			}
-		}
-
-		private static void DoPopupOnSceneSaveWhenNotLockOwner()
-		{
-			if (sceneLockDictionary != null)
-			{
-				string currentScene = EditorSceneManager.GetActiveScene().name;
-				if (sceneLockDictionary.ContainsKey(currentScene))
-				{
-					// spawn popup
-					SceneLockSceneObject scl = sceneLockDictionary[currentScene];
-					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
-					{
-						string text = $"You just saved a scene where you are not the owner of the current active lock. Please do not commit the changes before the lock is lifted by the current owner. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
-
-						if (!HasDonePopup() && !Application.isPlaying)
-						{
-							if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
-							{
-								// proceed as expected
-							}
-							SetHasDonePopup(true);
-						}
-
-					}
-				}
-			}
-		}
-
-		private void OnDisable()
-		{
-			ResetVariables();
-		}
-
-		private static void CheckRunningRequests(bool drawResults = true)
-		{
-			bool hasProcess = false;
-			Action toRemoves = null;
-			foreach (var item in runningRequests)
-			{
-				if (!hasProcess)
-				{
-					if (item.Value.IsDone)
-					{
-						toRemoves += () => runningRequests.Remove(item.Key);
-						//Debug.Log(item.Value.LoadingText + " " + item.Value.Result);
-						if (!drawResults)
-						{
-							toRemoves?.Invoke();
-							return;
-						}
-						else
-							hasProcess = true;
-					}
-
-					if (item.Value.IsExpired())
-					{
-						toRemoves += () => runningRequests.Remove(item.Key);
-						//Debug.Log(item.Value.LoadingText + " " + item.Value.Result);
-						if (!drawResults)
-						{
-							toRemoves?.Invoke();
-							return;
-						}
-						else
-							hasProcess = true;
-					}
-					if (drawResults)
-					{
-						GUILayout.Label(item.Value.LoadingText);
-						GUILayout.Label("Time left: " + item.Value.GetRemainingTime());
-						hasProcess = true;
-					}
-				}
-			}
-			toRemoves?.Invoke();
-			if (drawResults)
-			{
-				if (hasProcess)
-				{
-					if (window == null)
-						Open();
-					window.Repaint();
-				}
-			}
 		}
 
 		private void OnGUI()
@@ -546,19 +344,198 @@ namespace Utils.Core.SceneLockTool
 			EditorGUILayout.EndScrollView();
 		}
 
-		private void RefreshInterface()
+		private void OnDisable()
 		{
 			ResetVariables();
+		}
+
+		private static void DoFirstInit()
+		{
+			ResetStatics();
 			InitializeAllScenesList();
-
-			deviceID = GetDeviceID();
-			GetUserKnown((status, result) =>
-			{
-				// left empty
-			});
 			InitializeSceneLocks();
+			EditorApplication.update += WaitUntillSceneLockRequestsAreDone;
 
-			initialized = true;
+			EditorApplication.update -= DoFirstInit;
+		}
+
+		private static void SceneLoadEvent(Scene scene, OpenSceneMode mode)
+		{
+			if (Application.isPlaying)
+				return;
+			BGInitialized = false;
+			if (!BGInitialized)
+			{
+				ResetStatics();
+				InitializeAllScenesList();
+				InitializeSceneLocks();
+			}
+			EditorApplication.update += WaitUntillSceneLockRequestsAreDone;
+		}
+
+		private static void OnSceneSavingEvent(Scene scene, string path)
+		{
+			SetHasDonePopup(false);
+			DoPopupOnSceneSaveWhenNotLockOwner();
+		}
+
+		private static void SceneCloseEvent(Scene scene, bool removingScene)
+		{
+			if (Application.isPlaying)
+				return;
+			SetHasDonePopup(false);
+			previousScenePath = scene.path;
+		}
+
+		private static bool HasDonePopup()
+		{
+			if (EditorPrefs.HasKey("hasDonePopup"))
+			{
+				return EditorPrefs.GetBool("hasDonePopup");
+			}
+			else
+			{
+				SetHasDonePopup(false);
+				return false;
+			}
+		}
+
+		private static void SetHasDonePopup(bool val)
+		{
+			EditorPrefs.SetBool("hasDonePopup", val);
+		}
+
+		private static void WaitUntillSceneLockRequestsAreDone()
+		{
+			CheckRunningRequests(false);
+
+			if (SceneLocksAreInitialized())
+			{
+				string currentScene = EditorSceneManager.GetActiveScene().name;
+				if (sceneLockDictionary.ContainsKey(currentScene))
+				{
+					// spawn popup
+					SceneLockSceneObject scl = sceneLockDictionary[currentScene];
+					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
+					{
+						string text = $"{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
+						if (previousScenePath != string.Empty && previousScenePath.Length > 2)
+						{
+							if (!HasDonePopup() && !Application.isPlaying)
+							{
+								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
+								{
+									// proceed as expected
+								}
+								else
+								{
+									EditorSceneManager.OpenScene(previousScenePath, OpenSceneMode.Single);
+								}
+								SetHasDonePopup(true);
+							}
+						}
+						else
+						{
+							if (!HasDonePopup() && !Application.isPlaying)
+							{
+								EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
+								SetHasDonePopup(true);
+							}
+
+						}
+					}
+					else if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID == GetDeviceID())
+					{
+						string text = $"{currentScene} has an active scene lock that is owned by you. \nYou claimed the lock at {scl.SceneLock.LockTime}. \nPlease remember to lift the scene lock when you're done with it.";
+						if (!HasDonePopup() && !Application.isPlaying)
+						{
+							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
+							SetHasDonePopup(true);
+						}
+					}
+				}
+				EditorApplication.update -= WaitUntillSceneLockRequestsAreDone;
+			}
+		}
+
+		private static void DoPopupOnSceneSaveWhenNotLockOwner()
+		{
+			if (sceneLockDictionary != null)
+			{
+				string currentScene = EditorSceneManager.GetActiveScene().name;
+				if (sceneLockDictionary.ContainsKey(currentScene))
+				{
+					// spawn popup
+					SceneLockSceneObject scl = sceneLockDictionary[currentScene];
+					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
+					{
+						string text = $"You just saved a scene where you are not the owner of the current active lock. Please do not commit the changes before the lock is lifted by the current owner. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
+
+						if (!HasDonePopup() && !Application.isPlaying)
+						{
+							if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
+							{
+								// proceed as expected
+							}
+							SetHasDonePopup(true);
+						}
+
+					}
+				}
+			}
+		}
+
+		private static void CheckRunningRequests(bool drawResults = true)
+		{
+			bool hasProcess = false;
+			Action toRemoves = null;
+			foreach (var item in runningRequests)
+			{
+				if (!hasProcess)
+				{
+					if (item.Value.IsDone)
+					{
+						toRemoves += () => runningRequests.Remove(item.Key);
+						//Debug.Log(item.Value.LoadingText + " " + item.Value.Result);
+						if (!drawResults)
+						{
+							toRemoves?.Invoke();
+							return;
+						}
+						else
+							hasProcess = true;
+					}
+
+					if (item.Value.IsExpired())
+					{
+						toRemoves += () => runningRequests.Remove(item.Key);
+						//Debug.Log(item.Value.LoadingText + " " + item.Value.Result);
+						if (!drawResults)
+						{
+							toRemoves?.Invoke();
+							return;
+						}
+						else
+							hasProcess = true;
+					}
+					if (drawResults)
+					{
+						GUILayout.Label(item.Value.LoadingText);
+						GUILayout.Label("Time left: " + item.Value.GetRemainingTime());
+						hasProcess = true;
+					}
+				}
+			}
+			toRemoves?.Invoke();
+			if (drawResults)
+			{
+				if (hasProcess)
+				{
+					if (window == null)
+						Open();
+					window.Repaint();
+				}
+			}
 		}
 
 		private static void InitializeAllScenesList()
@@ -606,6 +583,136 @@ namespace Utils.Core.SceneLockTool
 					return false;
 			}
 			return true;
+		}
+
+		private static RunningWebRequest CreateNewWebRequest(string key, string loadingText, List<IMultipartFormSection> wwwForm, Action<WebRequestResult, string> callback, string url = SceneLockUrl, Action onSuccess = null, Action onFail = null, Action onNetwork = null, Action onNull = null)
+		{
+			if (runningRequests.ContainsKey(key))
+				return runningRequests[key];
+
+			wwwForm.Add(new MultipartFormDataSection(GET_REPLY_KEY, key));
+			wwwForm.Add(new MultipartFormDataSection(PRODUCT_NAME, GetProjectName()));
+
+			UnityWebRequest req = UnityWebRequest.Post(url, wwwForm);
+
+			req.SendWebRequest();
+			RunningWebRequest rReq = new RunningWebRequest(req, key, callback, loadingText, onSuccess, onFail, onNetwork, onNull);
+			runningRequests.Add(key, rReq);
+			EditorApplication.update += runningRequests[key].Run;
+			return rReq;
+		}
+
+		private RunningWebRequest GetUserKnown(Action<WebRequestResult, string> callback)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(GET_USER_KNOWN, deviceID));
+
+			return CreateNewWebRequest(nameof(GetUserKnown), "Checking if user exists...", wwwForm, callback, onSuccess: () => userIsKnown = true, onFail: () => { shouldCreateNewUser = true; userIsKnown = false; submittedNewUserData = false; });
+		}
+
+		private RunningWebRequest SubmitNewUser(Action<WebRequestResult, string> callback, string newUsername)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(SET_NEW_USER, deviceID));
+			wwwForm.Add(new MultipartFormDataSection(NEW_USERNAME, newUsername));
+
+			return CreateNewWebRequest(nameof(SubmitNewUser), "Creating new user...", wwwForm, callback, onSuccess: () => { userIsKnown = true; }, onFail: () => { shouldCreateNewUser = true; userIsKnown = false; submittedNewUserData = false; });
+		}
+
+		private RunningWebRequest GetProjectKnown(Action<WebRequestResult, string> callback)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_KNOWN, GetProjectName()));
+
+			return CreateNewWebRequest(nameof(GetProjectKnown), "Checking if project exists...", wwwForm, callback, onSuccess: () => { projectIsKnown = true; shouldCreateNewProject = false; }, onFail: () => { projectIsKnown = false; shouldCreateNewProject = true; });
+		}
+
+		private RunningWebRequest SubmitNewProject(Action<WebRequestResult, string> callback)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(SET_NEW_PROJECT, GetProjectName()));
+
+			return CreateNewWebRequest(nameof(SubmitNewProject), "Creating new project...", wwwForm, callback, onSuccess: () => { projectIsKnown = true; submittedNewProjectData = true; }, onFail: () => { projectIsKnown = false; submittedNewProjectData = false; });
+		}
+
+		private RunningWebRequest GetProjectID(Action<WebRequestResult, string> callback)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_ID, GetProjectName()));
+
+			return CreateNewWebRequest(nameof(GetProjectID), "Getting project id...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
+		}
+
+		private RunningWebRequest GetProjectScenes(Action<WebRequestResult, string> callback)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_SCENES, projectID));
+
+			return CreateNewWebRequest(nameof(GetProjectScenes), "Getting project scenes...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
+		}
+
+		private RunningWebRequest SubmitProjectScenes(Action<WebRequestResult, string> callback, string scenes)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(SET_PROJECT_SCENES, projectID));
+
+			wwwForm.Add(new MultipartFormDataSection("project_scene_names", scenes));
+
+			return CreateNewWebRequest(nameof(SubmitProjectScenes), "Submitting project scenes...", wwwForm, callback, onSuccess: () => { InitializeSceneLocks(); }, onFail: () => { });
+		}
+
+		private RunningWebRequest SubmitIndividualScene(Action<WebRequestResult, string> callback, string scene)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(SET_PROJECT_SCENES, projectID));
+			wwwForm.Add(new MultipartFormDataSection("project_scene_names", "scenes?" + scene));
+
+			return CreateNewWebRequest(nameof(SubmitIndividualScene), $"Submitting project scene {scene}...", wwwForm, callback, onSuccess: () => { InitializeSceneLocks(); }, onFail: () => { });
+		}
+
+		private static RunningWebRequest GetSceneLockData(Action<WebRequestResult, string> callback, string scene)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(GET_SCENE_LOCK_DATA, scene));
+
+			RunningWebRequest req = CreateNewWebRequest(nameof(GetSceneLockData) + scene, $"Gathering scene lock data for scene {scene}...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
+			runningSceneLockRequests.Add(req);
+			return req;
+		}
+
+		//TODO: this
+		private RunningWebRequest SubmitNewSceneLock(Action<WebRequestResult, string> callback, string scene)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(SUBMIT_NEW_SCENE_LOCK, scene));
+			wwwForm.Add(new MultipartFormDataSection("user_device", GetDeviceID()));
+
+			RunningWebRequest req = CreateNewWebRequest(nameof(SubmitNewSceneLock) + scene, $"Submitting scene lock data for scene {scene}...", wwwForm, callback, onSuccess: () => { }, onFail: () => { InitializeSceneLocks(); });
+			return req;
+		}
+
+		private RunningWebRequest ReleaseSceneLock(Action<WebRequestResult, string> callback, SceneLockSceneObject sceneLock)
+		{
+			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
+			wwwForm.Add(new MultipartFormDataSection(RELEASE_SCENE_LOCK, sceneLock.SceneLock.SceneLockID));
+
+			RunningWebRequest req = CreateNewWebRequest(nameof(ReleaseSceneLock) + sceneLock.SceneLock.SceneLockID, $"Releasing scene lock data for sceneLockID {sceneLock.SceneLock.SceneLockID}...", wwwForm, callback, onSuccess: () => { InitializeSceneLocks(); }, onFail: () => { InitializeSceneLocks(); });
+			return req;
+		}
+
+		private void RefreshInterface()
+		{
+			ResetVariables();
+			InitializeAllScenesList();
+
+			deviceID = GetDeviceID();
+			GetUserKnown((status, result) =>
+			{
+				// left empty
+			});
+			InitializeSceneLocks();
+
+			initialized = true;
 		}
 
 		private void DrawSceneDisplay(string path, int index)
@@ -738,122 +845,6 @@ namespace Utils.Core.SceneLockTool
 				}
 				EditorGUILayout.EndVertical();
 			}
-		}
-
-
-		private static RunningWebRequest CreateNewWebRequest(string key, string loadingText, List<IMultipartFormSection> wwwForm, Action<WebRequestResult, string> callback, string url = SceneLockUrl, Action onSuccess = null, Action onFail = null, Action onNetwork = null, Action onNull = null)
-		{
-			if (runningRequests.ContainsKey(key))
-				return runningRequests[key];
-
-			wwwForm.Add(new MultipartFormDataSection(GET_REPLY_KEY, key));
-			wwwForm.Add(new MultipartFormDataSection(PRODUCT_NAME, GetProjectName()));
-
-			UnityWebRequest req = UnityWebRequest.Post(url, wwwForm);
-
-			req.SendWebRequest();
-			RunningWebRequest rReq = new RunningWebRequest(req, key, callback, loadingText, onSuccess, onFail, onNetwork, onNull);
-			runningRequests.Add(key, rReq);
-			EditorApplication.update += runningRequests[key].Run;
-			return rReq;
-		}
-
-		private RunningWebRequest GetUserKnown(Action<WebRequestResult, string> callback)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(GET_USER_KNOWN, deviceID));
-
-			return CreateNewWebRequest(nameof(GetUserKnown), "Checking if user exists...", wwwForm, callback, onSuccess: () => userIsKnown = true, onFail: () => { shouldCreateNewUser = true; userIsKnown = false; submittedNewUserData = false; });
-		}
-
-		private RunningWebRequest SubmitNewUser(Action<WebRequestResult, string> callback, string newUsername)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(SET_NEW_USER, deviceID));
-			wwwForm.Add(new MultipartFormDataSection(NEW_USERNAME, newUsername));
-
-			return CreateNewWebRequest(nameof(SubmitNewUser), "Creating new user...", wwwForm, callback, onSuccess: () => { userIsKnown = true; }, onFail: () => { shouldCreateNewUser = true; userIsKnown = false; submittedNewUserData = false; });
-		}
-
-		private RunningWebRequest GetProjectKnown(Action<WebRequestResult, string> callback)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_KNOWN, GetProjectName()));
-
-			return CreateNewWebRequest(nameof(GetProjectKnown), "Checking if project exists...", wwwForm, callback, onSuccess: () => { projectIsKnown = true; shouldCreateNewProject = false; }, onFail: () => { projectIsKnown = false; shouldCreateNewProject = true; });
-		}
-
-		private RunningWebRequest SubmitNewProject(Action<WebRequestResult, string> callback)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(SET_NEW_PROJECT, GetProjectName()));
-
-			return CreateNewWebRequest(nameof(SubmitNewProject), "Creating new project...", wwwForm, callback, onSuccess: () => { projectIsKnown = true; submittedNewProjectData = true; }, onFail: () => { projectIsKnown = false; submittedNewProjectData = false; });
-		}
-
-		private RunningWebRequest GetProjectID(Action<WebRequestResult, string> callback)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_ID, GetProjectName()));
-
-			return CreateNewWebRequest(nameof(GetProjectID), "Getting project id...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
-		}
-
-		private RunningWebRequest GetProjectScenes(Action<WebRequestResult, string> callback)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(GET_PROJECT_SCENES, projectID));
-
-			return CreateNewWebRequest(nameof(GetProjectScenes), "Getting project scenes...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
-		}
-
-		private RunningWebRequest SubmitProjectScenes(Action<WebRequestResult, string> callback, string scenes)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(SET_PROJECT_SCENES, projectID));
-
-			wwwForm.Add(new MultipartFormDataSection("project_scene_names", scenes));
-
-			return CreateNewWebRequest(nameof(SubmitProjectScenes), "Submitting project scenes...", wwwForm, callback, onSuccess: () => { InitializeSceneLocks(); }, onFail: () => { });
-		}
-
-		private RunningWebRequest SubmitIndividualScene(Action<WebRequestResult, string> callback, string scene)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(SET_PROJECT_SCENES, projectID));
-			wwwForm.Add(new MultipartFormDataSection("project_scene_names", "scenes?" + scene));
-
-			return CreateNewWebRequest(nameof(SubmitIndividualScene), $"Submitting project scene {scene}...", wwwForm, callback, onSuccess: () => { InitializeSceneLocks(); }, onFail: () => { });
-		}
-
-		private static RunningWebRequest GetSceneLockData(Action<WebRequestResult, string> callback, string scene)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(GET_SCENE_LOCK_DATA, scene));
-
-			RunningWebRequest req = CreateNewWebRequest(nameof(GetSceneLockData) + scene, $"Gathering scene lock data for scene {scene}...", wwwForm, callback, onSuccess: () => { }, onFail: () => { });
-			runningSceneLockRequests.Add(req);
-			return req;
-		}
-
-		//TODO: this
-		private RunningWebRequest SubmitNewSceneLock(Action<WebRequestResult, string> callback, string scene)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(SUBMIT_NEW_SCENE_LOCK, scene));
-			wwwForm.Add(new MultipartFormDataSection("user_device", GetDeviceID()));
-
-			RunningWebRequest req = CreateNewWebRequest(nameof(SubmitNewSceneLock) + scene, $"Submitting scene lock data for scene {scene}...", wwwForm, callback, onSuccess: () => { }, onFail: () => { InitializeSceneLocks(); });
-			return req;
-		}
-
-		private RunningWebRequest ReleaseSceneLock(Action<WebRequestResult, string> callback, SceneLockSceneObject sceneLock)
-		{
-			List<IMultipartFormSection> wwwForm = new List<IMultipartFormSection>();
-			wwwForm.Add(new MultipartFormDataSection(RELEASE_SCENE_LOCK, sceneLock.SceneLock.SceneLockID));
-
-			RunningWebRequest req = CreateNewWebRequest(nameof(ReleaseSceneLock) + sceneLock.SceneLock.SceneLockID, $"Releasing scene lock data for sceneLockID {sceneLock.SceneLock.SceneLockID}...", wwwForm, callback, onSuccess: () => { InitializeSceneLocks(); }, onFail: () => { InitializeSceneLocks(); });
-			return req;
 		}
 
 		private static string GetDeviceID()
