@@ -172,9 +172,6 @@ namespace Utils.Core.SceneLockTool
 			}
 			else // user is known
 			{
-
-				//GUILayout.Label("user is known");
-				//check project existence
 				if (!projectIsKnown)
 				{
 
