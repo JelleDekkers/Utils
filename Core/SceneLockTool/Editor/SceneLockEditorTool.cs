@@ -86,7 +86,7 @@ namespace Utils.Core.SceneLockTool
 
 		
 
-		[MenuItem("Scene lock tool/Open scene lock tool")]
+		[MenuItem("Utils/Scene lock tool")]
 		public static void Open()
 		{
 			window = GetWindow<SceneLockEditorTool>("Scene lock tool");
