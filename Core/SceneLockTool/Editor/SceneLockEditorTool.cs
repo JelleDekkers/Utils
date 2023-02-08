@@ -73,6 +73,9 @@ namespace Utils.Core.SceneLockTool
 		static SceneLockEditorTool()
 		{
 			BGInitialized = false;
+
+			EditorApplication.playModeStateChanged += PlayModeSceneChangedEvent;
+
 			EditorSceneManager.sceneOpened += SceneLoadEvent;
 			EditorSceneManager.sceneClosing += SceneCloseEvent;
 
@@ -80,6 +83,8 @@ namespace Utils.Core.SceneLockTool
 
 			EditorApplication.update += DoFirstInit;
 		}
+
+		
 
 		[MenuItem("Scene lock tool/Open scene lock tool")]
 		public static void Open()
@@ -356,6 +361,14 @@ namespace Utils.Core.SceneLockTool
 			EditorApplication.update -= DoFirstInit;
 		}
 
+		private static void PlayModeSceneChangedEvent(PlayModeStateChange obj)
+		{
+			if(obj == PlayModeStateChange.ExitingPlayMode)
+			{
+				DoPopupOnSceneSaveWhenNotLockOwner();
+			}
+		}
+
 		private static void SceneLoadEvent(Scene scene, OpenSceneMode mode)
 		{
 			if (Application.isPlaying)
@@ -378,7 +391,7 @@ namespace Utils.Core.SceneLockTool
 
 		private static void SceneCloseEvent(Scene scene, bool removingScene)
 		{
-			if (Application.isPlaying)
+			if (Application.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode)
 				return;
 			SetHasDonePopup(false);
 			previousScenePath = scene.path;
@@ -418,7 +431,7 @@ namespace Utils.Core.SceneLockTool
 						string text = $"{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
 						if (previousScenePath != string.Empty && previousScenePath.Length > 2)
 						{
-							if (!HasDonePopup() && !Application.isPlaying)
+							if (!HasDonePopup() && !EditorApplication.isPlayingOrWillChangePlaymode)
 							{
 								if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge", $"Go back to {Path.GetFileNameWithoutExtension(previousScenePath)}"))
 								{
@@ -433,7 +446,7 @@ namespace Utils.Core.SceneLockTool
 						}
 						else
 						{
-							if (!HasDonePopup() && !Application.isPlaying)
+							if (!HasDonePopup() && !EditorApplication.isPlayingOrWillChangePlaymode)
 							{
 								EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
 								SetHasDonePopup(true);
@@ -444,7 +457,7 @@ namespace Utils.Core.SceneLockTool
 					else if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID == GetDeviceID())
 					{
 						string text = $"{currentScene} has an active scene lock that is owned by you. \nYou claimed the lock at {scl.SceneLock.LockTime}. \nPlease remember to lift the scene lock when you're done with it.";
-						if (!HasDonePopup() && !Application.isPlaying)
+						if (!HasDonePopup() && !EditorApplication.isPlayingOrWillChangePlaymode)
 						{
 							EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge");
 							SetHasDonePopup(true);
@@ -466,17 +479,16 @@ namespace Utils.Core.SceneLockTool
 					SceneLockSceneObject scl = sceneLockDictionary[currentScene];
 					if (scl.HasSceneLock && scl.SceneLock.OwnerDeviceID != GetDeviceID())
 					{
-						string text = $"You just saved a scene where you are not the owner of the current active lock. Please do not commit the changes before the lock is lifted by the current owner. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
+						string text = $"The current scene has a scene lock that is not owned by you. \n\n{currentScene} has an active scene lock that is owned by {scl.SceneLock.OwnerName}. \nThey claimed the lock at {scl.SceneLock.LockTime}. \nCheck with them if the scene lock is still active before saving and/or commiting any changes to it.";
 
-						if (!HasDonePopup() && !Application.isPlaying)
-						{
+						//if (!HasDonePopup() && !EditorApplication.isPlayingOrWillChangePlaymode)
+						//{
 							if (EditorUtility.DisplayDialog("Scene lock warning", text, "Acknowledge"))
 							{
 								// proceed as expected
 							}
 							SetHasDonePopup(true);
-						}
-
+						//}
 					}
 				}
 			}
