@@ -20,7 +20,7 @@ namespace Utils.Core.SceneLockTool
 		public const string SceneLockUrl = "https://www.knucklehead-studios.com/SceneLockManagement/SceneLockInterfacer.php";
 		private readonly int INDENT_SPACE = 16;
 		private const int TEXT_FONT_SIZE = 12;
-		private readonly Color32 selectionBackgroundColor = new Color32(38, 38, 38, 255);
+		private static readonly Color32 selectionBackgroundColor = new Color32(38, 38, 38, 255);
 
 		private static EditorWindow window = null;
 
@@ -47,6 +47,7 @@ namespace Utils.Core.SceneLockTool
 		private static bool BGInitialized = false;
 		private static string previousScenePath = "";
 		private static Vector2 scrollPos = new Vector2();
+		private static int openedToolbarMenu = 0;
 
 		[SerializeField]
 		private static bool hasDonePopup = false;
@@ -70,6 +71,12 @@ namespace Utils.Core.SceneLockTool
 		private string searchText = "";
 		private bool allScenesFoldoutIsOpen = false;
 
+		Texture2D bgColor = null;
+		Texture2D sceneLockBG = null;
+		Texture2D sceneLockOwnedBG = null;
+		Texture2D sceneLockNotOwnedBG = null;
+		Texture2D sceneMissingBG = null;
+
 		static SceneLockEditorTool()
 		{
 			BGInitialized = false;
@@ -89,7 +96,7 @@ namespace Utils.Core.SceneLockTool
 		{
 			window = GetWindow<SceneLockEditorTool>("Scene lock tool");
 			window.autoRepaintOnSceneChange = true;
-			window.minSize = new Vector2(400, 400);
+			window.minSize = new Vector2(850, 600);
 			window.Show();
 		}
 
@@ -97,6 +104,11 @@ namespace Utils.Core.SceneLockTool
 		{
 			ResetVariables();
 			RefreshInterface();
+		}
+
+		private void OnDisable()
+		{
+			ResetVariables();
 		}
 
 		private void OnGUI()
@@ -114,32 +126,95 @@ namespace Utils.Core.SceneLockTool
 				return;
 			}
 
+			GUIStyle header = new GUIStyle();
+			header.fontStyle = FontStyle.Bold;
+			header.fontSize = 14;
+			header.normal.textColor = EditorStyles.boldLabel.normal.textColor;
+
+			string[] displayToolbarOptions = new string[] { "All scenes in build settings", "All scenes in project" };
+
 			EditorGUILayout.BeginHorizontal();
 			{
-				EditorGUILayout.BeginHorizontal();
-				{
-					GUILayout.Label("Filter: ");
-					searchText = GUILayout.TextField(searchText, GUILayout.MinWidth(300));
-					if (GUILayout.Button("Clear filter"))
-					{
-						searchText = "";
-					}
-					GUILayout.FlexibleSpace();
-				}
-				EditorGUILayout.EndHorizontal();
+				DrawCurrentOpenScene();
 
 				GUILayout.FlexibleSpace();
-				if (GUILayout.Button("Refresh interface"))
+
+				EditorGUILayout.BeginVertical();
 				{
+					EditorGUILayout.BeginHorizontal();
+					{
+						EditorGUILayout.BeginHorizontal();
+						{
+							GUILayout.Label("Filter: ");
+							searchText = GUILayout.TextField(searchText, GUILayout.MinWidth(300));
+							if (GUILayout.Button("Clear filter"))
+							{
+								searchText = "";
+							}
+							GUILayout.FlexibleSpace();
+						}
+						EditorGUILayout.EndHorizontal();
+
+						GUILayout.FlexibleSpace();
+						if (GUILayout.Button("Refresh interface"))
+						{
+							EditorGUILayout.EndHorizontal();
+							Open();
+							RefreshInterface();
+							// additional pop to prevent pesky push/pop error
+						}
+					}
 					EditorGUILayout.EndHorizontal();
-					Open();
-					RefreshInterface();
-					// additional pop to prevent pesky push/pop error
+					openedToolbarMenu = GUILayout.Toolbar(openedToolbarMenu, displayToolbarOptions, GUILayout.MinWidth(window.minSize.x / 3), GUILayout.Height(30));
+					GUILayout.Space(20);
+
+					int scenelockOwnedCount = 0;
+					int sceneLockNotOwnedCount = 0;
+					foreach (var item in sceneLockDictionary)
+					{
+						if (item.Value.HasSceneLockActive)
+						{
+							if(item.Value.SceneLock.OwnerDeviceID == GetDeviceID())
+								scenelockOwnedCount++;
+							else
+								sceneLockNotOwnedCount++;
+						}
+					}
+
+					if(sceneLockDictionary.Count > 0)
+					{
+						EditorGUILayout.BeginHorizontal();
+						{
+							GUILayout.FlexibleSpace();
+							EditorGUILayout.BeginVertical();
+							{
+								GUILayout.Label("Current scene locks owned by you: ", header);
+								GUILayout.Label("Current scene locks not owned by you: ", header);
+								GUILayout.Label("Total scene locks: ", header);
+							}
+							EditorGUILayout.EndVertical();
+							EditorGUILayout.BeginVertical();
+							{
+								GUILayout.Label(scenelockOwnedCount.ToString(), header);
+								GUILayout.Label(sceneLockNotOwnedCount.ToString(), header);
+								GUILayout.Label((scenelockOwnedCount + sceneLockNotOwnedCount).ToString(), header);
+							}
+							EditorGUILayout.EndVertical();
+							GUILayout.FlexibleSpace();
+						}
+						EditorGUILayout.EndHorizontal();
+					}
+					else
+					{
+						GUILayout.Label("No active scene locks in " + GetProjectName(), header);
+					}
 				}
+				EditorGUILayout.EndVertical();
+
 			}
 			EditorGUILayout.EndHorizontal();
-			scrollPos = (Vector2)EditorGUILayout.BeginScrollView((Vector2)scrollPos);
 
+			scrollPos = (Vector2)EditorGUILayout.BeginScrollView((Vector2)scrollPos);
 			if (!userIsKnown)
 			{
 				if (shouldCreateNewUser && !submittedNewUserData)
@@ -177,7 +252,6 @@ namespace Utils.Core.SceneLockTool
 			{
 				if (!projectIsKnown)
 				{
-
 					if (!startedProjectCheck)
 					{
 						GetProjectKnown((status, result) =>
@@ -254,89 +328,16 @@ namespace Utils.Core.SceneLockTool
 							hasRequestedProjectScenes = true;
 						}
 
-						//if(!hasProjectScenes)
-						//{
-						// has no project scenes. Get all scene names in build settings
-						//GUILayout.Label("No scenes found linked to current project on database.");
-						Scene currentScene = EditorSceneManager.GetActiveScene();
-						EditorGUILayout.BeginVertical();
+						switch (openedToolbarMenu)
 						{
-							IndentedLabel("Current open scene: ");
-							EditorGUI.indentLevel++;
-							DrawSceneDisplay(currentScene.path, currentScene.buildIndex);
-							EditorGUI.indentLevel--;
-						}
-						EditorGUILayout.EndVertical();
-
-						EditorGUILayout.BeginVertical();
-						{
-							IndentedLabel("Scenes that are in the build settings");
-							int index = 0;
-							EditorGUI.indentLevel++;
-							foreach (var item in EditorBuildSettings.scenes)
-							{
-								DrawSceneDisplay(item.path, index);
-								index++;
-							}
-							EditorGUI.indentLevel--;
-						}
-						EditorGUILayout.EndVertical();
-						if (GUILayout.Button("Upload all scenes from build settings to DB and link to project"))
-						{
-							string scenes = "scenes";
-							foreach (var item in EditorBuildSettings.scenes)
-							{
-								string path = item.path;
-								string sceneName = Path.GetFileNameWithoutExtension(path);
-								scenes += "?" + sceneName;
-							}
-							SubmitProjectScenes((status, result) =>
-							{
-								hasRequestedProjectScenes = false;
-								// empty
-							}, scenes);
-						}
-
-						if (AllScenesInProject.Count > 0)
-						{
-							allScenesFoldoutIsOpen = EditorGUILayout.BeginFoldoutHeaderGroup(allScenesFoldoutIsOpen, "All scenes that are in the project");
-							{
-								if (allScenesFoldoutIsOpen)
-								{
-									EditorGUI.indentLevel++;
-									EditorGUILayout.BeginVertical();
-									{
-										//IndentedLabel("Scenes that are in the project");
-										int index = 0;
-										EditorGUI.indentLevel++;
-										foreach (var item in AllScenesInProject)
-										{
-											DrawSceneDisplay(item, index);
-											index++;
-										}
-										EditorGUI.indentLevel--;
-									}
-									EditorGUILayout.EndVertical();
-									EditorGUI.indentLevel--;
-									if (GUILayout.Button("Upload all scenes from project to DB and link to project"))
-									{
-										string scenes = "scenes";
-										foreach (var item in AllScenesInProject)
-										{
-											//string path = item;
-											//string sceneName = Path.GetFileNameWithoutExtension(path);
-											scenes += "?" + PathToFile(item);
-										}
-										SubmitProjectScenes((status, result) =>
-										{
-											hasRequestedProjectScenes = false;
-											InitializeSceneLocks();
-											// empty
-										}, scenes);
-									}
-								}
-							}
-							EditorGUILayout.EndFoldoutHeaderGroup();
+							case 0:
+								DrawCurrentBuildSettingsScenes();
+								break;
+							case 1:
+								DrawAllScenesGroup();
+								break;
+							default:
+								break;
 						}
 					}
 				}
@@ -344,10 +345,401 @@ namespace Utils.Core.SceneLockTool
 			EditorGUILayout.EndScrollView();
 		}
 
-		private void OnDisable()
+		private void DrawTestDisplay(string[] entries)
 		{
-			ResetVariables();
+			float width = 200;
+			float height = 200;
+
+			float windowWidth = position.size.x;
+
+			List<string> filteredList = new List<string>();
+
+			foreach (var item in entries)
+			{
+				string sceneName = PathToFile(item);
+				bool contentContains = sceneName.IndexOf(Sanitize(searchText), StringComparison.OrdinalIgnoreCase) >= 0;
+				if (searchText == "" || searchText.Length <= 0 || contentContains)
+				{
+					filteredList.Add(item);
+				}
+			}
+
+			int maxWidthFit = Mathf.FloorToInt(windowWidth / width);
+			maxWidthFit = Mathf.Min(maxWidthFit, filteredList.Count);
+			int contentToFill = filteredList.Count;
+			int columnCount = contentToFill / maxWidthFit;
+			bool addOneMoreRow = contentToFill % maxWidthFit != 0;
+
+			EditorGUILayout.BeginHorizontal();
+			{
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.BeginVertical();
+				{ 
+					int drawnEntries = 0;
+
+					for (int i = 0; i < columnCount; i++)
+					{
+						EditorGUILayout.BeginHorizontal();
+						for (int y = 0; y < maxWidthFit; y++)
+						{
+							TestDisplaySingleBlock(width, height, filteredList[drawnEntries]);
+							drawnEntries++;
+						}
+						EditorGUILayout.EndHorizontal();
+					}
+
+					if (drawnEntries > 0)
+					{
+						EditorGUILayout.BeginHorizontal();
+						for (int y = 0; y < contentToFill % maxWidthFit; y++)
+						{
+							TestDisplaySingleBlock(width, height, filteredList[drawnEntries]);
+							drawnEntries++;
+						}
+						EditorGUILayout.EndHorizontal();
+					}
+				}
+				EditorGUILayout.EndVertical();
+				GUILayout.FlexibleSpace();
+			}
+			EditorGUILayout.EndHorizontal();
 		}
+
+		private void TestDisplaySingleBlock(float width, float height, string path = "Hello")
+		{
+			GUIStyle header = new GUIStyle();
+			header.fontStyle = FontStyle.Bold;
+			header.fontSize = 14;
+			header.normal.textColor = EditorStyles.boldLabel.normal.textColor;
+
+			if(bgColor == null)
+			{
+				ResetTextures();
+			}
+
+			Rect area = EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Height(height), GUILayout.Width(width), GUILayout.ExpandWidth(false));
+			{
+				GUI.DrawTexture(area, bgColor);
+
+				EditorGUILayout.BeginHorizontal();
+				{
+					GUILayout.FlexibleSpace();
+
+					Color backgroundColor = GUI.backgroundColor;
+
+					GUI.backgroundColor = selectionBackgroundColor;
+
+					Rect rect = EditorGUILayout.BeginVertical(GUI.skin.box);
+					{
+						var go = AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
+
+						EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(width));
+						{
+							string text = go != null ? go.name : path;
+							
+							GUILayout.FlexibleSpace();
+
+							GUILayout.Label(text, header, GUILayout.MaxWidth(width));
+
+							GUILayout.FlexibleSpace();
+
+							GUI.enabled = go != null;
+							if (GUI.Button(rect, GUIContent.none, GUIStyle.none))
+								SelectGameObject(go);
+							GUI.enabled = true;
+
+						}
+						EditorGUILayout.EndHorizontal();
+					}
+					EditorGUILayout.EndVertical();
+					GUI.backgroundColor = backgroundColor;
+					GUILayout.FlexibleSpace();
+				}
+				EditorGUILayout.EndHorizontal();
+
+
+				bool hasSceneLock = false;
+				bool isLockOwner = false;
+				SceneLockSceneObject _lock = null;
+				if (sceneLockDictionary.TryGetValue(Path.GetFileNameWithoutExtension(path), out _lock))
+				{
+					if (_lock.HasSceneLockActive)
+					{
+						hasSceneLock = true;
+						if (_lock.SceneLock.OwnerDeviceID == GetDeviceID())
+							isLockOwner = true;
+						else
+							isLockOwner = false;
+					}
+					else
+						hasSceneLock = false;
+				}
+				else
+				{
+					// no lock present
+					hasSceneLock = false;
+				}
+
+				Color lockColor = (!hasSceneLock) ? Color.green * 0.5f : (isLockOwner) ? Color.yellow * 0.5f : Color.red * 0.5f;
+				Texture2D lockBG = (!hasSceneLock) ? sceneLockBG : (isLockOwner) ? sceneLockOwnedBG : sceneLockNotOwnedBG;
+				if (_lock == null)
+					lockBG = sceneMissingBG;
+
+				Rect sceneLockArea = EditorGUILayout.BeginVertical(GUILayout.Height(height - 35));
+				{
+					GUI.DrawTexture(sceneLockArea, lockBG);
+					GUILayout.Space(5);
+					EditorGUILayout.BeginHorizontal(GUILayout.Height(height - 45));
+					{
+						GUILayout.Space(5);
+						Rect scenelockInnerArea = EditorGUILayout.BeginHorizontal(GUILayout.Height(height - 45));
+						{
+							GUI.DrawTexture(scenelockInnerArea, bgColor);
+							Rect test = EditorGUILayout.BeginVertical();
+							{
+								Vector2 pos = scenelockInnerArea.position;
+								Vector2 size = scenelockInnerArea.size;
+								size.x -= 10;
+								size.y -= 100;
+								pos.x += 5;
+								pos.y += 95;
+								Rect result = new Rect(pos.x, pos.y, size.x, size.y);
+
+								EditorGUILayout.BeginHorizontal();
+								{
+									GUILayout.Space(5);
+									EditorGUILayout.BeginVertical();
+									{
+										GUILayout.Label("Scene lock status:", header);
+
+										GUIStyle lockText = new GUIStyle();
+										lockText.fontStyle = FontStyle.Bold;
+										lockText.fontSize = 14;
+										Color c = lockColor;
+										c.a = 1f;
+										lockText.normal.textColor = c;
+
+										if (_lock != null)
+											GUILayout.Label((hasSceneLock) ? "Locked" : "Open", lockText);
+										else
+										{
+											c = Color.red * 0.5f;
+											c.a = 1f;
+											lockText.normal.textColor = c;
+											GUILayout.Label("Missing from DB", lockText);
+										}
+									}
+									EditorGUILayout.EndVertical();
+								}
+								EditorGUILayout.EndHorizontal();
+
+								GUILayout.FlexibleSpace();
+
+								EditorGUILayout.BeginVertical();
+								{
+									if(_lock != null)
+									{
+										if (_lock.HasSceneLock)
+										{
+											// locked
+											GUILayout.Label("Owner: " + _lock.SceneLock.OwnerName);
+											GUILayout.Label("Time:  " + _lock.SceneLock.LockTime);
+
+											if (_lock.SceneLock.OwnerDeviceID == GetDeviceID())
+											{
+												if (GUI.Button(result, "Release scene lock"))
+												{
+													// delete lock
+													ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
+												}
+											}
+											else
+											{
+												if (GUI.Button(result, "Force remove scene lock"))
+												{
+													// delete and claim lock
+													ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
+												}
+											}
+										}
+										else
+										{
+											GUILayout.Label("Owner: -");
+											GUILayout.Label("Time: -");
+											// no lock
+											if (GUI.Button(result, "Claim scene lock"))
+											{
+												// claim lock call
+												SubmitNewSceneLock((status, result) => { InitializeSceneLocks(); }, Path.GetFileNameWithoutExtension(path));
+											}
+										}
+									}
+									else
+									{
+										GUILayout.Label("Scene is missing in DB.");
+										// no lock
+										if (GUI.Button(result, "Upload scene to DB"))
+										{
+											SubmitIndividualScene((status, result) =>
+											{
+												hasRequestedProjectScenes = false;
+											},
+											Path.GetFileNameWithoutExtension(path));
+										}
+									}
+								}
+								EditorGUILayout.EndVertical();
+								GUILayout.Space(20);
+							}
+							EditorGUILayout.EndVertical();
+						}
+						EditorGUILayout.EndHorizontal();
+
+						
+						GUILayout.Space(5);
+					}
+					EditorGUILayout.EndHorizontal();
+					GUILayout.Space(3);
+
+					EditorGUILayout.BeginHorizontal();
+					{
+						GUILayout.FlexibleSpace();
+						if (GUILayout.Button("Load scene", GUILayout.Width(width - 25)))
+						{
+							if (EditorSceneManager.GetActiveScene().isDirty)
+							{
+								if (EditorUtility.DisplayDialog("Scene change warning", "Current scene has unsaved changes. Are you sure you want to leave?", "Save scene, then go", $"Cancel scene loading"))
+								{
+									// proceed as expected
+									EditorSceneManager.SaveOpenScenes();
+									EditorSceneManager.OpenScene(path);
+								}
+								else
+								{
+									// nothing
+								}
+							}
+							else
+							{
+								EditorSceneManager.OpenScene(path);
+							}
+						}
+						GUILayout.FlexibleSpace();
+					}
+					EditorGUILayout.EndHorizontal();
+					GUILayout.Space(4);
+				}
+				EditorGUILayout.EndVertical();
+			}
+			EditorGUILayout.EndVertical();
+		}
+
+		private void DrawCurrentBuildSettingsScenes()
+		{
+			GUILayout.Space(20);
+
+			bool hasMissingScenes = false;
+
+			foreach (var item in EditorBuildSettings.scenes)
+			{
+				if(!sceneLockDictionary.ContainsKey(Path.GetFileNameWithoutExtension(item.path)))
+				{
+					hasMissingScenes = true;
+					break;
+				}
+			}
+
+			if (hasMissingScenes)
+			{
+				if (GUILayout.Button("Upload all scenes from build settings to DB and link to project"))
+				{
+					string scenes = "scenes";
+					foreach (var item in EditorBuildSettings.scenes)
+					{
+						string path = item.path;
+						string sceneName = Path.GetFileNameWithoutExtension(path);
+						scenes += "?" + sceneName;
+					}
+					SubmitProjectScenes((status, result) =>
+					{
+						hasRequestedProjectScenes = false;
+					// empty
+				}, scenes);
+				}
+			}
+
+			List<string> s = new List<string>();
+			foreach (var item in EditorBuildSettings.scenes)
+			{
+				s.Add(item.path);
+			}
+
+			DrawTestDisplay(s.ToArray());
+		}
+
+		private void DrawCurrentOpenScene()
+		{
+			GUIStyle header = new GUIStyle();
+			header.fontStyle = FontStyle.Bold;
+			header.fontSize = 14;
+			header.normal.textColor = EditorStyles.boldLabel.normal.textColor;
+
+			Scene currentScene = EditorSceneManager.GetActiveScene();
+			EditorGUILayout.BeginVertical();
+			{
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Space(5);
+				GUILayout.Label("Current open scene: ", header);
+				EditorGUILayout.EndHorizontal();
+
+				TestDisplaySingleBlock(300, 200, currentScene.path);
+
+				//DrawSceneDisplay(currentScene.path, currentScene.buildIndex);
+			}
+			EditorGUILayout.EndVertical();
+		}
+
+		private void DrawAllScenesGroup()
+		{
+			if (AllScenesInProject.Count > 0)
+			{
+				EditorGUI.indentLevel++;
+				GUILayout.Space(20);
+
+				bool hasMissingScenes = false;
+
+				foreach (var item in AllScenesInProject)
+				{
+					if (!sceneLockDictionary.ContainsKey(Path.GetFileNameWithoutExtension(item)))
+					{
+						hasMissingScenes = true;
+						break;
+					}
+				}
+
+				if (hasMissingScenes)
+				{
+					if (GUILayout.Button("Upload all scenes from project to DB and link to project"))
+					{
+						string scenes = "scenes";
+						foreach (var item in AllScenesInProject)
+						{
+							scenes += "?" + PathToFile(item);
+						}
+						SubmitProjectScenes((status, result) =>
+						{
+							hasRequestedProjectScenes = false;
+							InitializeSceneLocks();
+						// empty
+					}, scenes);
+					}
+				}
+
+				DrawTestDisplay(AllScenesInProject.ToArray());
+			}
+		}
+
+		
 
 		private static void DoFirstInit()
 		{
@@ -952,7 +1344,32 @@ namespace Utils.Core.SceneLockTool
 			searchText = "";
 			hasRequestedProjectScenes = false;
 			GetProjectScenesRequest = null;
+			ResetTextures();
+
 			ResetStatics();
+		}
+
+		private void ResetTextures()
+		{
+			bgColor = new Texture2D(1, 1);
+			bgColor.SetPixel(0, 0, new Color(0.25f, 0.25f, 0.25f));
+			bgColor.Apply();
+
+			sceneLockBG = new Texture2D(1, 1);
+			sceneLockBG.SetPixel(0, 0, Color.green * 0.5f);
+			sceneLockBG.Apply();
+
+			sceneLockOwnedBG = new Texture2D(1, 1);
+			sceneLockOwnedBG.SetPixel(0, 0, Color.yellow * 0.5f);
+			sceneLockOwnedBG.Apply();
+
+			sceneLockNotOwnedBG = new Texture2D(1, 1);
+			sceneLockNotOwnedBG.SetPixel(0, 0, Color.red * 0.5f);
+			sceneLockNotOwnedBG.Apply();
+
+			sceneMissingBG = new Texture2D(1, 1);
+			sceneMissingBG.SetPixel(0, 0, Color.magenta * 0.5f);
+			sceneMissingBG.Apply();
 		}
 
 		private static void ResetStatics()
@@ -1004,7 +1421,7 @@ namespace Utils.Core.SceneLockTool
 			return rect;
 		}
 
-		private void SelectGameObject(UnityEngine.Object go)
+		private static void SelectGameObject(UnityEngine.Object go)
 		{
 			EditorGUIUtility.PingObject(go);
 		}
