@@ -533,7 +533,7 @@ namespace Utils.Core.SceneLockTool
 								}
 								EditorGUILayout.EndHorizontal();
 
-								GUILayout.FlexibleSpace();
+								//GUILayout.FlexibleSpace();
 
 								EditorGUILayout.BeginVertical();
 								{
