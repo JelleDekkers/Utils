@@ -503,7 +503,7 @@ namespace Utils.Core.SceneLockTool
 								size.y -= 100;
 								pos.x += 5;
 								pos.y += 95;
-								Rect result = new Rect(pos.x, pos.y, size.x, size.y);
+								Rect rss = new Rect(pos.x, pos.y, size.x, size.y);
 
 								EditorGUILayout.BeginHorizontal();
 								{
@@ -547,7 +547,7 @@ namespace Utils.Core.SceneLockTool
 
 											if (_lock.SceneLock.OwnerDeviceID == GetDeviceID())
 											{
-												if (GUI.Button(result, "Release scene lock"))
+												if (GUI.Button(rss, "Release scene lock"))
 												{
 													// delete lock
 													ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
@@ -555,7 +555,7 @@ namespace Utils.Core.SceneLockTool
 											}
 											else
 											{
-												if (GUI.Button(result, "Force remove scene lock"))
+												if (GUI.Button(rss, "Force remove scene lock"))
 												{
 													// delete and claim lock
 													ReleaseSceneLock((status, result) => { InitializeSceneLocks(); }, _lock);
@@ -567,7 +567,7 @@ namespace Utils.Core.SceneLockTool
 											GUILayout.Label("Owner: -");
 											GUILayout.Label("Time: -");
 											// no lock
-											if (GUI.Button(result, "Claim scene lock"))
+											if (GUI.Button(rss, "Claim scene lock"))
 											{
 												// claim lock call
 												SubmitNewSceneLock((status, result) => { InitializeSceneLocks(); }, Path.GetFileNameWithoutExtension(path));
@@ -578,7 +578,7 @@ namespace Utils.Core.SceneLockTool
 									{
 										GUILayout.Label("Scene is missing in DB.");
 										// no lock
-										if (GUI.Button(result, "Upload scene to DB"))
+										if (GUI.Button(rss, "Upload scene to DB"))
 										{
 											SubmitIndividualScene((status, result) =>
 											{
