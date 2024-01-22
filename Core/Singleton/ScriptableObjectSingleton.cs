@@ -12,7 +12,16 @@ namespace Utils.Core
             get
             {
                 if (!instance)
-                    instance = Resources.FindObjectsOfTypeAll<T>().FirstOrDefault();
+                {
+                    T[] resources = Resources.LoadAll<T>("");
+
+                    if (resources.Length > 0)
+					{
+                        instance = resources[0];
+                    }
+                    else
+                        Debug.LogError("Resource not found for type: " + typeof(T).Name);
+                }
                 return instance;
             }
         }
