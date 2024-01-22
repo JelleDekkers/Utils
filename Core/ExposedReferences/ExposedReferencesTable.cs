@@ -1,50 +1,53 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Manages <see cref="ExposedObjectReference{T}"/> in asset objects such as <see cref="StateAction"/> that reference scene objects
-/// This object is required in the scene if you are working with <see cref="ExposedObjectReference{T}"/>
-/// </summary>
-[System.Serializable]
-public class ExposedReferencesTable : SingletonMonoBehaviour<ExposedReferencesTable>, IExposedPropertyTable
+namespace Utils.Core
 {
-    public List<Object> objectReferences = new List<Object>();
-    public List<PropertyName> propertyNames = new List<PropertyName>();
-
-    public void ClearReferenceValue(PropertyName id)
+    /// <summary>
+    /// Manages <see cref="ExposedObjectReference{T}"/> in asset objects such as <see cref="StateAction"/> that reference scene objects
+    /// This object is required in the scene if you are working with <see cref="ExposedObjectReference{T}"/>
+    /// </summary>
+    [System.Serializable]
+    public class ExposedReferencesTable : SingletonMonoBehaviour<ExposedReferencesTable>, IExposedPropertyTable
     {
-        int index = propertyNames.IndexOf(id);
-        if (index != -1)
-        {
-            objectReferences.RemoveAt(index);
-            propertyNames.RemoveAt(index);
-        }
-    }
+        public List<Object> objectReferences = new List<Object>();
+        public List<PropertyName> propertyNames = new List<PropertyName>();
 
-    public Object GetReferenceValue(PropertyName id, out bool idValid)
-    {
-        int index = propertyNames.IndexOf(id);
-        if (index != -1)
+        public void ClearReferenceValue(PropertyName id)
         {
-            idValid = true;
-            return objectReferences[index];
+            int index = propertyNames.IndexOf(id);
+            if (index != -1)
+            {
+                objectReferences.RemoveAt(index);
+                propertyNames.RemoveAt(index);
+            }
         }
-        
-        idValid = false;
-        return null;
-    }
 
-    public void SetReferenceValue(PropertyName id, Object value)
-    {
-        int index = propertyNames.IndexOf(id);
-        if (index != -1)
+        public Object GetReferenceValue(PropertyName id, out bool idValid)
         {
-            objectReferences[index] = value;
+            int index = propertyNames.IndexOf(id);
+            if (index != -1)
+            {
+                idValid = true;
+                return objectReferences[index];
+            }
+
+            idValid = false;
+            return null;
         }
-        else
+
+        public void SetReferenceValue(PropertyName id, Object value)
         {
-            propertyNames.Add(id);
-            objectReferences.Add(value);
+            int index = propertyNames.IndexOf(id);
+            if (index != -1)
+            {
+                objectReferences[index] = value;
+            }
+            else
+            {
+                propertyNames.Add(id);
+                objectReferences.Add(value);
+            }
         }
     }
 }

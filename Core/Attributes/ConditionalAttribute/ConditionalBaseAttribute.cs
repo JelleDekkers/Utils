@@ -1,14 +1,17 @@
 using System;
 using UnityEngine;
 
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
-public abstract class ConditionalBaseAttribute : PropertyAttribute
+namespace Utils.Core.Attributes
 {
-    //The name of the bool field that will be in control
-    public readonly string ConditionalSourceField = "";
-
-    public ConditionalBaseAttribute(string conditionalSourceField)
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
+    public abstract class ConditionalBaseAttribute : PropertyAttribute
     {
-        ConditionalSourceField = conditionalSourceField;
+        //The name of the bool field that will be in control
+        public readonly string ConditionalSourceField = "";
+
+        public ConditionalBaseAttribute(string conditionalSourceField)
+        {
+            ConditionalSourceField = conditionalSourceField;
+        }
     }
 }

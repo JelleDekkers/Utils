@@ -1,7 +1,10 @@
-public class ConditionalReadOnlyAttribute : ConditionalBaseAttribute
+namespace Utils.Core.Attributes
 {
-    public ConditionalReadOnlyAttribute(string conditionalSourceField) : base(conditionalSourceField)
+    public class ConditionalReadOnlyAttribute : ConditionalBaseAttribute
     {
+        public ConditionalReadOnlyAttribute(string conditionalSourceField) : base(conditionalSourceField)
+        {
 
+        }
     }
 }

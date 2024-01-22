@@ -1,17 +1,20 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomPropertyDrawer(typeof(ConditionalReadOnlyAttribute))]
-public class ConditionalReadonlyPropertyDrawer : ConditionalPropertyDrawer<ConditionalReadOnlyAttribute>
+namespace Utils.Core.Attributes
 {
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(ConditionalReadOnlyAttribute))]
+    public class ConditionalReadonlyPropertyDrawer : ConditionalPropertyDrawer<ConditionalReadOnlyAttribute>
     {
-        base.OnGUI(position, property, label);
-        bool enabled = GetConditionResult(property);
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            base.OnGUI(position, property, label);
+            bool enabled = GetConditionResult(property);
 
-        bool wasEnabled = GUI.enabled;
-        GUI.enabled = enabled;
-        EditorGUI.PropertyField(position, property, label, true);
-        GUI.enabled = wasEnabled;
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = enabled;
+            EditorGUI.PropertyField(position, property, label, true);
+            GUI.enabled = wasEnabled;
+        }
     }
 }

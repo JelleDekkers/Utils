@@ -1,7 +1,10 @@
-public class ConditionalHideAttribute : ConditionalBaseAttribute
+namespace Utils.Core.Attributes
 {
-public ConditionalHideAttribute(string conditionalSourceField) : base(conditionalSourceField)
+    public class ConditionalHideAttribute : ConditionalBaseAttribute
     {
+        public ConditionalHideAttribute(string conditionalSourceField) : base(conditionalSourceField)
+        {
 
+        }
     }
 }

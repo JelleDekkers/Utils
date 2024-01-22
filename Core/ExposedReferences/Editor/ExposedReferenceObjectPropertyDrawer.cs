@@ -1,42 +1,45 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomPropertyDrawer(typeof(ExposedObjectReference<>))]
-public class ExposedReferenceObjectPropertyDrawer : PropertyDrawer
+namespace Utils.Core
 {
-    private ExposedReferencesTable exposedReferencesTable;
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(ExposedObjectReference<>))]
+    public class ExposedReferenceObjectPropertyDrawer : PropertyDrawer
     {
-        if (exposedReferencesTable == null)
-            exposedReferencesTable = Object.FindObjectOfType<ExposedReferencesTable>();
+        private ExposedReferencesTable exposedReferencesTable;
 
-        if (exposedReferencesTable != null)
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            SerializedObject serializedObject = new SerializedObject(property.serializedObject.targetObject, exposedReferencesTable);
-            SerializedProperty referenceProperty = serializedObject.FindProperty(property.propertyPath).FindPropertyRelative("reference");
+            if (exposedReferencesTable == null)
+                exposedReferencesTable = Object.FindObjectOfType<ExposedReferencesTable>();
 
-            // This is needed to fix a strange bug where the object is null when adding an element to the list
-            try
+            if (exposedReferencesTable != null)
             {
-                EditorGUI.BeginChangeCheck();
-                EditorGUI.PropertyField(position, referenceProperty, label, true);
-                if (EditorGUI.EndChangeCheck())
+                SerializedObject serializedObject = new SerializedObject(property.serializedObject.targetObject, exposedReferencesTable);
+                SerializedProperty referenceProperty = serializedObject.FindProperty(property.propertyPath).FindPropertyRelative("reference");
+
+                // This is needed to fix a strange bug where the object is null when adding an element to the list
+                try
                 {
-                    serializedObject.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(exposedReferencesTable);
+                    EditorGUI.BeginChangeCheck();
+                    EditorGUI.PropertyField(position, referenceProperty, label, true);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        serializedObject.ApplyModifiedProperties();
+                        EditorUtility.SetDirty(exposedReferencesTable);
+                    }
+                }
+                catch (System.Exception)
+                {
+                    referenceProperty.FindPropertyRelative("exposedName").stringValue = "";
                 }
             }
-            catch (System.Exception)
+            else
             {
-                referenceProperty.FindPropertyRelative("exposedName").stringValue = "";
+                GUI.enabled = false;
+                EditorGUI.LabelField(position, label.text, "No ExposedReferenceTable found in scene!");
+                GUI.enabled = true;
             }
-        }
-        else
-        {
-            GUI.enabled = false;
-            EditorGUI.LabelField(position, label.text, "No ExposedReferenceTable found in scene!");
-            GUI.enabled = true;
         }
     }
 }

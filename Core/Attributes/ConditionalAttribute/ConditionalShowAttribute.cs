@@ -1,7 +1,10 @@
-public class ConditionalShowAttribute : ConditionalBaseAttribute
+namespace Utils.Core.Attributes
 {
-    public ConditionalShowAttribute(string conditionalSourceField) : base(conditionalSourceField)
+    public class ConditionalShowAttribute : ConditionalBaseAttribute
     {
+        public ConditionalShowAttribute(string conditionalSourceField) : base(conditionalSourceField)
+        {
 
+        }
     }
 }

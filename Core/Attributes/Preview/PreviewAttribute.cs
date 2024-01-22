@@ -1,13 +1,16 @@
 using System;
 using UnityEngine;
 
-[AttributeUsage(AttributeTargets.Field)]
-public class PreviewAttribute : PropertyAttribute
+namespace Utils.Core.Attributes
 {
-    public readonly int Height;
-
-    public PreviewAttribute(int height)
+    [AttributeUsage(AttributeTargets.Field)]
+    public class PreviewAttribute : PropertyAttribute
     {
-        Height = height;
+        public readonly int Height;
+
+        public PreviewAttribute(int height)
+        {
+            Height = height;
+        }
     }
 }

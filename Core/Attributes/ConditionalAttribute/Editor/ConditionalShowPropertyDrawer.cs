@@ -1,35 +1,38 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomPropertyDrawer(typeof(ConditionalShowAttribute))]
-public class ConditionalShowPropertyDrawer : ConditionalPropertyDrawer<ConditionalShowAttribute>
+namespace Utils.Core.Attributes
 {
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(ConditionalShowAttribute))]
+    public class ConditionalShowPropertyDrawer : ConditionalPropertyDrawer<ConditionalShowAttribute>
     {
-        base.OnGUI(position, property, label);
-        bool enabled = GetConditionResult(property);
-
-        bool wasEnabled = GUI.enabled;
-        GUI.enabled = enabled;
-        if (enabled)
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            EditorGUI.PropertyField(position, property, label, true);
+            base.OnGUI(position, property, label);
+            bool enabled = GetConditionResult(property);
+
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = enabled;
+            if (enabled)
+            {
+                EditorGUI.PropertyField(position, property, label, true);
+            }
+
+            GUI.enabled = wasEnabled;
         }
 
-        GUI.enabled = wasEnabled;
-    }
-
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        bool enabled = GetConditionResult(property);
-
-        if (enabled)
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUI.GetPropertyHeight(property, label);
-        }
-        else
-        {
-            return -EditorGUIUtility.standardVerticalSpacing;
+            bool enabled = GetConditionResult(property);
+
+            if (enabled)
+            {
+                return EditorGUI.GetPropertyHeight(property, label);
+            }
+            else
+            {
+                return -EditorGUIUtility.standardVerticalSpacing;
+            }
         }
     }
 }
