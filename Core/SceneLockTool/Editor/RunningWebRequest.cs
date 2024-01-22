@@ -54,6 +54,7 @@ namespace Utils.Core.SceneLockTool
 			if (!ConnectedWebRequest.isDone)
 				return;
 
+#pragma warning disable CS0618
 			if (ConnectedWebRequest.isNetworkError || ConnectedWebRequest.isHttpError)
 			{
 				Result = "network";
@@ -90,6 +91,7 @@ namespace Utils.Core.SceneLockTool
 					callback?.Invoke(WebRequestResult.Null, Result);
 				}
 			}
+#pragma warning restore CS0618
 
 			IsDone = true;
 			Cleanup();

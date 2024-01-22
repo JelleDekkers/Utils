@@ -49,9 +49,6 @@ namespace Utils.Core.SceneLockTool
 		private static Vector2 scrollPos = new Vector2();
 		private static int openedToolbarMenu = 0;
 
-		[SerializeField]
-		private static bool hasDonePopup = false;
-
 		private bool initialized = false;
 		private bool userIsKnown = false;
 		private bool shouldCreateNewUser = false;
@@ -69,7 +66,6 @@ namespace Utils.Core.SceneLockTool
 		private bool hasRequestedProjectScenes = false;
 		private RunningWebRequest GetProjectScenesRequest = null;
 		private string searchText = "";
-		private bool allScenesFoldoutIsOpen = false;
 
 		Texture2D bgColor = null;
 		Texture2D sceneLockBG = null;
