@@ -6,7 +6,6 @@ namespace Utils.Core.Attributes
     {
         public float PosX, PosY;
         public float RangeX, RangeY;
-        public int x;
 
         public CurveAttribute(float PosX, float PosY, float RangeX, float RangeY)
         {

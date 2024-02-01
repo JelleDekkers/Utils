@@ -33,18 +33,49 @@ namespace Utils.Core
 			DrawText(text, position, Color.black, fontSize);
 		}
 
-		public static void DrawText(string text, Vector3 position, Color color, int fontSize = 0)
+		public static void DrawText(string text, Vector3 position, Color color, int fontSize = 12)
 		{
 #if UNITY_EDITOR
-			GUIStyle style = new GUIStyle();
-			style.normal.textColor = color;
-			style.fontSize = fontSize;
+            GUIStyle style = new GUIStyle();
+            style.normal.textColor = color;
+            style.fontSize = fontSize;
 
-			UnityEditor.Handles.BeginGUI();
-			UnityEditor.Handles.Label(position, text, style);
-			UnityEditor.Handles.EndGUI();
+            UnityEditor.Handles.BeginGUI();
+            UnityEditor.Handles.Label(position, text, style);
+            UnityEditor.Handles.EndGUI();
 #endif
-		}
+        }
+
+        /// <summary>
+        /// Draws text in the scene view that scales with the camera distance
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="position"></param>
+        /// <param name="color"></param>
+        /// <param name="scaleFactor"></param>
+        /// <param name="baseFontSize"></param>
+        public static void DrawTextScaling(string text, Vector3 position, Color color, int baseFontSize = 12, float scaleFactor = 0.5f)
+        {
+#if UNITY_EDITOR
+            UnityEditor.SceneView sceneView = UnityEditor.SceneView.lastActiveSceneView;
+            if (sceneView != null)
+            {
+                if (sceneView.camera != null)
+                {
+                    float distance = Vector3.Distance(position, sceneView.camera.transform.position);
+                    float scaledFontSize = baseFontSize - distance * scaleFactor;
+
+                    GUIStyle style = new GUIStyle();
+                    style.normal.textColor = color;
+                    style.fontSize = Mathf.Max(1, Mathf.RoundToInt(scaledFontSize));
+
+                    UnityEditor.Handles.BeginGUI();
+                    UnityEditor.Handles.Label(position, text, style);
+                    UnityEditor.Handles.EndGUI();
+                }
+            }
+#endif
+        }
 
         /// <summary>
         /// Draws a <see cref="Gizmos.DrawCube(Vector3, Vector3)"/> that will properly rotate and scale to it's transform 
