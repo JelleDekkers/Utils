@@ -14,6 +14,8 @@ namespace Utils.Core.SceneManagement
         public bool IsAssigned => !string.IsNullOrEmpty(sceneName);
 
 #if UNITY_EDITOR
+		public UnityEditor.SceneAsset SceneAsset => scene;
+
 		[SerializeField] private UnityEditor.SceneAsset scene;
 #endif
 		[Tooltip("The name of the referenced scene. This may be used at runtime to load the scene.")]
@@ -42,5 +44,10 @@ namespace Utils.Core.SceneManagement
 		public void OnAfterDeserialize()
 		{
 		}
-	}
+
+        public override string ToString()
+        {
+			return sceneName;
+        }
+    }
 }
