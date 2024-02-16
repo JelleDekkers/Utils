@@ -38,14 +38,12 @@ namespace Utils.Core.SceneManagement
 		/// <summary>
 		/// Called when scene starts to load
 		/// </summary>
-		public SceneLoadStartEventHandler SceneLoadStartEvent;
-		public delegate void SceneLoadStartEventHandler(string sceneName);
+		public Action<string> SceneLoadStartEvent;
 
 		/// <summary>
 		/// Called when scene is done loading
 		/// </summary>
-		public SceneLoadFinishEventHandler SceneLoadFinishEvent;
-		public delegate void SceneLoadFinishEventHandler(Scene scene, LoadSceneMode loadMode);
+		public Action<Scene, LoadSceneMode> SceneLoadFinishEvent;
 
 		public virtual AsyncOperation SceneLoadOperation { get; protected set; }
 
