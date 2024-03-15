@@ -31,6 +31,7 @@ namespace Utils.Core.ScriptingDefineSymbols
         private List<string> sdsList;
         private ReorderableList listMain;
         private bool isDirty = false;
+        private Vector2 scrollPosition;
 
         private void OnEnable()
         {
@@ -79,7 +80,9 @@ namespace Utils.Core.ScriptingDefineSymbols
             {
                 using (var changeScope = new EditorGUI.ChangeCheckScope())
                 {
+                    scrollPosition = GUILayout.BeginScrollView(scrollPosition);
                     listMain.DoLayoutList();
+                    GUILayout.EndScrollView();
                     if (changeScope.changed)
                     {
                         if (!isDirty)
