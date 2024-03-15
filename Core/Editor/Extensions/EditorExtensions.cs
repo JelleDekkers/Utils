@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Utils.Core.Extensions
 {
-    public class EditorExtensions
+    public static class EditorExtensions
     {
         public static List<T> FindAllAssetsByType<T>() where T : UnityEngine.Object
         {

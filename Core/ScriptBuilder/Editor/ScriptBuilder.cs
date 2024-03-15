@@ -36,7 +36,7 @@ namespace Utils.Core.ScriptBuilder
             return "public const string " + ToUpperCaseWithUnderscores(varName) + " = " + '"' + varName + '"' + ";";
         }
 
-        public string ToUpperCaseWithUnderscores(string input)
+        public virtual string ToUpperCaseWithUnderscores(string input)
         {
             string output = "" + input[0];
 
