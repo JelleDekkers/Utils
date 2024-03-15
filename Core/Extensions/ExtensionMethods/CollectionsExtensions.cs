@@ -63,6 +63,22 @@ namespace ExtensionMethods
 			list.RemoveAt(list.Count - 1);
 		}
 
+		public static T Random<T>(this T[] collection)
+		{
+			if (collection.Length == 1)
+				return collection[0];
+
+			return collection[UnityEngine.Random.Range(0, collection.Length)];
+		}
+
+		public static T Random<T>(this List<T> collection)
+		{
+			if (collection.Count == 1)
+				return collection[0];
+
+			return collection[UnityEngine.Random.Range(0, collection.Count)];
+		}
+
 		public static Vector3 GetAverageValue(this List<Vector3> list)
 		{
 			if (list == null)
