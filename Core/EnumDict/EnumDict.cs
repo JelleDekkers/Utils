@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utils.Core.Extensions;
@@ -11,7 +13,7 @@ namespace Utils.Core.EnumDict
     /// <typeparam name="TEnum">The enum</typeparam>
     /// <typeparam name="TData">Any serializable type</typeparam>
     [Serializable]
-    public class EnumDict<TEnum, TData> where TEnum : Enum
+    public class EnumDict<TEnum, TData> : IEnumerable<EnumDict<TEnum, TData>.Entry> where TEnum : Enum
     {
 #if UNITY_EDITOR
         [SerializeField] private bool isOpen;
@@ -31,8 +33,18 @@ namespace Utils.Core.EnumDict
 
         public TData this[TEnum key] => Get(key);
 
+        public IEnumerator<Entry> GetEnumerator()
+        {
+            return ((IEnumerable<Entry>)entries).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         [Serializable]
-        private struct Entry
+        public struct Entry
         {
             [SerializeField] private TEnum @enum;
             [SerializeField] private TData value;

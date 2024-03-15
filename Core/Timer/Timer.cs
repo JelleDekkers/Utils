@@ -87,9 +87,12 @@ public class Timer
             ElapsedTime += Time.deltaTime * SpeedMultiplier;
             yield return null;
         }
-        onDone?.Invoke();
-        Task = null;
+
+        Action cachedOnDone = onDone;
         onDone = null;
+        Task = null;
         IsRunning = false;
+
+        cachedOnDone?.Invoke();
     }
 }
