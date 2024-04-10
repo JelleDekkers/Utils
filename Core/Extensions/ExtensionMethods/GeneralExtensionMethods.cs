@@ -294,5 +294,17 @@ namespace ExtensionMethods
 				fade = Mathf.InverseLerp(0, stepDistance.Pow2(), minDist);
 			return fade;
 		}
+
+		public static bool IsPositionInColliders(List<Collider> collidersToCheck, Vector3 comparePosition)
+		{
+			foreach (var collider in collidersToCheck)
+			{
+				Vector3 castedPosition = collider.ClosestPoint(comparePosition);
+				if (castedPosition == comparePosition)
+					return true;
+			}
+
+			return false;
+		}
 	}
 }
