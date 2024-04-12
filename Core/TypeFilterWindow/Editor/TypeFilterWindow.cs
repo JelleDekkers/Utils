@@ -52,12 +52,14 @@ namespace Utils.Core
 
         protected Type[] allTypes;
         protected Type[] filteredTypes;
+        protected Type type;
 
         private string searchTerm;
         private int highlightIndex = -1;
         private Vector2 scrollPosition;
         private double timeLastClicked;
         private bool isFocusedOnInit;
+        private bool checkAllAssemblies;
 
         protected virtual void OnGUI()
         {
@@ -95,7 +97,8 @@ namespace Utils.Core
 
         public void RetrieveTypes(Type type, SelectHandler onDoubleClick = null)
         {
-            allTypes = ReflectionUtility.GetAllTypes(type).ToArray();
+            this.type = type;
+            allTypes = ReflectionUtility.GetAllTypes(type, checkAllAssemblies).ToArray();
 			filteredTypes = allTypes;
 			Array.Sort(filteredTypes, delegate (Type x, Type y) { return x.Name.CompareTo(y.Name); });
 
@@ -111,25 +114,30 @@ namespace Utils.Core
         protected virtual void DrawHeader()
         {
             GUILayout.BeginHorizontal();
-
-            GUI.SetNextControlName(SEARCH_FIELD_CONTROL_NAME);
-            string newSearch = GUILayout.TextField(searchTerm, new GUIStyle(SEARCHBOX_GUI_STYLE));
-
-            if (!string.IsNullOrEmpty(searchTerm) && GUILayout.Button(string.Empty, new GUIStyle(SEARCHBOX_CANCEL_BUTTON_GUI_STYLE)))
             {
-                newSearch = string.Empty;
-            }
-            else if (string.IsNullOrEmpty(searchTerm))
-            {
-                GUILayout.Button(string.Empty, new GUIStyle(SEARCHBOX_CANCEL_BUTTON_EMPTY_GUI_STYLE));
-            }
+                GUI.SetNextControlName(SEARCH_FIELD_CONTROL_NAME);
+                string newSearch = GUILayout.TextField(searchTerm, new GUIStyle(SEARCHBOX_GUI_STYLE));
 
-            if (newSearch != searchTerm)
-            {
-                searchTerm = newSearch;
-                FilterTypes(searchTerm);
-            }
+                if (!string.IsNullOrEmpty(searchTerm) && GUILayout.Button(string.Empty, new GUIStyle(SEARCHBOX_CANCEL_BUTTON_GUI_STYLE)))
+                {
+                    newSearch = string.Empty;
+                }
+                else if (string.IsNullOrEmpty(searchTerm))
+                {
+                    GUILayout.Button(string.Empty, new GUIStyle(SEARCHBOX_CANCEL_BUTTON_EMPTY_GUI_STYLE));
+                }
 
+                if (newSearch != searchTerm)
+                {
+                    searchTerm = newSearch;
+                    FilterTypes(searchTerm);
+                }
+
+                bool checkAllAssembliesCached = checkAllAssemblies;
+                checkAllAssemblies = GUILayout.Toggle(checkAllAssemblies, "All Assemblies", GUILayout.MaxWidth(100));
+                if (checkAllAssembliesCached != checkAllAssemblies)
+                    RetrieveTypes(type, typeDoubleClickedEvent);
+            }
             GUILayout.EndHorizontal();
 
             if (!isFocusedOnInit)
