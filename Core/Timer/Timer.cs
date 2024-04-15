@@ -17,9 +17,21 @@ public class Timer
 
     private readonly CoroutineService coroutineService;
 
-    public Timer()
+    public bool ClearActionOnComplete { get; private set; } = true;
+
+    /// <summary>
+    /// Used to initialize the timer
+    /// </summary>
+    /// <param name="clearActionOnComplete">True if the timer should keep action content on finishing allotted time. Default wipes on completion</param>
+    public Timer(bool clearActionOnComplete = true)
     {
         coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
+        SetClearActionOnComplete(clearActionOnComplete);
+    }
+
+    public void SetClearActionOnComplete(bool clearActionOnComplete)
+	{
+        ClearActionOnComplete = clearActionOnComplete;
     }
 
     public virtual void Set(float durationInSeconds, float elapsedTime = 0)
@@ -89,7 +101,8 @@ public class Timer
         }
 
         Action cachedOnDone = onDone;
-        onDone = null;
+        if(ClearActionOnComplete)
+            onDone = null;
         Task = null;
         IsRunning = false;
 
