@@ -68,5 +68,15 @@ namespace ExtensionMethods
 			return Mathf.Sin(t * Mathf.PI - Mathf.PI * 0.5f) * 0.5f + 0.5f;
 		}
 
+		/// <summary>
+		/// This method adds random fluctuations to an input value
+		/// </summary>
+		/// <param name="n">Input</param>
+		/// <param name="factor">"n" will be modified by a positive or negative random value in domain of this value. Keep within domain [0,1]</param>
+		/// <returns></returns>
+		public static float Fluctuate(this float n, float factor = 0.1f)
+		{
+			return n + (UnityEngine.Random.Range(-1, 1) * factor);
+		}
 	}
 }
