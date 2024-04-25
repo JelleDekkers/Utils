@@ -9,6 +9,12 @@ namespace ExtensionMethods
 			return VectorMathExtensions.SqrDistance(a, b) <= length * length;
 		}
 
+		public static bool Vector3IsInRangeWeighted(Vector3 a, Vector3 b, float length, float xMultiplier = 1, float yMultiplier = 1, float zMultiplier = 1)
+		{
+			float dist = VectorMathExtensions.SqrDistance(a, b);
+			return VectorMathExtensions.SqrDistanceWithMultipliers(a, b, xMultiplier, yMultiplier, zMultiplier) <= length * length;
+		}
+
 		public static float CompareVolumes(Vector3 vec1, Vector3 vec2)
 		{
 			float volume1 = vec1.Volume();
@@ -90,6 +96,12 @@ namespace ExtensionMethods
 			localAxis = Quaternion.Inverse(rotation) * localAxis;
 			Vector3 rotatedOffset = rotation * localAxis;
 			return centerPoint + rotatedOffset;
+		}
+
+		public static float SqrDistanceWithMultipliers(Vector3 v1, Vector3 v2, float xMultiplier = 1, float yMultiplier = 1, float zMultiplier = 1)
+		{
+			Vector3 diff = new Vector3((v1.x - v2.x) * xMultiplier, (v1.y - v2.y) * yMultiplier, (v1.z - v2.z) * zMultiplier);
+			return diff.sqrMagnitude;
 		}
 	}
 }
