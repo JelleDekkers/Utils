@@ -39,11 +39,6 @@ namespace Utils.Core.SerializedSubClass
             position.position = offsetPos;
             position.width -= 15f;
 
-            if (property is ISequenceElement element)
-            {
-                label.text = element.GetElementSummary;
-            }
-
             EditorGUI.BeginProperty(position, label, property);
 
             if (property.propertyType == SerializedPropertyType.ManagedReference)
