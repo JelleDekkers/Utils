@@ -43,6 +43,16 @@ namespace Utils.Core.SerializedSubClass
             var assembly = Assembly.Load(typeName.Substring(0, splitIndex));
             return assembly.GetType(typeName.Substring(splitIndex + 1));
         }
+
+        public static PropertyDrawer GetCustomPropertyDrawer(SerializedProperty property)
+        {
+            Type propertyType = GetType(property.managedReferenceFullTypename);
+            if (propertyType != null && PropertyDrawerCache.TryGetPropertyDrawer(propertyType, out PropertyDrawer drawer))
+            {
+                return drawer;
+            }
+            return null;
+        }
     }
 }
 #endif

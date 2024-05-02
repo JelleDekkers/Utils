@@ -23,23 +23,36 @@ namespace Utils.Core.SerializedSubClass
     /// </summary>
     public class AdvancedTypePopup : AdvancedDropdown
     {
-        public event Action<AdvancedTypePopupItem> OnItemSelected;
+        public delegate void ItemSelectedEventHandler(AdvancedTypePopupItem item);
+        public event ItemSelectedEventHandler OnItemSelected;
 
         private const int MaxNamespaceNestCount = 16;
         private static readonly float HeaderHeight = EditorGUIUtility.singleLineHeight * 2f;
 
+        private readonly string title;
+        private readonly bool includeNullOption;
         private Type[] types;
 
-        public static void AddTo(AdvancedDropdownItem root, IEnumerable<Type> types)
+        public AdvancedTypePopup(IEnumerable<Type> types, int maxLineCount, AdvancedDropdownState state, string title, bool includeNullOption) : base(state)
+        {
+            SetTypes(types);
+            this.title = title;
+            this.includeNullOption = includeNullOption;
+            minimumSize = new Vector2(minimumSize.x, EditorGUIUtility.singleLineHeight * maxLineCount + HeaderHeight);
+        }
+
+        public static void AddTo(AdvancedDropdownItem root, IEnumerable<Type> types, bool includeNullOption)
         {
             int itemCount = 0;
 
-            // Add null item.
-            var nullItem = new AdvancedTypePopupItem(null, TypeMenuUtility.NullDisplayName)
+            if (includeNullOption)
             {
-                id = itemCount++
-            };
-            root.AddChild(nullItem);
+                var nullItem = new AdvancedTypePopupItem(null, TypeMenuUtility.NullDisplayName)
+                {
+                    id = itemCount++
+                };
+                root.AddChild(nullItem);
+            }
 
             Type[] typeArray = types.OrderByType().ToArray();
 
@@ -133,12 +146,6 @@ namespace Utils.Core.SerializedSubClass
             return null;
         }
 
-        public AdvancedTypePopup(IEnumerable<Type> types, int maxLineCount, AdvancedDropdownState state) : base(state)
-        {
-            SetTypes(types);
-            minimumSize = new Vector2(minimumSize.x, EditorGUIUtility.singleLineHeight * maxLineCount + HeaderHeight);
-        }
-
         public void SetTypes(IEnumerable<Type> types)
         {
             this.types = types.ToArray();
@@ -146,8 +153,8 @@ namespace Utils.Core.SerializedSubClass
 
         protected override AdvancedDropdownItem BuildRoot()
         {
-            var root = new AdvancedDropdownItem("Select Type");
-            AddTo(root, types);
+            var root = new AdvancedDropdownItem(title);
+            AddTo(root, types, includeNullOption);
             return root;
         }
 

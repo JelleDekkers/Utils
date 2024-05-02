@@ -140,7 +140,9 @@ namespace Utils.Core.SerializedSubClass
                         Attribute.IsDefined(p, typeof(SerializableAttribute))
                     ),
                     MaxTypePopupLineCount,
-                    state
+                    state,
+                    "Select Type",
+                    true
                 );
                 popup.OnItemSelected += item =>
                 {
