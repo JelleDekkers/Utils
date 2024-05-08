@@ -72,5 +72,32 @@ namespace Utils.Core
 
             return Instantiate(type, parameters);
         }
+
+        /// <summary>
+        /// Returns a deep copy of an object, including all its fields with their values
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public static T DeepCopy<T>(T original) where T : class
+        {
+            if (original == null)
+                return null;
+
+            Type type = original.GetType();
+            T copy = Activator.CreateInstance(type) as T;
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            foreach (FieldInfo field in fields)
+            {
+                if (!field.IsStatic && !field.IsLiteral)
+                {
+                    object value = field.GetValue(original);
+                    field.SetValue(copy, value);
+                }
+            }
+
+            return copy;
+        }
     }
 }
