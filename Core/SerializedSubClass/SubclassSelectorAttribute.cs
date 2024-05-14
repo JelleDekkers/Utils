@@ -1,5 +1,4 @@
-﻿#if UNITY_2019_3_OR_NEWER
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Utils.Core.SerializedSubClass
@@ -47,4 +46,3 @@ namespace Utils.Core.SerializedSubClass
 
 	}
 }
-#endif

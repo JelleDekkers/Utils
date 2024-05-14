@@ -1,5 +1,4 @@
-﻿#if UNITY_2019_3_OR_NEWER
-using System;
+﻿using System;
 
 namespace Utils.Core.SerializedSubClass
 {
@@ -37,4 +36,3 @@ namespace Utils.Core.SerializedSubClass
 		}
 	}
 }
-#endif
