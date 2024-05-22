@@ -15,7 +15,7 @@ namespace Utils.Core.SerializedSubClass
 
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current is not SerializedProperty childProperty)
+                if (!(enumerator.Current is SerializedProperty childProperty))
                 {
                     continue;
                 }

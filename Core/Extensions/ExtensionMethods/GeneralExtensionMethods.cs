@@ -1,12 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace ExtensionMethods
+namespace Utils.Core.Extensions
 {
-	public enum WorldPlanes
+    public enum WorldPlanes
 	{
 		X = 0,
 		x = 0,
@@ -27,7 +24,6 @@ namespace ExtensionMethods
 
 	public static class GeneralExtensions
 	{
-
 		public static bool Contains(this LayerMask mask, int layer)
 		{
 			return ((mask & (1 << layer)) != 0);

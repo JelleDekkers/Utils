@@ -1,13 +1,11 @@
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ExtensionMethods
+namespace Utils.Core.Extensions
 {
-	public static class Collections
+    public static class Collections
 	{
 		public static List<T> Zipper<T>(List<T> a, List<T> b)
 		{

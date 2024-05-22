@@ -1,16 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace ExtensionMethods
+namespace Utils.Core.Extensions
 {
-
-	public static class QuadraticSpline
+    public static class QuadraticSpline
 	{
-
-
 		public static (Vector3 Position, Quaternion Rotation) SampleSpline(float t, (Vector3 position, Quaternion rotation) pointA, (Vector3 position, Quaternion rotation) pointB, (Vector3 position, Quaternion rotation) pointC)
 		{
 			Vector3 position = CalculateQuadraticBezierPoint(t, pointA.position, pointB.position, pointC.position);

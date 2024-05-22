@@ -1,13 +1,8 @@
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace ExtensionMethods
+namespace Utils.Core.Extensions
 {
-	public static class Debugging
+    public static class Debugging
 	{
 		public static T Log<T>(this T var, string prefix = "", string suffix = "")
 		{

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ExtensionMethods
+namespace Utils.Core.Extensions
 {
 	public static class VectorShortHandExtensions
 	{

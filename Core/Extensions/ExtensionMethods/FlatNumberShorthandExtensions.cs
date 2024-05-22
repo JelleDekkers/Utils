@@ -1,13 +1,8 @@
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace ExtensionMethods
+namespace Utils.Core.Extensions
 {
-	public static class FlatNumberShortHandExtensions
+    public static class FlatNumberShortHandExtensions
 	{
 		public static float Sqrt(this float f)
 		{
