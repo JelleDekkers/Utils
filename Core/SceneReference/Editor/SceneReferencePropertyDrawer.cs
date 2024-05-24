@@ -8,7 +8,7 @@ namespace Utils.Core.SceneManagement
     /// Editor for a scene reference that can display error prompts and offer
     /// solutions when the scene is not valid.
     /// </summary>
-    [CustomPropertyDrawer(typeof(SceneReference))]
+    [CustomPropertyDrawer(typeof(SceneReference), true)]
 	public class SceneReferenceEditor : PropertyDrawer
 	{
 		private const string TOOLTIP_SCENE_MISSING = "Scene is not in build settings.";
