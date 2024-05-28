@@ -76,7 +76,7 @@ namespace Utils.Core.Extensions
 		/// <returns></returns>
 		public static float Fluctuate(this float n, float factor = 0.1f)
 		{
-			return n + (UnityEngine.Random.Range(-1, 1) * factor);
+			return n + (n * (UnityEngine.Random.Range(-1, 1) * factor));
 		}
 	}
 }
