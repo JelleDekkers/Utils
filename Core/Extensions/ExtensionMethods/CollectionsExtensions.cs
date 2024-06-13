@@ -167,7 +167,8 @@ namespace Utils.Core.Extensions
 		{
 			foreach (var item in gos)
 			{
-				item.gameObject.SetActive(active);
+				if(item != null)
+					item.gameObject.SetActive(active);
 			}
 		}
 
@@ -175,7 +176,8 @@ namespace Utils.Core.Extensions
 		{
 			foreach (var item in gos)
 			{
-				item.gameObject.SetActive(active);
+				if(item != null)
+					item.gameObject.SetActive(active);
 			}
 		}
 	}
