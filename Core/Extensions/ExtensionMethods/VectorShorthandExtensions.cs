@@ -44,17 +44,21 @@ namespace Utils.Core.Extensions
 			return Mathf.Min(v.x, v.y, v.z, v.w);
 		}
 
-
-
 		/// <summary>
 		/// Removes the passed component from a Vector3.
 		/// </summary>
 		/// 
 		public static Vector2 Flatten(this Vector2 v2, WorldPlanes plane)
 		{
-			float[] fs = new float[2] { v2.x, v2.y };
-			fs[(int)plane] = 0;
-			return new Vector2(fs[0], fs[1]);
+			//float[] fs = new float[2] { v2.x, v2.y };
+			//fs[(int)plane] = 0;
+			//return new Vector2(fs[0], fs[1]);
+			if (plane == WorldPlanes.X || plane == WorldPlanes.x)
+				v2.x = 0f;
+			else if (plane == WorldPlanes.Y || plane == WorldPlanes.y)
+				v2.y = 0f;
+
+			return v2;
 		}
 
 		/// <summary>
@@ -63,9 +67,17 @@ namespace Utils.Core.Extensions
 		/// 
 		public static Vector3 Flatten(this Vector3 v3, WorldPlanes plane)
 		{
-			float[] fs = new float[3] { v3.x, v3.y, v3.z };
-			fs[(int)plane] = 0;
-			return new Vector3(fs[0], fs[1], fs[2]);
+			//float[] fs = new float[3] { v3.x, v3.y, v3.z };
+			//fs[(int)plane] = 0;
+			//return new Vector3(fs[0], fs[1], fs[2]);
+			if (plane == WorldPlanes.X || plane == WorldPlanes.x)
+				v3.x = 0f;
+			else if (plane == WorldPlanes.Y || plane == WorldPlanes.y)
+				v3.y = 0f;
+			else if (plane == WorldPlanes.Z || plane == WorldPlanes.z)
+				v3.z = 0f;
+
+			return v3;
 		}
 
 		public static Vector3 Flatten(this Vector3 v3, string input)
@@ -87,9 +99,18 @@ namespace Utils.Core.Extensions
 		/// 
 		public static Vector4 Flatten(this Vector4 v4, WorldPlanes plane)
 		{
-			float[] fs = new float[4] { v4.x, v4.y, v4.z, v4.w };
-			fs[(int)plane] = 0;
-			return new Vector4(fs[0], fs[1], fs[2], fs[3]);
+			//float[] fs = new float[4] { v4.x, v4.y, v4.z, v4.w };
+			//fs[(int)plane] = 0;
+			//return new Vector4(fs[0], fs[1], fs[2], fs[3]);
+
+			if (plane == WorldPlanes.X || plane == WorldPlanes.x)
+				v4.x = 0f;
+			else if (plane == WorldPlanes.Y || plane == WorldPlanes.y)
+				v4.y = 0f;
+			else if (plane == WorldPlanes.Z || plane == WorldPlanes.z)
+				v4.z = 0f;
+
+			return v4;
 		}
 
 		public static Vector2 Swizzle(this Vector2 v2, string input)
