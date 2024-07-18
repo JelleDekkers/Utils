@@ -11,9 +11,12 @@ namespace Utils.Core.ObjectPooling
         protected List<IPoolable> inactiveObjects = new List<IPoolable>();
         protected List<IPoolable> usedObjects = new List<IPoolable>();
 
-        public ObjectPool(int size)
+        private bool cleanupOverFlow = false;
+
+        public ObjectPool(int size, bool cleanupOverFlow = true)
         {
             InitialPoolSize = size;
+            this.cleanupOverFlow = cleanupOverFlow;
         }
 
         /// <summary>
@@ -77,13 +80,13 @@ namespace Utils.Core.ObjectPooling
                 return;
 
             usedObjects.Remove(obj);
-            if (CurrentPoolSize > InitialPoolSize)
-            {
-                DestroyObject(obj);
-                return;
-            }
+			if (CurrentPoolSize > InitialPoolSize && cleanupOverFlow)
+			{
+				DestroyObject(obj);
+				return;
+			}
 
-            obj.BecomeInactive();
+			obj.BecomeInactive();
             inactiveObjects.Add(obj);
         }
 
