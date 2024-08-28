@@ -4,6 +4,11 @@ namespace Utils.Core.Extensions
 {
 	public static class VectorMathExtensions
 	{
+		public static bool IsNaN(this Vector3 v3)
+		{
+			return !(float.IsNaN(v3.x) || float.IsNaN(v3.y) || float.IsNaN(v3.z));
+		}
+
 		public static bool Vector3IsInRange(Vector3 a, Vector3 b, float length)
 		{
 			return VectorMathExtensions.SqrDistance(a, b) <= length * length;
