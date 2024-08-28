@@ -302,5 +302,26 @@ namespace Utils.Core.Extensions
 
 			return false;
 		}
+
+		public static bool HasState(this Animator animator, string stateName)
+		{
+			if (animator == null)
+			{
+				return false;
+			}
+
+			int stateID = Animator.StringToHash(stateName);
+			int layerCount = animator.layerCount;
+
+			for (int i = 0; i < layerCount; i++)
+			{
+				if (animator.HasState(i, stateID))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
 	}
 }
