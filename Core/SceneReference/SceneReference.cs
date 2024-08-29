@@ -20,8 +20,10 @@ namespace Utils.Core.SceneManagement
 #endif
 		[Tooltip("The name of the referenced scene. This may be used at runtime to load the scene.")]
 		[SerializeField] private string sceneName;
-		[SerializeField] private int sceneIndex = -1;
+#pragma warning disable CS0414
+		[SerializeField] private int sceneIndex = -1; // Used by editor class
 		[SerializeField] private bool sceneEnabled;
+#pragma warning restore CS0414
 
 		public void OnBeforeSerialize()
 		{
