@@ -6,23 +6,23 @@ using Utils.Core.Services;
 
 public class Timer
 {
-    public bool IsRunning { get; protected set; }
-    public float TimeStarted { get; protected set; }
-    public float Duration { get; protected set; }
-    public float TimeRemaining => Mathf.Clamp(Duration - ElapsedTime, 0, Duration);
-    public float ElapsedTime { get; protected set; }
-    public float SpeedMultiplier { get; set; } = 1;
     public CoroutineTask Task { get; protected set; }
     public Action onDone;
 
-    private readonly CoroutineService coroutineService;
+    public bool IsRunning { get; protected set; }
+    public float TimeStarted { get; protected set; }
+    public float Duration { get; protected set; }
+    public float SpeedMultiplier { get; set; } = 1;
+    public float TimeRemaining => Mathf.Clamp(Duration - ElapsedTime, 0, Duration);
+    public float ElapsedTime { get; protected set; }
+    public bool ClearOnDoneEventOnComplete { get; private set; }
 
-    public bool ClearActionOnComplete { get; private set; } = true;
+    protected readonly CoroutineService coroutineService;
 
     /// <summary>
     /// Used to initialize the timer
     /// </summary>
-    /// <param name="clearActionOnComplete">True if the timer should keep action content on finishing allotted time. Default wipes on completion</param>
+    /// <param name="clearActionOnComplete"> True if the timer should keep action content on finishing allotted time. Default wipes on completion</param>
     public Timer(bool clearActionOnComplete = true)
     {
         coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
@@ -31,7 +31,7 @@ public class Timer
 
     public void SetClearActionOnComplete(bool clearActionOnComplete)
 	{
-        ClearActionOnComplete = clearActionOnComplete;
+        ClearOnDoneEventOnComplete = clearActionOnComplete;
     }
 
     public virtual void Set(float durationInSeconds, float elapsedTime = 0)
@@ -86,22 +86,25 @@ public class Timer
             return;
         }
 
-
         Task = coroutineService.StartCoroutine(TimerCoroutine());
         IsRunning = true;
     }
 
     protected virtual IEnumerator TimerCoroutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(Duration);
         while (TimeRemaining > 0)
         {
             ElapsedTime += Time.deltaTime * SpeedMultiplier;
             yield return null;
         }
 
+        OnTimerEnd();
+    }
+
+    protected virtual void OnTimerEnd()
+    {
         Action cachedOnDone = onDone;
-        if(ClearActionOnComplete)
+        if (ClearOnDoneEventOnComplete)
             onDone = null;
         Task = null;
         IsRunning = false;
