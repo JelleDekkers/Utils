@@ -4,20 +4,25 @@ using UnityEngine;
 using Utils.Core;
 using Utils.Core.Services;
 
-public class Timer
+public class Timer : IDisposable
 {
     public CoroutineTask Task { get; protected set; }
-    public Action onDone;
+    public Action DoneEvent { get; set; }
 
-    public bool IsRunning { get; protected set; }
-    public float TimeStarted { get; protected set; }
-    public float Duration { get; protected set; }
-    public float SpeedMultiplier { get; set; } = 1;
+    public bool CanBeStarted => !IsRunning && !IsPaused;
+    public bool CanBePaused => IsRunning && !IsPaused;
+    public bool CanBeStopped => IsRunning || IsPaused;
+
     public float TimeRemaining => Mathf.Clamp(Duration - ElapsedTime, 0, Duration);
-    public float ElapsedTime { get; protected set; }
-    public bool ClearOnDoneEventOnComplete { get; private set; }
+    public virtual bool IsRunning { get; protected set; }
+    public virtual bool IsPaused { get; protected set; }
+    public virtual float TimeStarted { get; protected set; }
+    public virtual float Duration { get; protected set; }
+    public virtual float SpeedMultiplier { get; set; } = 1;
+    public virtual float ElapsedTime { get; protected set; }
+    public virtual bool ClearOnDoneEventOnComplete { get; private set; }
 
-    protected readonly CoroutineService coroutineService;
+    protected CoroutineService coroutineService;
 
     /// <summary>
     /// Used to initialize the timer
@@ -25,7 +30,6 @@ public class Timer
     /// <param name="clearActionOnComplete"> True if the timer should keep action content on finishing allotted time. Default wipes on completion</param>
     public Timer(bool clearActionOnComplete = true)
     {
-        coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
         SetClearActionOnComplete(clearActionOnComplete);
     }
 
@@ -55,6 +59,9 @@ public class Timer
         if (Duration == 0)
             throw new Exception("Duration is cannot be 0, did you call Set()?");
 
+        if(coroutineService == null)
+            coroutineService = GlobalServiceLocator.Instance.Get<CoroutineService>();
+
         if(IsRunning)
             Stop();
 
@@ -62,10 +69,11 @@ public class Timer
         ElapsedTime = elapsedTime;
 
         if(onDoneEvent != null)
-            onDone += onDoneEvent;
+            DoneEvent += onDoneEvent;
 
         Task = coroutineService.StartCoroutine(TimerCoroutine());
         IsRunning = true;
+        IsPaused = false;
     }
 
     public virtual void Stop()
@@ -75,7 +83,20 @@ public class Timer
             Task.Stop();
             Task = null;
         }
+
         IsRunning = false;
+        IsPaused = false;
+    }
+
+    public virtual void Pause()
+    {
+        if (Task != null)
+        {
+            Task.Pause();
+        }
+
+        IsRunning = false;
+        IsPaused = true;
     }
 
     public virtual void Resume()
@@ -86,8 +107,15 @@ public class Timer
             return;
         }
 
+        if (!IsPaused)
+        {
+            Debug.LogWarning("Cant resume a timer thats not paused!");
+            return;
+        }
+
         Task = coroutineService.StartCoroutine(TimerCoroutine());
         IsRunning = true;
+        IsPaused = false;
     }
 
     protected virtual IEnumerator TimerCoroutine()
@@ -103,12 +131,25 @@ public class Timer
 
     protected virtual void OnTimerEnd()
     {
-        Action cachedOnDone = onDone;
+        Action cachedOnDone = DoneEvent;
         if (ClearOnDoneEventOnComplete)
-            onDone = null;
+            DoneEvent = null;
+
         Task = null;
         IsRunning = false;
 
         cachedOnDone?.Invoke();
+    }
+
+    public override string ToString()
+    {
+        return string.Format("{0:00}:{1:00}", Mathf.FloorToInt(TimeRemaining / 60), Mathf.FloorToInt(TimeRemaining % 60));
+    }
+
+    public void Dispose()
+    {
+        if (IsRunning)
+            Stop();
+        DoneEvent = null;
     }
 }
